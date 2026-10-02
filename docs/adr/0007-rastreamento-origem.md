@@ -26,7 +26,7 @@ flowchart TD
     E -- "wa.me / whatsapp.com" --> S4[whatsapp]
     E -- "google / bing" --> S5[busca]
     E -- vazio / outro --> S6[site — direto]
-    S1 & S2 & S3 & S4 & S5 & S6 --> G[Salva source + session_id no get_storage]
+    S1 & S2 & S3 & S4 & S5 & S6 --> G[Salva source + session_id no KeyValueStore]
     G --> H[RPC track_visit]
     G --> I[Pedido herda a source na create_order]
 ```

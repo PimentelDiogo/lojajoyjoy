@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:ondas_que_faltam/app/app.dart';
+import 'package:ondas_que_faltam/app/bindings/initial_binding.dart';
 import 'package:ondas_que_faltam/core/config/env.dart';
+import 'package:ondas_que_faltam/core/services/key_value_store.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // URLs limpas (/pedido/K7P2QX) em vez de /#/pedido/K7P2QX — ADR-0001.
   usePathUrlStrategy();
@@ -17,5 +19,7 @@ void main() {
     );
   }
 
-  runApp(OndasApp(env: env));
+  final store = await SharedPreferencesKeyValueStore.create();
+  InitialBinding(env: env, store: store).dependencies();
+  runApp(const OndasApp());
 }

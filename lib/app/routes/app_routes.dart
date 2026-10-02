@@ -14,6 +14,9 @@ abstract final class AppRoutes {
 
   static const notFound = '/404';
 
+  /// Vitrine do design system — registrada só em debug.
+  static const designSystem = '/design';
+
   static String productPath(String slug) =>
       '/produto/${Uri.encodeComponent(slug)}';
   static String orderPath(String code) =>

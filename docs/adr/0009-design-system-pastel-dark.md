@@ -17,7 +17,7 @@ Problema clássico: **texto em cor pastel sobre fundo claro não passa no contra
 - Pastéis são usados em **superfícies, containers, chips, badges e ilustrações**; textos e
   botões usam as variações **"on"/escuras** para garantir contraste ≥ 4.5:1.
 - Tokens centralizados em `core/theme/app_colors.dart` — **nenhuma cor hardcoded** em telas.
-- `ThemeController` (GetX) com 3 modos: **Sistema (padrão) · Claro · Escuro**, persistido no `get_storage`.
+- `ThemeController` (GetX) com 3 modos: **Sistema (padrão) · Claro · Escuro**, persistido no `shared_preferences` (via `KeyValueStore`).
 - Acento por seção: **Feminino = rosa**, **Masculino = azul** (usado em header/badges da seção).
 
 ### Paleta inicial
@@ -26,7 +26,7 @@ Problema clássico: **texto em cor pastel sobre fundo claro não passa no contra
 |---|---|---|---|
 | `background` | `#FFF8F3` (creme) | `#1C1A22` | Fundo das páginas |
 | `surface` | `#FFFFFF` | `#26232E` | Cards |
-| `primary` | `#B8577A` | `#F4A7B9` | Botões, links (contraste OK) |
+| `primary` | `#A94E72` | `#F4A7B9` | Botões, links (5.2:1 sobre branco / 9.1:1 no dark) |
 | `primaryContainer` | `#F9D5DF` (rosa pastel) | `#5A2B3C` | Chips, destaque Feminino |
 | `secondary` | `#3F6E99` | `#A7C7E7` | Ações secundárias |
 | `secondaryContainer` | `#D6E6F5` (azul bebê) | `#23384D` | Destaque Masculino |

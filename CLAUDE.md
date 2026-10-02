@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 (bootstrap) implementado na branch `feat/pr-01-bootstrap`.
+**Estágio:** PR-01 concluído (`feat/pr-01-bootstrap`, push feito). PR-02 (design system) na branch `feat/pr-02-design-system`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -44,6 +44,17 @@ dos clientes (Instagram × WhatsApp × site).
 - **Rotas:** registrar toda página via `AppPages._page(...)` — aplica o `StrictRouteMiddleware` (o GetX casa
   rotas por prefixo e, sem isso, URL desconhecida abriria a landing em vez do 404).
 - Admin local (seed, só dev): `ana@joyjoy.com.br`. Na nuvem usar outra senha forte.
+
+## Design system (PR-02)
+- Tokens em `core/theme/` (`AppPalette`, `AppColors` via `context.appColors`, `AppSpacing`, `AppRadius`,
+  `AppTypography`, `AppTheme.light/dark`). O teste `app_theme_test.dart` **reprova** par de cor abaixo de AA.
+- Componentes puros em `core/widgets/`: `AppButton`, `PriceText`, `EmptyState`, `ErrorState`, `LoadingSkeleton`,
+  `ThemeToggle`, `AppHeader`. **Sem `Get.find` aqui.** Versões ligadas a controllers ficam em `app/widgets/` (ex.: `AppThemeToggle`).
+- `InitialBinding(...).dependencies()` roda no `main` **antes** do `runApp` (o `GetMaterialApp` precisa do `ThemeController`).
+- Persistência local via `KeyValueStore` (`SharedPreferencesKeyValueStore` / `InMemoryKeyValueStore` nos testes). **Não usar `get_storage`**: usa `dart:html` e quebra o build `--wasm`.
+- Vitrine `/design` (só `kDebugMode`) substitui o Figma para validar o visual.
+- Testes de widget: `test/helpers/pump_app.dart` (`pumpApp`, `testViewports` 390/820/1440, `brl()`).
+  Fontes do Google desligadas em `test/flutter_test_config.dart`. Com `LoadingSkeleton` na tela, usar `pump(duração)`, não `pumpAndSettle`.
 
 ## Como rodar / testar
 ```bash

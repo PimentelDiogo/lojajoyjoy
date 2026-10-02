@@ -10,18 +10,24 @@
   <meta name="theme-color" content="#FFF8F3" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1C1A22" media="(prefers-color-scheme: dark)">
 
-  <!-- Preview do link no WhatsApp / Instagram (ADR-0001). og:image entra quando a logo chegar. -->
+  <!--
+    Preview do link no WhatsApp / Instagram (ADR-0001).
+    og:image precisa de URL ABSOLUTA: trocar pelo domínio final no PR-11 (deploy).
+  -->
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:site_name" content="Ondas que Faltam">
   <meta property="og:title" content="Ondas que Faltam">
   <meta property="og:description" content="Moda feminina e masculina. Escolha suas peças e finalize o pedido pelo WhatsApp.">
+  <meta property="og:image" content="icons/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 
   <!-- iOS -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Ondas que Faltam">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="manifest" href="manifest.json">
@@ -46,7 +52,7 @@
       transition: opacity .25s ease; z-index: 9999;
     }
     #splash.hide { opacity: 0; pointer-events: none; }
-    #splash h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: .3px; }
+    #splash img { width: 132px; height: 132px; }
     #splash .dots { display: flex; gap: 8px; }
     #splash .dots span {
       width: 10px; height: 10px; border-radius: 50%; background: var(--splash-dot);
@@ -60,7 +66,7 @@
 </head>
 <body>
   <div id="splash" role="status" aria-label="Carregando a loja">
-    <h1>Ondas que Faltam</h1>
+    <img src="icons/Icon-192.png" alt="Ondas que Faltam" width="132" height="132">
     <div class="dots"><span></span><span></span><span></span></div>
   </div>
   <script>
