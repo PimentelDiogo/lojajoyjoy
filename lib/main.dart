@@ -1,10 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:joyjoy/app/app.dart';
 import 'package:joyjoy/app/bindings/initial_binding.dart';
+import 'package:joyjoy/app/config_error_app.dart';
 import 'package:joyjoy/core/config/env.dart';
 import 'package:joyjoy/core/services/key_value_store.dart';
+import 'package:joyjoy/core/theme/app_typography.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,14 +14,24 @@ Future<void> main() async {
   usePathUrlStrategy();
 
   final env = Env.fromEnvironment();
-  if (kDebugMode && !env.isSupabaseConfigured) {
-    debugPrint(
-      '[Env] Faltando ${env.missingKeys.join(', ')}. '
-      'Rode com --dart-define-from-file=env/local.json',
-    );
+  if (!env.isSupabaseConfigured) {
+    runApp(ConfigErrorApp(missingKeys: env.missingKeys));
+    return;
   }
 
-  final store = await SharedPreferencesKeyValueStore.create();
-  InitialBinding(env: env, store: store).dependencies();
+  final (store, _) = await (
+    SharedPreferencesKeyValueStore.create(),
+    AppTypography.preload(),
+  ).wait;
+  await Supabase.initialize(
+    url: env.supabaseUrl,
+    publishableKey: env.supabaseAnonKey,
+  );
+
+  InitialBinding(
+    env: env,
+    store: store,
+    supabase: Supabase.instance.client,
+  ).dependencies();
   runApp(const JoyJoyApp());
 }

@@ -14,3 +14,5 @@ linter:
     public_member_api_docs: false
     # Textos de UI em pt-BR deixam linhas longas com frequência.
     lines_longer_than_80_chars: false
+    # Contratos de repositório/use case com 1 método são intencionais (Clean Architecture).
+    one_member_abstracts: false

@@ -1,0 +1,5 @@
+tags:
+  # Testes contra o Supabase local (precisam de `supabase start` + env/local.json).
+  # Rodar: fvm flutter test --run-skipped -t integration
+  integration:
+    skip: "Precisa do Supabase local. Rode: fvm flutter test --run-skipped -t integration"
