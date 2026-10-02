@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ondas_que_faltam/core/theme/app_colors.dart';
-import 'package:ondas_que_faltam/core/theme/app_theme.dart';
-import 'package:ondas_que_faltam/core/theme/contrast.dart';
+import 'package:joyjoy/core/theme/app_colors.dart';
+import 'package:joyjoy/core/theme/app_theme.dart';
+import 'package:joyjoy/core/theme/contrast.dart';
 
 /// Garante o compromisso do ADR-0009: texto com contraste AA (≥ 4.5:1).
 void main() {
@@ -48,6 +48,7 @@ void main() {
         ),
         'onLavender/lavender': (brand.onLavender, brand.lavender),
         'onPeach/peach': (brand.onPeach, brand.peach),
+        'onMint/mint': (brand.onMint, brand.mint),
       };
 
       for (final MapEntry(key: pair, value: colors) in textPairs.entries) {
@@ -58,6 +59,16 @@ void main() {
           );
         });
       }
+
+      test(
+        'laranja do logo (brand) ≥ 3:1 sobre o fundo (elemento gráfico)',
+        () {
+          expect(
+            contrastRatio(brand.brand, s.surface),
+            greaterThanOrEqualTo(3),
+          );
+        },
+      );
 
       test('ícone do WhatsApp com contraste ≥ 3:1 (elemento gráfico)', () {
         expect(

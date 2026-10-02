@@ -1,5 +1,5 @@
+import 'package:joyjoy/core/errors/failure.dart';
 import 'package:meta/meta.dart';
-import 'package:ondas_que_faltam/core/errors/failure.dart';
 
 /// Resultado de uma operação: [Success] com valor ou [Failed] com [Failure].
 ///

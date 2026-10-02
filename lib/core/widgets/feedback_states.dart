@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/core/errors/failure.dart';
-import 'package:ondas_que_faltam/core/theme/app_spacing.dart';
-import 'package:ondas_que_faltam/core/widgets/app_button.dart';
+import 'package:joyjoy/core/errors/failure.dart';
+import 'package:joyjoy/core/theme/app_spacing.dart';
+import 'package:joyjoy/core/widgets/app_button.dart';
 
 /// Lista vazia, busca sem resultado, carrinho vazio etc.
 class EmptyState extends StatelessWidget {

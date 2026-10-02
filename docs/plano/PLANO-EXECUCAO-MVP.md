@@ -137,7 +137,7 @@ flowchart LR
 - Estrutura Clean Arch (`app/`, `core/`, `features/`) conforme ADR-0004.
 - `core/errors` (`Failure`, `Result<T>`), `core/usecase/UseCase`, `core/config/Env` (`--dart-define-from-file`).
 - `GetMaterialApp` + `AppPages`/`AppRoutes` + `InitialBinding` + `usePathUrlStrategy()`.
-- `web/index.html`: splash em HTML, Open Graph, título "Ondas que Faltam".
+- `web/index.html`: splash em HTML, Open Graph, título "JOYJOY".
 - **Testes:** `Result`, `Env`, smoke test do app.
 - **Achado:** o GetX resolve rotas como árvore de prefixos, então URLs desconhecidas abriam a landing em vez do 404.
   Corrigido com `StrictRouteMiddleware` (correspondência exata), aplicado a toda página via `AppPages._page`.
@@ -154,7 +154,7 @@ flowchart LR
 - `supabase init`; migrations: enums, `categories`, `products`, `product_images`, `product_variants`, `store_settings`, `admin_users`, `is_admin()`.
 - RLS: anônimo lê só o que está ativo; admin tem CRUD.
 - Bucket `product-images` com as policies.
-- `store_settings` com `store_name = 'Ondas que Faltam'` e `whatsapp_number = '5581986323686'`.
+- `store_settings` com `store_name = 'JOYJOY'` e `whatsapp_number = '5581986323686'`.
 - `seed.sql` — **mock**. Motivo: desenvolver a vitrine antes de a Ana cadastrar as peças reais. Só roda localmente.
   Inclui a usuária admin local `ana@joyjoy.com.br` (senha provisória de dev) em `auth.users` + `admin_users`.
 - **Testes pgTAP:** anônimo não vê produto inativo, anônimo não escreve, admin escreve.

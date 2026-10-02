@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/app/routes/app_routes.dart';
-import 'package:ondas_que_faltam/core/responsive/responsive_page.dart';
-import 'package:ondas_que_faltam/core/widgets/app_header.dart';
-import 'package:ondas_que_faltam/core/widgets/feedback_states.dart';
+import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/core/responsive/responsive_page.dart';
+import 'package:joyjoy/core/widgets/app_header.dart';
+import 'package:joyjoy/core/widgets/feedback_states.dart';
 
 class NotFoundView extends StatelessWidget {
   const NotFoundView({super.key});

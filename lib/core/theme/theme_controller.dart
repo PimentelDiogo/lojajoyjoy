@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/core/services/key_value_store.dart';
+import 'package:joyjoy/core/services/key_value_store.dart';
 
 /// Tema escolhido pela pessoa: Automático (sistema) → Claro → Escuro.
 /// Persistido no navegador para valer na próxima visita.

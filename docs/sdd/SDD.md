@@ -1,4 +1,4 @@
-# SDD — Ondas que Faltam (lojajoyjoy)
+# SDD — JOYJOY (lojajoyjoy)
 
 > **Software Design Document** — loja web de roupas masculinas e femininas com checkout via WhatsApp.
 >
@@ -64,7 +64,7 @@ flowchart LR
     C([Cliente]) -- "link da bio / stories" --> IG[Instagram<br/>in-app browser]
     C -- "link compartilhado" --> WAa[WhatsApp]
     C -- "digita a URL" --> BR[Navegador]
-    IG & WAa & BR --> SITE["Site Flutter Web<br/>Ondas que Faltam"]
+    IG & WAa & BR --> SITE["Site Flutter Web<br/>JOYJOY"]
     SITE <--> SB[("Supabase<br/>Postgres · Auth · Storage")]
     SITE -- "wa.me + pedido" --> ANAWA[WhatsApp da Ana]
     ANA([Ana]) --> ANAWA
@@ -818,7 +818,7 @@ gantt
 ### 17.2 Questões em aberto
 
 - [x] **Número do WhatsApp da Ana:** `5581986323686` (em `store_settings`).
-- [ ] **Domínio** (ex.: `ondasquefaltam.com.br`) e hospedagem final (ADR-0012).
+- [ ] **Domínio** (ex.: `joyjoy.com.br`) e hospedagem final (ADR-0012).
 - [ ] **Tabela de tamanhos**: letras (PP–GG), numeração (36–48) ou ambos? Por categoria?
 - [x] **Figma:** não teremos. Design a partir de lojas de referência (`docs/design/referencias.md`).
 - [x] **Logo** da Ana: aplicada (`assets/brand/logo.png`, `web/icons/`).

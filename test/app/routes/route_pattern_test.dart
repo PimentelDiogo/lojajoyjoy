@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ondas_que_faltam/app/routes/app_routes.dart';
-import 'package:ondas_que_faltam/app/routes/route_pattern.dart';
+import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/app/routes/route_pattern.dart';
 
 void main() {
   group('RoutePattern', () {

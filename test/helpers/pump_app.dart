@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/core/theme/app_theme.dart';
+import 'package:joyjoy/core/theme/app_theme.dart';
 
 /// Valor em Real como o `intl` formata (espaço não separável U+00A0).
 String brl(String value) => 'R\$\u00A0$value';

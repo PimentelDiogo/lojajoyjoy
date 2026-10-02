@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/core/config/env.dart';
-import 'package:ondas_que_faltam/core/services/key_value_store.dart';
-import 'package:ondas_que_faltam/core/theme/theme_controller.dart';
+import 'package:joyjoy/core/config/env.dart';
+import 'package:joyjoy/core/services/key_value_store.dart';
+import 'package:joyjoy/core/theme/theme_controller.dart';
 
 /// Dependências globais, vivas durante todo o app.
 ///

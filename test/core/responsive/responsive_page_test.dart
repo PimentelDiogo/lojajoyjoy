@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/core/responsive/app_responsive.dart';
-import 'package:ondas_que_faltam/core/responsive/responsive_page.dart';
+import 'package:joyjoy/core/responsive/app_responsive.dart';
+import 'package:joyjoy/core/responsive/responsive_page.dart';
 
 import '../../helpers/pump_app.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/core/theme/app_spacing.dart';
-import 'package:ondas_que_faltam/core/utils/currency.dart';
+import 'package:joyjoy/core/theme/app_spacing.dart';
+import 'package:joyjoy/core/utils/currency.dart';
 
 enum PriceTextSize { small, medium, large }
 

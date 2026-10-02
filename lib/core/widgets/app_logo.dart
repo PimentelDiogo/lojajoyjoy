@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/core/config/app_constants.dart';
+import 'package:joyjoy/core/config/app_constants.dart';
 
 /// Logo circular da marca (`assets/brand/logo.png`).
 class AppLogo extends StatelessWidget {

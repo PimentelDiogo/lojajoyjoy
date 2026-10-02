@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/app/widgets/app_theme_toggle.dart';
-import 'package:ondas_que_faltam/core/responsive/app_responsive.dart';
-import 'package:ondas_que_faltam/core/responsive/responsive_page.dart';
-import 'package:ondas_que_faltam/core/theme/app_colors.dart';
-import 'package:ondas_que_faltam/core/theme/app_spacing.dart';
-import 'package:ondas_que_faltam/core/theme/contrast.dart';
-import 'package:ondas_que_faltam/core/widgets/app_button.dart';
-import 'package:ondas_que_faltam/core/widgets/app_header.dart';
-import 'package:ondas_que_faltam/core/widgets/app_logo.dart';
-import 'package:ondas_que_faltam/core/widgets/feedback_states.dart';
-import 'package:ondas_que_faltam/core/widgets/loading_skeleton.dart';
-import 'package:ondas_que_faltam/core/widgets/price_text.dart';
+import 'package:joyjoy/app/widgets/app_theme_toggle.dart';
+import 'package:joyjoy/core/responsive/app_responsive.dart';
+import 'package:joyjoy/core/responsive/responsive_page.dart';
+import 'package:joyjoy/core/theme/app_colors.dart';
+import 'package:joyjoy/core/theme/app_spacing.dart';
+import 'package:joyjoy/core/theme/contrast.dart';
+import 'package:joyjoy/core/widgets/app_button.dart';
+import 'package:joyjoy/core/widgets/app_header.dart';
+import 'package:joyjoy/core/widgets/app_logo.dart';
+import 'package:joyjoy/core/widgets/app_wordmark.dart';
+import 'package:joyjoy/core/widgets/feedback_states.dart';
+import 'package:joyjoy/core/widgets/loading_skeleton.dart';
+import 'package:joyjoy/core/widgets/price_text.dart';
 
 /// Vitrine do design system (rota `/design`, **só em debug**).
 ///
@@ -28,7 +29,7 @@ class DesignSystemView extends StatelessWidget {
     return ResponsivePage(
       appBar: AppHeader(
         title: 'Design system',
-        accentColor: scheme.primaryContainer,
+        accentColor: scheme.tertiaryContainer,
         actions: const [AppThemeToggle()],
       ),
       body: Column(
@@ -47,23 +48,34 @@ class DesignSystemView extends StatelessWidget {
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
-                _Swatch('primary', scheme.primary, scheme.onPrimary),
                 _Swatch(
-                  'primaryContainer · Feminino',
+                  'primary · terracota',
+                  scheme.primary,
+                  scheme.onPrimary,
+                ),
+                _Swatch(
+                  'primaryContainer · damasco',
                   scheme.primaryContainer,
                   scheme.onPrimaryContainer,
                 ),
-                _Swatch('secondary', scheme.secondary, scheme.onSecondary),
+                _Swatch(
+                  'brand · logo (só gráfico)',
+                  brand.brand,
+                  scheme.surface,
+                  minRatio: 3,
+                ),
+                _Swatch(
+                  'tertiaryContainer · Feminino',
+                  scheme.tertiaryContainer,
+                  scheme.onTertiaryContainer,
+                ),
                 _Swatch(
                   'secondaryContainer · Masculino',
                   scheme.secondaryContainer,
                   scheme.onSecondaryContainer,
                 ),
-                _Swatch(
-                  'tertiaryContainer · Em estoque',
-                  scheme.tertiaryContainer,
-                  scheme.onTertiaryContainer,
-                ),
+                _Swatch('secondary', scheme.secondary, scheme.onSecondary),
+                _Swatch('mint · Em estoque', brand.mint, brand.onMint),
                 _Swatch('lavender', brand.lavender, brand.onLavender),
                 _Swatch('peach · Últimas unidades', brand.peach, brand.onPeach),
                 _Swatch('error · Esgotado', scheme.error, scheme.onError),
@@ -72,11 +84,16 @@ class DesignSystemView extends StatelessWidget {
             ),
           ),
           const _Section(
-            title: 'Logo',
+            title: 'Marca',
             child: Wrap(
               spacing: AppSpacing.lg,
+              runSpacing: AppSpacing.md,
               crossAxisAlignment: WrapCrossAlignment.center,
-              children: [AppLogo(), AppLogo(size: 72), AppLogo(size: 120)],
+              children: [
+                AppWordmark(fontSize: 32),
+                AppLogo(size: 72),
+                AppLogo(size: 120),
+              ],
             ),
           ),
           _Section(
@@ -85,7 +102,7 @@ class DesignSystemView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ondas que Faltam',
+                  'JOYJOY',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 Text(
@@ -261,10 +278,18 @@ class _Section extends StatelessWidget {
 }
 
 class _Swatch extends StatelessWidget {
-  const _Swatch(this.name, this.background, this.foreground);
+  const _Swatch(
+    this.name,
+    this.background,
+    this.foreground, {
+    this.minRatio = 4.5,
+  });
   final String name;
   final Color background;
   final Color foreground;
+
+  /// 4.5 para texto (AA); 3.0 para elementos gráficos.
+  final double minRatio;
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +310,7 @@ class _Swatch extends StatelessWidget {
             style: TextStyle(color: foreground, fontWeight: FontWeight.w600),
           ),
           Text(
-            '${ratio.toStringAsFixed(1)}:1 ${ratio >= 4.5 ? 'AA' : '✗'}',
+            '${ratio.toStringAsFixed(1)}:1 ${ratio >= minRatio ? 'OK' : '✗'}',
             style: TextStyle(color: foreground),
           ),
         ],

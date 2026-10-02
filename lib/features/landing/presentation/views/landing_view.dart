@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/app/widgets/app_theme_toggle.dart';
-import 'package:ondas_que_faltam/core/responsive/responsive_page.dart';
-import 'package:ondas_que_faltam/core/widgets/app_header.dart';
-import 'package:ondas_que_faltam/core/widgets/feedback_states.dart';
+import 'package:joyjoy/app/widgets/app_theme_toggle.dart';
+import 'package:joyjoy/core/responsive/responsive_page.dart';
+import 'package:joyjoy/core/widgets/app_header.dart';
+import 'package:joyjoy/core/widgets/feedback_states.dart';
 
 /// Placeholder da landing. A versão real (Feminino / Masculino) chega no PR-04.
 class LandingView extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/core/theme/theme_controller.dart';
-import 'package:ondas_que_faltam/core/widgets/theme_toggle.dart';
+import 'package:joyjoy/core/theme/theme_controller.dart';
+import 'package:joyjoy/core/widgets/theme_toggle.dart';
 
 /// [ThemeToggle] ligado ao `ThemeController` global. Use nas ações do header.
 class AppThemeToggle extends StatelessWidget {

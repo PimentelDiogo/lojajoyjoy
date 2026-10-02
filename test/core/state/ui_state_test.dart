@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ondas_que_faltam/core/errors/failure.dart';
-import 'package:ondas_que_faltam/core/errors/result.dart';
-import 'package:ondas_que_faltam/core/state/ui_state.dart';
+import 'package:joyjoy/core/errors/failure.dart';
+import 'package:joyjoy/core/errors/result.dart';
+import 'package:joyjoy/core/state/ui_state.dart';
 
 void main() {
   group('UiState.fromResult', () {

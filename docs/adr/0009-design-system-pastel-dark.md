@@ -18,25 +18,30 @@ Problema clássico: **texto em cor pastel sobre fundo claro não passa no contra
   botões usam as variações **"on"/escuras** para garantir contraste ≥ 4.5:1.
 - Tokens centralizados em `core/theme/app_colors.dart` — **nenhuma cor hardcoded** em telas.
 - `ThemeController` (GetX) com 3 modos: **Sistema (padrão) · Claro · Escuro**, persistido no `shared_preferences` (via `KeyValueStore`).
-- Acento por seção: **Feminino = rosa**, **Masculino = azul** (usado em header/badges da seção).
+- Acento por seção: **Feminino = rosa** (`tertiaryContainer`), **Masculino = azul** (`secondaryContainer`). Faixa padrão do header = `brand`.
 
-### Paleta inicial
+### Paleta (revisada em 2026-10-02 com o logo JOYJOY)
+
+O logo é **creme `#FCF3EA` + laranja terracota `#E0662A`**. O terracota vira a cor principal,
+e os pastéis seguem nos fundos e nas seções.
 
 | Token | Light | Dark | Uso |
 |---|---|---|---|
-| `background` | `#FFF8F3` (creme) | `#1C1A22` | Fundo das páginas |
-| `surface` | `#FFFFFF` | `#26232E` | Cards |
-| `primary` | `#A94E72` | `#F4A7B9` | Botões, links (5.2:1 sobre branco / 9.1:1 no dark) |
-| `primaryContainer` | `#F9D5DF` (rosa pastel) | `#5A2B3C` | Chips, destaque Feminino |
-| `secondary` | `#3F6E99` | `#A7C7E7` | Ações secundárias |
-| `secondaryContainer` | `#D6E6F5` (azul bebê) | `#23384D` | Destaque Masculino |
-| `tertiaryContainer` | `#D4F0E2` (menta) | `#21413A` | Sucesso / "Em estoque" |
-| `lavender` | `#E6D9F0` | `#3A3048` | Ilustrações, banners |
-| `peach` | `#FFE5CC` | `#4A3626` | Avisos / "Últimas unidades" |
-| `onBackground` | `#3D3A4B` | `#EDE7F0` | Texto principal |
+| `primary` | `#B04E1C` | `#FFB38A` | Botões, links, wordmark (5.3:1 / 10:1) |
+| `brand` (AppColors) | `#E0662A` | `#E0662A` | Laranja exato do logo. **Só gráfico** (faixa do header, ícones): 3.1:1 não serve para texto |
+| `primaryContainer` | `#FBDCC8` (damasco) | `#6A2E10` | Chips, destaques |
+| `tertiaryContainer` | `#F9D5DF` (rosa pastel) | `#5A2B3C` | Seção **Feminino** |
+| `secondaryContainer` | `#D6E6F5` (azul bebê) | `#23384D` | Seção **Masculino** |
+| `mint` (AppColors) | `#D4F0E2` | `#21413A` | "Em estoque" |
+| `peach` (AppColors) | `#FFE5CC` | `#4A3626` | "Últimas unidades" |
+| `lavender` (AppColors) | `#E6D9F0` | `#3A3048` | Banners |
+| `surface` | `#FCF3EA` (creme do logo) | `#1D1916` (escuro quente) | Fundo das páginas |
+| `onSurface` | `#3A2E28` | `#F2E9E3` | Texto principal |
 | `error` | `#B3261E` | `#F2B8B5` | Erros / "Esgotado" |
 
-- Tipografia: `google_fonts` — **Poppins** (títulos) + **Inter** (texto). Revisar com as referências.
+Todos os pares texto/fundo são verificados por teste automático (`app_theme_test.dart`, ≥ 4.5:1).
+
+- Tipografia: `google_fonts` — **Poppins** (títulos) + **Inter** (texto) + **Cormorant Garamond** no wordmark "JOYJOY" (serifa espaçada, próxima ao logo).
 - Raio padrão 16, espaçamentos múltiplos de 4 (`AppSpacing`).
 
 ## Consequências

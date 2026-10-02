@@ -1,5 +1,5 @@
-import 'package:ondas_que_faltam/core/errors/failure.dart';
-import 'package:ondas_que_faltam/core/errors/result.dart';
+import 'package:joyjoy/core/errors/failure.dart';
+import 'package:joyjoy/core/errors/result.dart';
 
 /// Estado de tela observado pela View (`Rx<UiState<T>>` + `Obx`).
 sealed class UiState<T> {

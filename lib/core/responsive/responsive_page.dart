@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/core/responsive/app_responsive.dart';
+import 'package:joyjoy/core/responsive/app_responsive.dart';
 
 /// Casca obrigatória de **toda tela** (ADR-0010).
 ///

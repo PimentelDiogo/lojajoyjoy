@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:ondas_que_faltam/app/app.dart';
-import 'package:ondas_que_faltam/app/bindings/initial_binding.dart';
-import 'package:ondas_que_faltam/core/config/env.dart';
-import 'package:ondas_que_faltam/core/services/key_value_store.dart';
+import 'package:joyjoy/app/app.dart';
+import 'package:joyjoy/app/bindings/initial_binding.dart';
+import 'package:joyjoy/core/config/env.dart';
+import 'package:joyjoy/core/services/key_value_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,5 +21,5 @@ Future<void> main() async {
 
   final store = await SharedPreferencesKeyValueStore.create();
   InitialBinding(env: env, store: store).dependencies();
-  runApp(const OndasApp());
+  runApp(const JoyJoyApp());
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/core/services/key_value_store.dart';
-import 'package:ondas_que_faltam/core/theme/theme_controller.dart';
+import 'package:joyjoy/core/services/key_value_store.dart';
+import 'package:joyjoy/core/theme/theme_controller.dart';
 
 void main() {
   setUp(() => Get.testMode = true);

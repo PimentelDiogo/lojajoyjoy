@@ -37,7 +37,7 @@ Olá, Ana! 👋 Quero fazer este pedido:
 👤 Nome: Maria
 📝 Obs: posso retirar sábado?
 
-🔗 Ver pedido: https://ondasquefaltam.com.br/pedido/K7P2QX
+🔗 Ver pedido: https://joyjoy.com.br/pedido/K7P2QX
 ```
 
 - Número da Ana vem de `store_settings.whatsapp_number` (editável no admin) — não fica no código.

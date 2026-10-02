@@ -8,71 +8,71 @@ abstract final class AppPalette {
   // ---------- Light ----------
   static const lightScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFFA94E72),
+    primary: Color(0xFFB04E1C), // terracota (logo escurecido p/ AA)
     onPrimary: Color(0xFFFFFFFF),
-    primaryContainer: Color(0xFFF9D5DF), // rosa pastel — Feminino
-    onPrimaryContainer: Color(0xFF5A2B3C),
+    primaryContainer: Color(0xFFFBDCC8), // damasco pastel
+    onPrimaryContainer: Color(0xFF5C2A0E),
     secondary: Color(0xFF3F6E99),
     onSecondary: Color(0xFFFFFFFF),
     secondaryContainer: Color(0xFFD6E6F5), // azul bebê — Masculino
     onSecondaryContainer: Color(0xFF23384D),
-    tertiary: Color(0xFF2F6B55),
+    tertiary: Color(0xFFA94E72),
     onTertiary: Color(0xFFFFFFFF),
-    tertiaryContainer: Color(0xFFD4F0E2), // menta — "Em estoque"
-    onTertiaryContainer: Color(0xFF1B4334),
+    tertiaryContainer: Color(0xFFF9D5DF), // rosa pastel — Feminino
+    onTertiaryContainer: Color(0xFF5A2B3C),
     error: Color(0xFFB3261E),
     onError: Color(0xFFFFFFFF),
     errorContainer: Color(0xFFF9DEDC),
     onErrorContainer: Color(0xFF410E0B),
-    surface: Color(0xFFFFF8F3), // creme — fundo das páginas
-    onSurface: Color(0xFF3D3A4B),
-    onSurfaceVariant: Color(0xFF6B6778),
+    surface: Color(0xFFFCF3EA), // creme do logo — fundo das páginas
+    onSurface: Color(0xFF3A2E28),
+    onSurfaceVariant: Color(0xFF6E5F55),
     surfaceContainerLowest: Color(0xFFFFFFFF), // cards
-    surfaceContainerLow: Color(0xFFFFF3EC),
-    surfaceContainer: Color(0xFFFBEFE8),
-    surfaceContainerHigh: Color(0xFFF6E9E2),
-    surfaceContainerHighest: Color(0xFFF1E4DC),
-    outline: Color(0xFF8E8A99),
-    outlineVariant: Color(0xFFE3D8D3),
-    inverseSurface: Color(0xFF322F3B),
-    onInverseSurface: Color(0xFFF6EFF4),
-    inversePrimary: Color(0xFFF4A7B9),
+    surfaceContainerLow: Color(0xFFFAEEE3),
+    surfaceContainer: Color(0xFFF6E8DC),
+    surfaceContainerHigh: Color(0xFFF1E2D5),
+    surfaceContainerHighest: Color(0xFFECDCCD),
+    outline: Color(0xFF9A8B80),
+    outlineVariant: Color(0xFFE6D6C9),
+    inverseSurface: Color(0xFF3A2E28),
+    onInverseSurface: Color(0xFFFCF3EA),
+    inversePrimary: Color(0xFFFFB38A),
     shadow: Color(0xFF000000),
     scrim: Color(0xFF000000),
   );
 
-  // ---------- Dark ----------
+  // ---------- Dark (tons quentes) ----------
   static const darkScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFF4A7B9),
-    onPrimary: Color(0xFF3A1626),
-    primaryContainer: Color(0xFF5A2B3C),
-    onPrimaryContainer: Color(0xFFFFD9E2),
+    primary: Color(0xFFFFB38A),
+    onPrimary: Color(0xFF4A1E05),
+    primaryContainer: Color(0xFF6A2E10),
+    onPrimaryContainer: Color(0xFFFFDBC9),
     secondary: Color(0xFFA7C7E7),
     onSecondary: Color(0xFF0E2A42),
     secondaryContainer: Color(0xFF23384D),
     onSecondaryContainer: Color(0xFFD6E6F5),
-    tertiary: Color(0xFFB5E5CF),
-    onTertiary: Color(0xFF0F3326),
-    tertiaryContainer: Color(0xFF21413A),
-    onTertiaryContainer: Color(0xFFD4F0E2),
+    tertiary: Color(0xFFF4A7B9),
+    onTertiary: Color(0xFF3A1626),
+    tertiaryContainer: Color(0xFF5A2B3C),
+    onTertiaryContainer: Color(0xFFFFD9E2),
     error: Color(0xFFF2B8B5),
     onError: Color(0xFF601410),
     errorContainer: Color(0xFF8C1D18),
     onErrorContainer: Color(0xFFF9DEDC),
-    surface: Color(0xFF1C1A22),
-    onSurface: Color(0xFFEDE7F0),
-    onSurfaceVariant: Color(0xFFB5AFBF),
-    surfaceContainerLowest: Color(0xFF17151C),
-    surfaceContainerLow: Color(0xFF211E28),
-    surfaceContainer: Color(0xFF26232E), // cards
-    surfaceContainerHigh: Color(0xFF2E2A37),
-    surfaceContainerHighest: Color(0xFF363241),
-    outline: Color(0xFF8A8494),
-    outlineVariant: Color(0xFF45404F),
-    inverseSurface: Color(0xFFEDE7F0),
-    onInverseSurface: Color(0xFF322F3B),
-    inversePrimary: Color(0xFFA94E72),
+    surface: Color(0xFF1D1916),
+    onSurface: Color(0xFFF2E9E3),
+    onSurfaceVariant: Color(0xFFC2B5AB),
+    surfaceContainerLowest: Color(0xFF171310),
+    surfaceContainerLow: Color(0xFF211C18),
+    surfaceContainer: Color(0xFF26211D), // cards
+    surfaceContainerHigh: Color(0xFF2F2924),
+    surfaceContainerHighest: Color(0xFF38312B),
+    outline: Color(0xFF8F8279),
+    outlineVariant: Color(0xFF4A413A),
+    inverseSurface: Color(0xFFF2E9E3),
+    onInverseSurface: Color(0xFF3A2E28),
+    inversePrimary: Color(0xFFB04E1C),
     shadow: Color(0xFF000000),
     scrim: Color(0xFF000000),
   );
@@ -84,6 +84,9 @@ abstract final class AppPalette {
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
+    required this.brand,
+    required this.mint,
+    required this.onMint,
     required this.lavender,
     required this.onLavender,
     required this.peach,
@@ -91,6 +94,14 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.whatsapp,
     required this.onWhatsapp,
   });
+
+  /// Laranja exato do logo. Só para elementos gráficos (faixas, ícones,
+  /// detalhes): contraste ~3:1 não serve para texto normal — use `primary`.
+  final Color brand;
+
+  /// "Em estoque" / sucesso.
+  final Color mint;
+  final Color onMint;
 
   /// Banners e ilustrações.
   final Color lavender;
@@ -106,8 +117,11 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color onWhatsapp;
 
   static const light = AppColors(
+    brand: Color(0xFFE0662A),
+    mint: Color(0xFFD4F0E2),
+    onMint: Color(0xFF1B4334),
     lavender: Color(0xFFE6D9F0),
-    onLavender: Color(0xFF3D3A4B),
+    onLavender: Color(0xFF3A2E28),
     peach: Color(0xFFFFE5CC),
     onPeach: Color(0xFF5A3A1A),
     whatsapp: Color(0xFF128C7E),
@@ -115,6 +129,9 @@ class AppColors extends ThemeExtension<AppColors> {
   );
 
   static const dark = AppColors(
+    brand: Color(0xFFE0662A),
+    mint: Color(0xFF21413A),
+    onMint: Color(0xFFD4F0E2),
     lavender: Color(0xFF3A3048),
     onLavender: Color(0xFFEDE7F0),
     peach: Color(0xFF4A3626),
@@ -125,6 +142,9 @@ class AppColors extends ThemeExtension<AppColors> {
 
   @override
   AppColors copyWith({
+    Color? brand,
+    Color? mint,
+    Color? onMint,
     Color? lavender,
     Color? onLavender,
     Color? peach,
@@ -132,6 +152,9 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? whatsapp,
     Color? onWhatsapp,
   }) => AppColors(
+    brand: brand ?? this.brand,
+    mint: mint ?? this.mint,
+    onMint: onMint ?? this.onMint,
     lavender: lavender ?? this.lavender,
     onLavender: onLavender ?? this.onLavender,
     peach: peach ?? this.peach,
@@ -144,6 +167,9 @@ class AppColors extends ThemeExtension<AppColors> {
   AppColors lerp(AppColors? other, double t) {
     if (other == null) return this;
     return AppColors(
+      brand: Color.lerp(brand, other.brand, t)!,
+      mint: Color.lerp(mint, other.mint, t)!,
+      onMint: Color.lerp(onMint, other.onMint, t)!,
       lavender: Color.lerp(lavender, other.lavender, t)!,
       onLavender: Color.lerp(onLavender, other.onLavender, t)!,
       peach: Color.lerp(peach, other.peach, t)!,

@@ -1,4 +1,4 @@
-# Ondas que Faltam (lojajoyjoy) — Contexto
+# JOYJOY (lojajoyjoy) — Contexto
 
 > Herda: global → `Projetos/CLAUDE.md` → este arquivo.
 
@@ -46,10 +46,12 @@ dos clientes (Instagram × WhatsApp × site).
 - Admin local (seed, só dev): `ana@joyjoy.com.br`. Na nuvem usar outra senha forte.
 
 ## Design system (PR-02)
+- **Marca JOYJOY:** cor principal terracota (`primary` `#B04E1C`); laranja exato do logo `#E0662A` = `appColors.brand`, **só para gráficos** (3.1:1). Fundo = creme do logo `#FCF3EA`. Feminino = `tertiaryContainer` (rosa), Masculino = `secondaryContainer` (azul).
+- Header: `AppHeader()` sem `title` mostra o `AppWordmark` (Cormorant Garamond espaçada). `AppLogo` (círculo) fica para splash/ícones/`/design`.
 - Tokens em `core/theme/` (`AppPalette`, `AppColors` via `context.appColors`, `AppSpacing`, `AppRadius`,
   `AppTypography`, `AppTheme.light/dark`). O teste `app_theme_test.dart` **reprova** par de cor abaixo de AA.
 - Componentes puros em `core/widgets/`: `AppButton`, `PriceText`, `EmptyState`, `ErrorState`, `LoadingSkeleton`,
-  `ThemeToggle`, `AppHeader`. **Sem `Get.find` aqui.** Versões ligadas a controllers ficam em `app/widgets/` (ex.: `AppThemeToggle`).
+  `ThemeToggle`, `AppHeader`, `AppLogo`, `AppWordmark`. **Sem `Get.find` aqui.** Versões ligadas a controllers ficam em `app/widgets/` (ex.: `AppThemeToggle`).
 - `InitialBinding(...).dependencies()` roda no `main` **antes** do `runApp` (o `GetMaterialApp` precisa do `ThemeController`).
 - Persistência local via `KeyValueStore` (`SharedPreferencesKeyValueStore` / `InMemoryKeyValueStore` nos testes). **Não usar `get_storage`**: usa `dart:html` e quebra o build `--wasm`.
 - Vitrine `/design` (só `kDebugMode`) substitui o Figma para validar o visual.

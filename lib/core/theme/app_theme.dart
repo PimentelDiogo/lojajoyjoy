@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/core/theme/app_colors.dart';
-import 'package:ondas_que_faltam/core/theme/app_spacing.dart';
-import 'package:ondas_que_faltam/core/theme/app_typography.dart';
+import 'package:joyjoy/core/theme/app_colors.dart';
+import 'package:joyjoy/core/theme/app_spacing.dart';
+import 'package:joyjoy/core/theme/app_typography.dart';
 
 /// `ThemeData` claro e escuro montados só a partir dos tokens.
 abstract final class AppTheme {

@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/app/app.dart';
-import 'package:ondas_que_faltam/app/bindings/initial_binding.dart';
-import 'package:ondas_que_faltam/app/pages/design_system_view.dart';
-import 'package:ondas_que_faltam/app/routes/app_routes.dart';
-import 'package:ondas_que_faltam/core/config/env.dart';
-import 'package:ondas_que_faltam/core/services/key_value_store.dart';
-import 'package:ondas_que_faltam/core/theme/theme_controller.dart';
+import 'package:joyjoy/app/app.dart';
+import 'package:joyjoy/app/bindings/initial_binding.dart';
+import 'package:joyjoy/app/pages/design_system_view.dart';
+import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/core/config/env.dart';
+import 'package:joyjoy/core/services/key_value_store.dart';
+import 'package:joyjoy/core/theme/theme_controller.dart';
 
 import '../helpers/pump_app.dart';
 
@@ -29,14 +29,14 @@ void main() {
   });
   tearDown(Get.reset);
 
-  Future<void> pumpOndas(WidgetTester tester, {Size? size}) async {
+  Future<void> pumpJoyJoy(WidgetTester tester, {Size? size}) async {
     tester.setViewport(size ?? const Size(390, 844));
-    await tester.pumpWidget(const OndasApp());
+    await tester.pumpWidget(const JoyJoyApp());
     await tester.pumpAndSettle();
   }
 
   testWidgets('abre na landing com as dependências globais', (tester) async {
-    await pumpOndas(tester);
+    await pumpJoyJoy(tester);
 
     expect(find.text('Vitrine em construção'), findsOneWidget);
     expect(Get.find<Env>(), same(env));
@@ -45,14 +45,14 @@ void main() {
 
   for (final MapEntry(key: name, value: size) in testViewports.entries) {
     testWidgets('$name: landing sem overflow', (tester) async {
-      await pumpOndas(tester, size: size);
+      await pumpJoyJoy(tester, size: size);
 
       expect(tester.takeException(), isNull);
     });
   }
 
   testWidgets('botão de tema troca o tema do app e persiste', (tester) async {
-    await pumpOndas(tester);
+    await pumpJoyJoy(tester);
     final controller = Get.find<ThemeController>();
 
     await tester.tap(find.byTooltip('Tema: automático'));
@@ -71,7 +71,7 @@ void main() {
   testWidgets(
     'rota desconhecida mostra "Página não encontrada" e volta para a loja',
     (tester) async {
-      await pumpOndas(tester);
+      await pumpJoyJoy(tester);
 
       unawaited(Get.toNamed<void>('/rota-que-nao-existe'));
       await tester.pumpAndSettle();
@@ -90,7 +90,7 @@ void main() {
       ) async {
         await Get.find<ThemeController>().setMode(mode);
         tester.setViewport(size);
-        await tester.pumpWidget(const OndasApp());
+        await tester.pumpWidget(const JoyJoyApp());
         await tester.pump();
 
         unawaited(Get.toNamed<void>(AppRoutes.designSystem));

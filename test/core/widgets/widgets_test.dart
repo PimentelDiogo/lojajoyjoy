@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/core/errors/failure.dart';
-import 'package:ondas_que_faltam/core/widgets/app_button.dart';
-import 'package:ondas_que_faltam/core/widgets/app_header.dart';
-import 'package:ondas_que_faltam/core/widgets/app_logo.dart';
-import 'package:ondas_que_faltam/core/widgets/feedback_states.dart';
-import 'package:ondas_que_faltam/core/widgets/loading_skeleton.dart';
-import 'package:ondas_que_faltam/core/widgets/price_text.dart';
-import 'package:ondas_que_faltam/core/widgets/theme_toggle.dart';
+import 'package:joyjoy/core/errors/failure.dart';
+import 'package:joyjoy/core/theme/app_colors.dart';
+import 'package:joyjoy/core/widgets/app_button.dart';
+import 'package:joyjoy/core/widgets/app_header.dart';
+import 'package:joyjoy/core/widgets/app_wordmark.dart';
+import 'package:joyjoy/core/widgets/feedback_states.dart';
+import 'package:joyjoy/core/widgets/loading_skeleton.dart';
+import 'package:joyjoy/core/widgets/price_text.dart';
+import 'package:joyjoy/core/widgets/theme_toggle.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -217,19 +218,36 @@ void main() {
         ),
       );
 
-      expect(find.text('Ondas que Faltam'), findsOneWidget);
+      expect(find.bySemanticsLabel('JOYJOY'), findsOneWidget);
       expect(find.byIcon(Icons.shopping_bag_outlined), findsOneWidget);
     });
 
-    testWidgets('mostra o logo por padrão e esconde com showLogo: false', (
+    testWidgets('sem title mostra o wordmark JOYJOY; com title, o texto', (
       tester,
     ) async {
       await tester.pumpApp(const Scaffold(appBar: AppHeader()));
-      expect(find.byType(AppLogo), findsOneWidget);
-      expect(find.bySemanticsLabel('Logo Ondas que Faltam'), findsOneWidget);
+      expect(find.byType(AppWordmark), findsOneWidget);
+      expect(find.text('JOYJOY'), findsOneWidget);
 
-      await tester.pumpApp(const Scaffold(appBar: AppHeader(showLogo: false)));
-      expect(find.byType(AppLogo), findsNothing);
+      await tester.pumpApp(
+        const Scaffold(appBar: AppHeader(title: 'Carrinho')),
+      );
+      expect(find.byType(AppWordmark), findsNothing);
+      expect(find.text('Carrinho'), findsOneWidget);
+    });
+
+    testWidgets('faixa padrão usa o laranja do logo', (tester) async {
+      await tester.pumpApp(const Scaffold(appBar: AppHeader()));
+
+      expect(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byWidgetPredicate(
+            (w) => w is Container && w.color == AppColors.light.brand,
+          ),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('nome longo não estoura o header em 390px', (tester) async {

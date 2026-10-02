@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ondas_que_faltam/core/theme/app_spacing.dart';
+import 'package:joyjoy/core/theme/app_spacing.dart';
 
 enum AppButtonVariant {
   /// Ação principal (Comprar, Finalizar no WhatsApp).
