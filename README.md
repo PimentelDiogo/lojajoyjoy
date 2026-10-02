@@ -21,11 +21,31 @@ Loja web de roupas femininas e masculinas com o pedido finalizado no WhatsApp da
 
 ## Rodando localmente
 
+### 1. Banco (Supabase local — Docker precisa estar aberto)
+
+```bash
+supabase start          # sobe Postgres 17, API, Auth, Storage e Studio
+supabase db reset       # recria o banco: migrations + seed (dados fictícios)
+supabase test db        # testes pgTAP (RLS e regras)
+```
+
+| Serviço | URL |
+|---|---|
+| API | http://127.0.0.1:54321 |
+| Studio (painel) | http://127.0.0.1:54323 |
+| Postgres | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
+| E-mails de teste (Mailpit) | http://127.0.0.1:54324 |
+
+Admin local (seed): **ana@joyjoy.com.br**, com a senha provisória definida em `supabase/seed.sql`. Só vale no ambiente local.
+
+### 2. App
+
 ```bash
 fvm install                          # baixa o Flutter da versão do projeto
 fvm flutter pub get
 
 cp env/example.json env/local.json   # env/*.json fica fora do git
+# cole a ANON_KEY de `supabase status` em env/local.json
 fvm flutter run -d chrome --web-port 8080 --dart-define-from-file=env/local.json
 ```
 

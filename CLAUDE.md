@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 concluído (`feat/pr-01-bootstrap`, push feito). PR-02 (design system) na branch `feat/pr-02-design-system`.
+**Estágio:** PR-01 e PR-02 concluídos (push feito). PR-03 (banco: catálogo + RLS) na branch `feat/pr-03-banco-catalogo`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -58,9 +58,19 @@ dos clientes (Instagram × WhatsApp × site).
 - Testes de widget: `test/helpers/pump_app.dart` (`pumpApp`, `testViewports` 390/820/1440, `brl()`).
   Fontes do Google desligadas em `test/flutter_test_config.dart`. Com `LoadingSkeleton` na tela, usar `pump(duração)`, não `pumpAndSettle`.
 
+## Banco (Supabase local) — PR-03
+- Migrations em `supabase/migrations/` (catálogo, admin/settings, RLS, storage). **RLS em todas as tabelas**:
+  anon só lê o que está ativo; escrita só com `is_admin()` (`admin_users`). `admin_users` não aceita escrita via API.
+- `store_settings` (linha única id=1) guarda nome, WhatsApp `5581986323686`, recado, loja aberta/fechada.
+- Bucket `product-images`: público para leitura por URL, sem listagem; upload só admin; 5 MB; jpeg/png/webp.
+- `config.toml`: `[auth] enable_signup = false` bloqueia cadastro. **Não** desligar `[auth.email] enable_signup`
+  (nesta versão do CLI isso desliga o login por e-mail). `[analytics]` desligado (container vector falha no macOS).
+- Testes pgTAP em `supabase/tests/database/` (papéis anon / logado comum / admin). Rodar `supabase test db`.
+- `env/local.json` (fora do git) = URL local + `ANON_KEY` de `supabase status`.
+
 ## Como rodar / testar
 ```bash
-supabase start && supabase db reset        # banco local + seed (mock p/ dev)
+supabase start && supabase db reset        # banco local + seed (mock p/ dev; Docker aberto)
 supabase test db                           # pgTAP
 cp env/example.json env/local.json         # env/*.json fora do git
 fvm flutter run -d chrome --web-port 8080 --dart-define-from-file=env/local.json

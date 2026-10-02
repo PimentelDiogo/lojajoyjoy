@@ -15,22 +15,22 @@ ou precisariam de "gambiarras" locais.
 
 ## Decisão
 
-Usar o **Supabase CLI**, que sobe localmente (via Docker) um **Postgres 15** idêntico ao da
+Usar o **Supabase CLI**, que sobe localmente (via Docker) um **Postgres 17** idêntico ao da
 nuvem + Auth + Storage + Studio.
 
 ```
 supabase/
 ├── config.toml
 ├── migrations/                 # fonte da verdade do schema (SQL versionado no git)
-│   ├── 20261002000001_init_catalog.sql
-│   ├── 20261002000002_orders.sql
-│   ├── 20261002000003_stock_movements.sql
-│   ├── 20261002000004_visits_and_reports.sql
-│   ├── 20261002000005_rls_policies.sql
-│   └── 20261002000006_storage_bucket.sql
+│   ├── 20261002120001_init_catalog.sql          # PR-03
+│   ├── 20261002120002_admin_and_settings.sql    # PR-03
+│   ├── 20261002120003_rls_policies.sql          # PR-03
+│   ├── 20261002120004_storage_product_images.sql# PR-03
+│   ├── …_orders_and_visits.sql                  # PR-07
+│   └── …_stock_movements_and_rpcs.sql           # PR-10
 ├── seed.sql                    # dados fictícios SÓ para dev local
-└── tests/                      # testes pgTAP das RPCs e policies
-    └── confirm_order_test.sql
+└── tests/database/             # testes pgTAP das RPCs e policies
+    └── 01_catalog_rls.test.sql
 ```
 
 ### Fluxo
