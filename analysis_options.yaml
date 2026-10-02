@@ -1,0 +1,16 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - "**/*.g.dart"
+  language:
+    strict-casts: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    # Projeto de app (não é pacote público): documentação obrigatória só gera ruído.
+    public_member_api_docs: false
+    # Textos de UI em pt-BR deixam linhas longas com frequência.
+    lines_longer_than_80_chars: false

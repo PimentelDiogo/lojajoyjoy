@@ -1,0 +1,21 @@
+/// Nomes das rotas (URLs reais no navegador, via `usePathUrlStrategy`).
+///
+/// As rotas são registradas em `AppPages` à medida que cada feature é entregue.
+abstract final class AppRoutes {
+  static const landing = '/';
+  static const feminino = '/feminino';
+  static const masculino = '/masculino';
+  static const product = '/produto/:slug';
+  static const cart = '/carrinho';
+  static const order = '/pedido/:code';
+
+  static const adminLogin = '/admin/login';
+  static const admin = '/admin';
+
+  static const notFound = '/404';
+
+  static String productPath(String slug) =>
+      '/produto/${Uri.encodeComponent(slug)}';
+  static String orderPath(String code) =>
+      '/pedido/${Uri.encodeComponent(code)}';
+}
