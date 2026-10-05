@@ -12,6 +12,9 @@ import 'package:joyjoy/features/catalog/presentation/bindings/product_detail_bin
 import 'package:joyjoy/features/catalog/presentation/views/catalog_view.dart';
 import 'package:joyjoy/features/catalog/presentation/views/landing_view.dart';
 import 'package:joyjoy/features/catalog/presentation/views/product_detail_view.dart';
+import 'package:joyjoy/features/order/presentation/bindings/order_bindings.dart';
+import 'package:joyjoy/features/order/presentation/views/checkout_view.dart';
+import 'package:joyjoy/features/order/presentation/views/order_view.dart';
 
 /// Tabela de rotas do GetX. Cada feature registra aqui sua página com [_page].
 abstract final class AppPages {
@@ -42,6 +45,16 @@ abstract final class AppPages {
       binding: ProductDetailBinding(),
     ),
     _page<void>(name: AppRoutes.cart, page: CartView.new),
+    _page<void>(
+      name: AppRoutes.checkout,
+      page: CheckoutView.new,
+      binding: CheckoutBinding(),
+    ),
+    _page<void>(
+      name: AppRoutes.order,
+      page: () => OrderView(code: (Get.parameters['code'] ?? '').toUpperCase()),
+      binding: OrderBinding(),
+    ),
     if (kDebugMode)
       _page<void>(name: AppRoutes.designSystem, page: DesignSystemView.new),
     notFound,

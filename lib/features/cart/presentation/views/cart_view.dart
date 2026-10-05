@@ -227,7 +227,7 @@ class _ShippingNote extends StatelessWidget {
 }
 
 /// Finalizar no WhatsApp: bloqueado com a loja fechada (A14).
-/// O envio do pedido em si chega no PR-07.
+/// Leva para /finalizar (feature `order`).
 class _CheckoutButton extends StatelessWidget {
   const _CheckoutButton();
 
@@ -257,9 +257,7 @@ class _CheckoutButton extends StatelessWidget {
         label: 'Finalizar no WhatsApp',
         icon: Icons.chat_outlined,
         expand: true,
-        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Envio do pedido chegando em breve!')),
-        ),
+        onPressed: () => unawaited(Get.toNamed<void>(AppRoutes.checkout)),
       );
     });
   }

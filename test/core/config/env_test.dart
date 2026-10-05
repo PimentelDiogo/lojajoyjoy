@@ -43,5 +43,24 @@ void main() {
         'https://joyjoy.com.br/pedido/K7P2QX',
       );
     });
+
+    test('absoluteUri preserva o subcaminho da base (GitHub Pages)', () {
+      for (final base in [
+        'https://pimenteldiogo.github.io/lojajoyjoy',
+        'https://pimenteldiogo.github.io/lojajoyjoy/',
+      ]) {
+        final env = Env(
+          supabaseUrl: 'x',
+          supabaseAnonKey: 'y',
+          appBaseUrl: base,
+        );
+
+        expect(
+          env.absoluteUri('/pedido/K7P2QX').toString(),
+          'https://pimenteldiogo.github.io/lojajoyjoy/pedido/K7P2QX',
+          reason: base,
+        );
+      }
+    });
   });
 }
