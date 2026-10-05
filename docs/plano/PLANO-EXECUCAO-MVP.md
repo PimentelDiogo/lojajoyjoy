@@ -175,7 +175,7 @@ flowchart LR
   ordenação, carregamento progressivo, selos Esgotado/Últimas unidades/-%, botão flutuante do WhatsApp.
   173 testes + 8 de integração contra o Supabase local. Security review sem achados.
 
-#### PR-05 · Detalhe do produto (1,5 dia) — ✅ implementado (aguardando revisão)
+#### PR-05 · Detalhe do produto (1,5 dia) — ✅ concluído
 - Galeria (carrossel no celular), `SizeSelector`, `ColorSelector`, `QuantityStepper` limitado ao estoque.
 - Combinações sem estoque desabilitadas.
 - **Testes:** `ProductDetailController` (seleção válida/inválida, limite de estoque).
@@ -184,10 +184,15 @@ flowchart LR
   combinação esgotada (A8) e "Peça não encontrada". O botão "Adicionar ao carrinho" só avisa "em breve"
   até o PR-06. 206 testes + 10 de integração. Security review sem achados.
 
-#### PR-06 · Carrinho (1,5 dia)
+#### PR-06 · Carrinho (1,5 dia) — ✅ implementado (aguardando revisão)
 - `CartController` global + `CartRepository` local (`KeyValueStore`).
 - Soma itens iguais, edita quantidade, remove, mostra total; badge no header.
 - **Testes:** regras do carrinho e persistência.
+- **Entregue:** `Cart` no domain (soma variante igual, limite de estoque e 10/item, 20 itens, nota ≤ 140),
+  persistido em `cart_v1` (JSON corrompido → vazio; regras reaplicadas ao carregar), ícone com contador no
+  header, `/carrinho` (lista + barra fixa no celular / resumo ao lado no desktop), observação por item (A7),
+  remover com "Desfazer", loja fechada bloqueia o finalizar (A14). "Finalizar no WhatsApp" envia no PR-07.
+  Tema: campos de formulário com rótulo dentro do campo. 234 testes. Security review sem achados.
 
 #### PR-07 · Pedido + WhatsApp + origem (2,5 dias)
 - Migrations: `orders`, `order_items`, `visits`, `generate_order_code()`.

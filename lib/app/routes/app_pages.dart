@@ -4,6 +4,7 @@ import 'package:joyjoy/app/middlewares/strict_route_middleware.dart';
 import 'package:joyjoy/app/pages/design_system_view.dart';
 import 'package:joyjoy/app/routes/app_routes.dart';
 import 'package:joyjoy/core/pages/not_found_view.dart';
+import 'package:joyjoy/features/cart/presentation/views/cart_view.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/presentation/bindings/catalog_binding.dart';
 import 'package:joyjoy/features/catalog/presentation/bindings/landing_binding.dart';
@@ -40,6 +41,7 @@ abstract final class AppPages {
       page: () => ProductDetailView(slug: Get.parameters['slug'] ?? ''),
       binding: ProductDetailBinding(),
     ),
+    _page<void>(name: AppRoutes.cart, page: CartView.new),
     if (kDebugMode)
       _page<void>(name: AppRoutes.designSystem, page: DesignSystemView.new),
     notFound,

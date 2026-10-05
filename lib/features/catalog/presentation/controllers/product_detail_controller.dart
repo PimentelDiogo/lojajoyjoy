@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:joyjoy/core/services/link_launcher.dart';
 import 'package:joyjoy/core/state/ui_state.dart';
 import 'package:joyjoy/core/utils/whatsapp_link.dart';
+import 'package:joyjoy/features/cart/domain/entities/cart.dart';
+import 'package:joyjoy/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:joyjoy/features/store/presentation/controllers/store_controller.dart';
@@ -15,12 +17,14 @@ class ProductDetailController extends GetxController {
     required this.getProductBySlug,
     required this.store,
     required this.launcher,
+    required this.cart,
   });
 
   final String slug;
   final GetProductBySlug getProductBySlug;
   final StoreController store;
   final LinkLauncher launcher;
+  final CartController cart;
 
   /// Teto por item no carrinho, mesmo com muito estoque (anti-erro de digitação).
   static const maxPerItem = 10;
@@ -122,6 +126,31 @@ class ProductDetailController extends GetxController {
   void _clampQuantity() {
     final max = maxQuantity;
     quantity.value = max == 0 ? 1 : quantity.value.clamp(1, max);
+  }
+
+  /// Adiciona a variante escolhida ao carrinho e volta a quantidade para 1.
+  Future<AddToCartOutcome> addToCart() async {
+    final product = detail;
+    final variant = selectedVariant;
+    if (product == null || variant == null || !variant.inStock) {
+      return AddToCartOutcome.unavailable;
+    }
+    final outcome = await cart.add(
+      CartItem(
+        variantId: variant.id,
+        productSlug: product.slug,
+        productName: product.name,
+        size: variant.size,
+        colorName: variant.colorName,
+        colorHex: variant.colorHex,
+        imageUrl: product.imageUrls.isEmpty ? null : product.imageUrls.first,
+        unitPrice: variant.price,
+        quantity: quantity.value,
+        maxQuantity: variant.stock,
+      ),
+    );
+    quantity.value = 1;
+    return outcome;
   }
 
   /// Mensagem do "Avise-me" (A8) — pede à Ana para avisar quando chegar.

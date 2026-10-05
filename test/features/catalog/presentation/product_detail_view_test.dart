@@ -95,16 +95,22 @@ void main() {
     );
   });
 
-  testWidgets('adicionar ao carrinho avisa que chega em breve (PR-06)', (
+  testWidgets('adicionar ao carrinho atualiza o contador do header', (
     tester,
   ) async {
     await open(tester, detail: fakeDetail());
+    expect(find.byTooltip('Carrinho vazio'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Adicionar ao carrinho'));
     await tester.tap(find.text('Adicionar ao carrinho'));
-    await tester.pump();
+    await tester.pumpAndSettle(); // animação de entrada do SnackBar
 
-    expect(find.text('Carrinho chegando em breve!'), findsOneWidget);
+    expect(find.text('Adicionado ao carrinho!'), findsOneWidget);
+    expect(find.byTooltip('Carrinho, 1 peça'), findsOneWidget);
+
+    await tester.tap(find.text('Ver carrinho'));
+    await tester.pumpAndSettle();
+    expect(Get.currentRoute, AppRoutes.cart);
   });
 
   testWidgets('slug inexistente: "Peça não encontrada" e volta para a loja', (
