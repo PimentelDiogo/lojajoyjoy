@@ -213,6 +213,9 @@ flowchart LR
 
 > 🎯 **Marco 1 — vitrine completa ✅ (2026-10-05)** — no ar em https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (migrations aplicadas; catálogo vazio até o cadastro da Ana).
 >
+> **Catálogo de demonstração na nuvem** (3 femininas + 3 masculinas, sem fotos) para a Ana validar o escopo:
+> `supabase/demo/demo_catalog.sql`. Remover antes do cadastro real: `supabase db query --linked -f supabase/demo/remove_demo_catalog.sql`.
+>
 > Original: Você testa o fluxo do cliente no celular (rede local) e manda um pedido de teste para o WhatsApp da Ana.
 
 ### Bloco C — Admin
