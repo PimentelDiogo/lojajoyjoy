@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-04 no GitHub (vitrine: landing + grid). Próximo: PR-05 (detalhe do produto).
+**Estágio:** PR-01 a PR-04 no GitHub. PR-05 (detalhe do produto) na branch `feat/pr-05-detalhe-produto`. Próximo: PR-06 (carrinho).
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -37,6 +37,8 @@ dos clientes (Instagram × WhatsApp × site).
   da loja). **Exceção à regra "feature não importa feature":** `store` é compartilhada (como o tema) —
   qualquer feature pode usar `StoreController`, `WhatsAppFab` e `StoreNotices`. Repositórios globais
   (`ProductRepository`, `CategoryRepository`, `StoreRepository`) ficam no `InitialBinding`.
+- Componentes novos (PR-05): `ColorSelector`/`SizeSelector` (`option_selectors.dart`; opção esgotada fica riscada mas clicável p/ "Avise-me"), `QuantityStepper`, `ProductImage` (foto + placeholder). `SizeOrder` ordena PP→GG→números.
+- Controllers por rota com parâmetro usam `tag` = parâmetro (ex.: `ProductDetailController` tag = slug).
 - Links externos só via `LinkLauncher` + `WhatsAppLink.build/tryBuild` (codifica o texto; valida o número).
 - Fontes do Google são pré-carregadas no `main` (`AppTypography.preload`, timeout 3 s) — sem isso, chips
   cortavam o texto ao trocar de fonte.

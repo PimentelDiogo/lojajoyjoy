@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/core/errors/result.dart';
 import 'package:joyjoy/features/catalog/data/datasources/catalog_remote_datasource.dart';
 import 'package:joyjoy/features/catalog/data/repositories/catalog_repositories_impl.dart';
@@ -132,6 +133,25 @@ void main() {
     final slugs = ok(result).map((c) => c.slug).toList();
 
     expect(slugs, ['camisas', 'bermudas', 'camisetas', 'calcas']);
+  });
+
+  test(
+    'detalhe por slug: variantes ativas, cores e tamanhos ordenados',
+    () async {
+      final detail = ok(await products.getProductBySlug('vestido-midi-linho'));
+
+      expect(detail.colors.map((c) => c.name), containsAll(['Rosa', 'Areia']));
+      expect(detail.variantsOf('Rosa').map((v) => v.size), ['P', 'M', 'G']);
+      expect(detail.variantFor(colorName: 'Rosa', size: 'G')?.inStock, isFalse);
+      expect(detail.description, contains('Linho'));
+    },
+  );
+
+  test('detalhe de produto inativo ou inexistente = NotFoundFailure', () async {
+    for (final slug in ['camisa-linho-colecao-passada', 'nao-existe']) {
+      final result = await products.getProductBySlug(slug);
+      expect((result as Failed).failure, isA<NotFoundFailure>(), reason: slug);
+    }
   });
 
   test('configuração da loja tem o WhatsApp da Ana', () async {

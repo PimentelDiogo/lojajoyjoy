@@ -8,6 +8,9 @@ abstract interface class CatalogRemoteDataSource {
   Future<List<JsonMap>> fetchProducts(ProductQuery query);
   Future<List<JsonMap>> fetchCategories(Gender gender);
 
+  /// Produto ativo com todas as fotos e variantes. Null se não existir.
+  Future<JsonMap?> fetchProductBySlug(String slug);
+
   /// URL pública de um arquivo do bucket `product-images`.
   String publicImageUrl(String storagePath);
 }
@@ -55,6 +58,20 @@ class CatalogRemoteDataSourceImpl implements CatalogRemoteDataSource {
         .order('id', ascending: true)
         .range(query.offset, query.offset + query.limit - 1);
   }
+
+  static const productDetailColumns =
+      'id, name, slug, gender, description, base_price, compare_at_price, '
+      'product_images(storage_path, position), '
+      'product_variants(id, size, color_name, color_hex, stock_qty, '
+      'price_override, is_active)';
+
+  @override
+  Future<JsonMap?> fetchProductBySlug(String slug) => _client
+      .from('products')
+      .select(productDetailColumns)
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .maybeSingle();
 
   @override
   Future<List<JsonMap>> fetchCategories(Gender gender) => _client

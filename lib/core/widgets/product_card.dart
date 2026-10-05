@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:joyjoy/core/theme/app_spacing.dart';
 import 'package:joyjoy/core/widgets/app_button.dart';
 import 'package:joyjoy/core/widgets/price_text.dart';
+import 'package:joyjoy/core/widgets/product_image.dart';
 import 'package:joyjoy/core/widgets/stock_badge.dart';
 
 /// Card de produto do grid/carrossel. Foto 3:4, nome, preço e "Comprar".
@@ -61,7 +61,7 @@ class ProductCard extends StatelessWidget {
                   children: [
                     Opacity(
                       opacity: _soldOut ? 0.55 : 1,
-                      child: _ProductImage(url: imageUrl),
+                      child: ProductImage(url: imageUrl),
                     ),
                     Positioned(
                       top: AppSpacing.xs,
@@ -116,33 +116,6 @@ class ProductCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ProductImage extends StatelessWidget {
-  const _ProductImage({this.url});
-
-  final String? url;
-
-  @override
-  Widget build(BuildContext context) {
-    final placeholder = ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-      child: Center(
-        child: Icon(
-          Icons.checkroom_outlined,
-          size: 40,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-    if (url == null) return placeholder;
-    return CachedNetworkImage(
-      imageUrl: url!,
-      fit: BoxFit.cover,
-      placeholder: (_, _) => placeholder,
-      errorWidget: (_, _, _) => placeholder,
     );
   }
 }

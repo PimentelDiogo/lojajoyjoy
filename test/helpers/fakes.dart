@@ -8,6 +8,7 @@ import 'package:joyjoy/core/theme/theme_controller.dart';
 import 'package:joyjoy/features/catalog/domain/entities/category.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product.dart';
+import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_query.dart';
 import 'package:joyjoy/features/catalog/domain/repositories/catalog_repositories.dart';
 import 'package:joyjoy/features/store/domain/entities/store_settings.dart';
@@ -44,6 +45,58 @@ List<Product> fakeProducts(
 }) => [
   for (var i = start; i < start + count; i++) fakeProduct(i, gender: gender),
 ];
+
+/// Vestido com 2 cores: Rosa (P=3, M=1, G=0) e Areia (M=4). Mock de teste.
+ProductDetail fakeDetail({
+  String slug = 'vestido-midi',
+  List<ProductVariant>? variants,
+  List<String> images = const [],
+  String? description = 'Linho leve.',
+}) => ProductDetail(
+  id: 'd1',
+  name: 'Vestido Midi',
+  slug: slug,
+  gender: Gender.feminino,
+  price: 189.9,
+  description: description,
+  imageUrls: images,
+  variants:
+      variants ??
+      const [
+        ProductVariant(
+          id: 'v1',
+          size: 'G',
+          colorName: 'Rosa',
+          colorHex: '#F4A7B9',
+          stock: 0,
+          price: 189.9,
+        ),
+        ProductVariant(
+          id: 'v2',
+          size: 'P',
+          colorName: 'Rosa',
+          colorHex: '#F4A7B9',
+          stock: 3,
+          price: 189.9,
+        ),
+        ProductVariant(
+          id: 'v3',
+          size: 'M',
+          colorName: 'Rosa',
+          colorHex: '#F4A7B9',
+          stock: 1,
+          price: 189.9,
+        ),
+        ProductVariant(
+          id: 'v4',
+          size: 'M',
+          colorName: 'Areia',
+          colorHex: '#D8C3A5',
+          stock: 4,
+          price: 199.9,
+        ),
+      ],
+);
 
 const fakeCategories = [
   Category(
@@ -84,6 +137,18 @@ class FakeProductRepository implements ProductRepository {
   Failure? failure;
 
   final List<ProductQuery> queries = [];
+
+  /// Produtos de detalhe por slug (ausente = NotFoundFailure).
+  final Map<String, ProductDetail> details = {};
+
+  @override
+  Future<Result<ProductDetail>> getProductBySlug(String slug) async {
+    if (failure != null) return Failed(failure!);
+    final detail = details[slug];
+    return detail == null
+        ? const Failed(NotFoundFailure('Essa peça não está mais disponível.'))
+        : Success(detail);
+  }
 
   @override
   Future<Result<List<Product>>> getProducts(ProductQuery query) async {

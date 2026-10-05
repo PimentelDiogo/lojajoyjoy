@@ -1,6 +1,7 @@
 import 'package:joyjoy/features/catalog/domain/entities/category.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product.dart';
+import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 
 /// Conversão JSON (PostgREST) → entidades do domain.
 abstract final class CatalogModels {
@@ -35,6 +36,48 @@ abstract final class CatalogModels {
       totalStock: totalStock,
     );
   }
+
+  static ProductDetail productDetailFromJson(
+    Map<String, dynamic> json, {
+    required String Function(String storagePath) imageUrl,
+  }) {
+    final basePrice = _num(json['base_price'])!;
+    final images = _sortedImages(json);
+    final variants = (json['product_variants'] as List<dynamic>? ?? const [])
+        .cast<Map<String, dynamic>>()
+        .where((v) => v['is_active'] != false)
+        .map(
+          (v) => ProductVariant(
+            id: v['id'] as String,
+            size: v['size'] as String,
+            colorName: v['color_name'] as String,
+            colorHex: v['color_hex'] as String?,
+            stock: _int(v['stock_qty']),
+            price: _num(v['price_override']) ?? basePrice,
+          ),
+        )
+        .toList();
+
+    return ProductDetail(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      slug: json['slug'] as String,
+      gender: Gender.fromName(json['gender'] as String),
+      description: json['description'] as String?,
+      price: basePrice,
+      compareAtPrice: _num(json['compare_at_price']),
+      imageUrls: [
+        for (final image in images) imageUrl(image['storage_path'] as String),
+      ],
+      variants: variants,
+    );
+  }
+
+  static List<Map<String, dynamic>> _sortedImages(Map<String, dynamic> json) =>
+      (json['product_images'] as List<dynamic>? ?? const [])
+          .cast<Map<String, dynamic>>()
+          .toList()
+        ..sort((a, b) => _int(a['position']).compareTo(_int(b['position'])));
 
   static Category categoryFromJson(Map<String, dynamic> json) => Category(
     id: json['id'] as String,
