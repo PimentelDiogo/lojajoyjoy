@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/app/routes/app_routes.dart';
-import 'package:ondas_que_faltam/app/routes/route_pattern.dart';
+import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/app/routes/route_pattern.dart';
 
 /// Redireciona para o 404 quando a URL não corresponde exatamente à rota.
 ///

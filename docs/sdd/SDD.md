@@ -1,4 +1,4 @@
-# SDD — Ondas que Faltam (lojajoyjoy)
+# SDD — JOYJOY (lojajoyjoy)
 
 > **Software Design Document** — loja web de roupas masculinas e femininas com checkout via WhatsApp.
 >
@@ -64,7 +64,7 @@ flowchart LR
     C([Cliente]) -- "link da bio / stories" --> IG[Instagram<br/>in-app browser]
     C -- "link compartilhado" --> WAa[WhatsApp]
     C -- "digita a URL" --> BR[Navegador]
-    IG & WAa & BR --> SITE["Site Flutter Web<br/>Ondas que Faltam"]
+    IG & WAa & BR --> SITE["Site Flutter Web<br/>JOYJOY"]
     SITE <--> SB[("Supabase<br/>Postgres · Auth · Storage")]
     SITE -- "wa.me + pedido" --> ANAWA[WhatsApp da Ana]
     ANA([Ana]) --> ANAWA
@@ -135,6 +135,13 @@ journey
 | RF-07 | Página pública do pedido `/pedido/:code` (resumo e status) | Must |
 | RF-08 | Alternar tema **claro/escuro/sistema** | Must |
 | RF-09 | Captura da **origem** do acesso (ADR-0007) | Must |
+| RF-10 | **Recado da loja** no topo (horário de entrega, pagamento), editável pela Ana | Must |
+| RF-11 | **Preço promocional riscado** ("de / por") via `compare_at_price` | Must |
+| RF-12 | **Observação por item** no carrinho, enviada na mensagem | Must |
+| RF-13 | **"Avise-me"** em variante esgotada: abre o WhatsApp da Ana com a peça, o tamanho e a cor | Must |
+| RF-14 | Checkout com **entrega (retirar / entregar)** e **forma de pagamento** (Pix / cartão / dinheiro), opcionais | Must |
+| RF-15 | **Botão flutuante do WhatsApp** ("Falar com a vendedora") | Must |
+| RF-16 | **Loja fechada temporariamente**: aviso na vitrine e checkout bloqueado | Must |
 
 ### 3.2 Admin (Ana)
 
@@ -154,6 +161,8 @@ journey
 | RF-31 | **Gerador de links** com `?src=` por canal (copiar) | Should |
 | RF-32 | Configurações da loja: nome, número do WhatsApp, mensagem de saudação, limite de estoque baixo | Must |
 | RF-33 | Exportar relatórios em CSV | Could |
+| RF-34 | Compartilhar produto (link com `?src=`) | Could |
+| RF-35 | Barra "faltam R$ X para frete grátis" (valor configurável) | Could |
 
 ---
 
@@ -204,7 +213,7 @@ flowchart TB
         RI -.implements.-> RPc
         DS --> SVC
       end
-      LS[(localStorage<br/>carrinho · tema · session)]
+      LS[(localStorage via shared_preferences<br/>carrinho · tema · session)]
     end
     subgraph Supabase
       API[PostgREST / RPC]
@@ -233,7 +242,7 @@ Detalhes: ADR-0003 e ADR-0004.
 | Pacote | Uso |
 |---|---|
 | `get` | Estado, DI, rotas, middlewares |
-| `get_storage` | Persistência local (carrinho, tema, session) |
+| `shared_preferences` | Persistência local (carrinho, tema, session) via `KeyValueStore` — compatível com `--wasm` |
 | `supabase_flutter` | Banco, Auth, Storage |
 | `url_launcher` | Abrir `wa.me` |
 | `cached_network_image` | Imagens com cache/placeholder |
@@ -386,6 +395,7 @@ erDiagram
       text description
       gender_type gender
       numeric base_price
+      numeric compare_at_price "preço riscado, nullable"
       bool is_active
       bool is_featured
       timestamptz created_at
@@ -416,6 +426,8 @@ erDiagram
       uuid session_id
       text customer_name
       text customer_note
+      delivery_method delivery_method "pickup|delivery, nullable"
+      payment_method payment_method "pix|card|cash, nullable"
       numeric total
       timestamptz created_at
       timestamptz confirmed_at
@@ -431,6 +443,7 @@ erDiagram
       text color_name "snapshot"
       numeric unit_price "snapshot"
       int quantity
+      text note "observação do item"
     }
     stock_movements {
       uuid id PK
@@ -459,6 +472,9 @@ erDiagram
       text greeting_message
       int low_stock_threshold
       text base_url
+      text announcement "recado da loja"
+      bool is_open
+      text closed_message
     }
     admin_users {
       uuid user_id PK
@@ -475,6 +491,8 @@ create type gender_type    as enum ('feminino', 'masculino', 'unissex');
 create type order_status   as enum ('pending', 'confirmed', 'cancelled', 'expired');
 create type traffic_source as enum ('instagram', 'whatsapp', 'facebook', 'busca', 'qrcode', 'site', 'outro');
 create type stock_reason   as enum ('sale', 'cancel_return', 'restock', 'adjustment');
+create type delivery_method as enum ('pickup', 'delivery');
+create type payment_method  as enum ('pix', 'card', 'cash');
 ```
 
 ### 8.3 Decisões de modelagem
@@ -581,7 +599,7 @@ $$;
 
 ### 10.1 Captura
 Ver ADR-0007. `SourceTracker` roda no `InitialBinding`, resolve a origem **uma vez por sessão**,
-salva no `get_storage` e chama `track_visit`. `create_order` recebe a mesma `source`.
+salva no `KeyValueStore` e chama `track_visit`. `create_order` recebe a mesma `source`.
 
 ### 10.2 Views de relatório
 
@@ -627,7 +645,7 @@ No mobile os cards ficam em 2×2 e os blocos empilham (via `AppResponsive`).
 | landing | `GetFeaturedProducts` | `LandingController` | `ProductRepository` |
 | catalog | `GetProductsByGender`, `GetCategories` | `CatalogController` (filtros `Rx`) | `ProductRepository`, `CategoryRepository` |
 | product | `GetProductBySlug` | `ProductDetailController` (tamanho/cor/qtd selecionados) | `ProductRepository` |
-| cart | `AddToCart`, `UpdateCartItem`, `RemoveFromCart`, `GetCart`, `ClearCart` | `CartController` (**global**) | `CartRepository` (local – `get_storage`) |
+| cart | `AddToCart`, `UpdateCartItem`, `RemoveFromCart`, `GetCart`, `ClearCart` | `CartController` (**global**) | `CartRepository` (local – `KeyValueStore`) |
 | checkout | `CreateOrder`, `BuildWhatsAppMessage`, `GetStoreSettings` | `CheckoutController` | `OrderRepository`, `SettingsRepository` |
 | order | `GetOrderPublic`, `ConfirmOrder`, `CancelOrder`, `UpdateOrderItems` | `OrderController` | `OrderRepository` |
 | admin/auth | `SignIn`, `SignOut`, `GetCurrentAdmin` | `AuthController` (global) | `AuthRepository` |
@@ -800,10 +818,10 @@ gantt
 ### 17.2 Questões em aberto
 
 - [x] **Número do WhatsApp da Ana:** `5581986323686` (em `store_settings`).
-- [ ] **Domínio** (ex.: `ondasquefaltam.com.br`) e hospedagem final (ADR-0012).
+- [ ] **Domínio** (ex.: `joyjoy.com.br`) e hospedagem final (ADR-0012).
 - [ ] **Tabela de tamanhos**: letras (PP–GG), numeração (36–48) ou ambos? Por categoria?
 - [x] **Figma:** não teremos. Design a partir de lojas de referência (`docs/design/referencias.md`).
-- [ ] **Logo** da Ana.
+- [x] **Logo** da Ana: aplicada (`assets/brand/logo.png`, `web/icons/`).
 - [ ] Mostrar **quantidade em estoque** ao cliente ou só "Últimas unidades"?
 - [ ] Pedidos pendentes expiram em quantos dias?
 - [ ] Haverá mais de uma pessoa no admin?

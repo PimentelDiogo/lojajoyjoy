@@ -1,4 +1,4 @@
-# ADRs — Ondas que Faltam (lojajoyjoy)
+# ADRs — JOYJOY (lojajoyjoy)
 
 > Architecture Decision Records. Cada decisão relevante vira um arquivo numerado,
 > imutável depois de **Aceito** (se mudar, cria-se um novo ADR que *substitui* o anterior).

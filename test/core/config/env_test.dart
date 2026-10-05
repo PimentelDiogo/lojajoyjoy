@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ondas_que_faltam/core/config/env.dart';
+import 'package:joyjoy/core/config/env.dart';
 
 void main() {
   group('Env', () {
@@ -35,12 +35,12 @@ void main() {
       const env = Env(
         supabaseUrl: 'x',
         supabaseAnonKey: 'y',
-        appBaseUrl: 'https://ondasquefaltam.com.br',
+        appBaseUrl: 'https://joyjoy.com.br',
       );
 
       expect(
         env.absoluteUri('/pedido/K7P2QX').toString(),
-        'https://ondasquefaltam.com.br/pedido/K7P2QX',
+        'https://joyjoy.com.br/pedido/K7P2QX',
       );
     });
   });

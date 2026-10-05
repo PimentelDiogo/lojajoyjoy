@@ -62,7 +62,7 @@
 
 ---
 
-## 4. Impacto no escopo (proposta, falta aprovar)
+## 4. Impacto no escopo — ✅ aprovado pelo Diogo em 2026-10-02
 
 Itens pequenos que valem entrar **já no MVP de validação**, porque a concorrência tem:
 
@@ -83,3 +83,11 @@ Itens pequenos que valem entrar **já no MVP de validação**, porque a concorr�
 - As referências são **escuras, neutras ou rosa-choque**. A Ana vai se diferenciar com **tons pastéis** (ADR-0009).
 - Cards com cantos de raio 16, foto ocupando ~70% do card, preço em destaque, botão "Comprar" pastel com texto escuro (contraste AA).
 - Seções: **Feminino = rosa pastel**, **Masculino = azul bebê** (acento no header e nos chips).
+
+## 6. Design system implementado (PR-02)
+
+Para validar: `fvm flutter run -d chrome` e abrir **`/design`** (rota só em debug).
+
+| Celular · claro | Desktop · escuro |
+|---|---|
+| ![Design system mobile claro](design-system/mobile-claro.png) | ![Design system desktop escuro](design-system/desktop-escuro.png) |

@@ -19,7 +19,7 @@ Usar **GetX** (`get`) para os três papéis, com regras para não "espalhar" o f
 | **DI** | `Bindings` por rota (`Get.lazyPut`) + `InitialBinding` para serviços globais (`Get.put(..., permanent: true)`). |
 | **Rotas** | `GetMaterialApp` + `getPages` com rotas nomeadas e parâmetros (`/produto/:slug`, `/pedido/:code`). |
 | **Guards** | `GetMiddleware` para proteger `/admin/**` (redireciona para `/admin/login`). |
-| **Persistência leve** | `get_storage` (localStorage no web) para carrinho, tema e `session_id`. |
+| **Persistência leve** | `shared_preferences` (localStorage no web) atrás da interface `KeyValueStore`, para carrinho, tema e `session_id`. *Revisado no PR-02: o `get_storage` usa `dart:html` e não compila com `--wasm`.* |
 
 ### Regras de uso (boas práticas)
 

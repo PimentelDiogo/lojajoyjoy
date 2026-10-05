@@ -1,3 +1,3 @@
 abstract final class AppConstants {
-  static const storeName = 'Ondas que Faltam';
+  static const storeName = 'JOYJOY';
 }

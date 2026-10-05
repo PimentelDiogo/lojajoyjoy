@@ -1,9 +1,17 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:ondas_que_faltam/app/app.dart';
-import 'package:ondas_que_faltam/core/config/env.dart';
+import 'package:joyjoy/app/app.dart';
+import 'package:joyjoy/app/bindings/initial_binding.dart';
+import 'package:joyjoy/app/pages/design_system_view.dart';
+import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/core/config/env.dart';
+import 'package:joyjoy/core/services/key_value_store.dart';
+import 'package:joyjoy/core/theme/theme_controller.dart';
+
+import '../helpers/pump_app.dart';
 
 void main() {
   const env = Env(
@@ -12,22 +20,58 @@ void main() {
     appBaseUrl: 'http://localhost:8080',
   );
 
-  setUp(() => Get.testMode = true);
+  late InMemoryKeyValueStore store;
+
+  setUp(() {
+    Get.testMode = true;
+    store = InMemoryKeyValueStore();
+    InitialBinding(env: env, store: store).dependencies();
+  });
   tearDown(Get.reset);
 
-  testWidgets('abre na landing e injeta o Env global', (tester) async {
-    await tester.pumpWidget(const OndasApp(env: env));
+  Future<void> pumpJoyJoy(WidgetTester tester, {Size? size}) async {
+    tester.setViewport(size ?? const Size(390, 844));
+    await tester.pumpWidget(const JoyJoyApp());
     await tester.pumpAndSettle();
+  }
 
-    expect(find.text('Ondas que Faltam'), findsOneWidget);
+  testWidgets('abre na landing com as dependências globais', (tester) async {
+    await pumpJoyJoy(tester);
+
+    expect(find.text('Vitrine em construção'), findsOneWidget);
     expect(Get.find<Env>(), same(env));
+    expect(Get.find<KeyValueStore>(), same(store));
+  });
+
+  for (final MapEntry(key: name, value: size) in testViewports.entries) {
+    testWidgets('$name: landing sem overflow', (tester) async {
+      await pumpJoyJoy(tester, size: size);
+
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('botão de tema troca o tema do app e persiste', (tester) async {
+    await pumpJoyJoy(tester);
+    final controller = Get.find<ThemeController>();
+
+    await tester.tap(find.byTooltip('Tema: automático'));
+    await tester.pumpAndSettle();
+    expect(controller.mode.value, ThemeMode.light);
+
+    await tester.tap(find.byTooltip('Tema: claro'));
+    await tester.pumpAndSettle();
+    expect(controller.mode.value, ThemeMode.dark);
+    expect(store.read(ThemeController.storageKey), 'dark');
+
+    final app = tester.widget<GetMaterialApp>(find.byType(GetMaterialApp));
+    expect(app.themeMode, ThemeMode.dark);
   });
 
   testWidgets(
     'rota desconhecida mostra "Página não encontrada" e volta para a loja',
     (tester) async {
-      await tester.pumpWidget(const OndasApp(env: env));
-      await tester.pumpAndSettle();
+      await pumpJoyJoy(tester);
 
       unawaited(Get.toNamed<void>('/rota-que-nao-existe'));
       await tester.pumpAndSettle();
@@ -38,4 +82,25 @@ void main() {
       expect(find.text('Vitrine em construção'), findsOneWidget);
     },
   );
+
+  for (final MapEntry(key: name, value: size) in testViewports.entries) {
+    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+      testWidgets('$name ${mode.name}: /design renderiza sem overflow', (
+        tester,
+      ) async {
+        await Get.find<ThemeController>().setMode(mode);
+        tester.setViewport(size);
+        await tester.pumpWidget(const JoyJoyApp());
+        await tester.pump();
+
+        unawaited(Get.toNamed<void>(AppRoutes.designSystem));
+        // Skeletons animam em loop: avança o tempo em vez de pumpAndSettle.
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(find.byType(DesignSystemView), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 }

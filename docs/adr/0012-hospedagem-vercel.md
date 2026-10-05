@@ -39,6 +39,6 @@ precisam servir `index.html` no refresh/abertura direta).
 
 ## Consequências (se aceito)
 
-- Necessário configurar **domínio** (ex.: `ondasquefaltam.com.br`) e atualizar a URL base
+- Necessário configurar **domínio** (ex.: `joyjoy.com.br`) e atualizar a URL base
   usada no link do pedido (`APP_BASE_URL` via `--dart-define`).
 - Atenção: a URL do site precisa estar nas **Redirect URLs** do Supabase Auth.

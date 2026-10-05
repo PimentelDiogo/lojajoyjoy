@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ondas_que_faltam/core/errors/failure.dart';
-import 'package:ondas_que_faltam/core/errors/result.dart';
+import 'package:joyjoy/core/errors/failure.dart';
+import 'package:joyjoy/core/errors/result.dart';
 
 void main() {
   group('Result', () {

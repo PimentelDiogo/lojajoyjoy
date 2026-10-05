@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:ondas_que_faltam/core/errors/result.dart';
+import 'package:joyjoy/core/errors/result.dart';
 
 /// Contrato de caso de uso: uma classe = uma ação de negócio.
 ///
