@@ -31,6 +31,16 @@ final class Env {
 
   bool get isSupabaseConfigured => missingKeys.isEmpty;
 
-  /// URL absoluta de um caminho do app (ex.: link do pedido na mensagem do WhatsApp).
-  Uri absoluteUri(String path) => Uri.parse(appBaseUrl).resolve(path);
+  /// URL absoluta de um caminho do app (ex.: link do pedido na mensagem do
+  /// WhatsApp). Preserva o subcaminho da base — no GitHub Pages a base é
+  /// `https://<user>.github.io/lojajoyjoy` e `Uri.resolve('/pedido/X')`
+  /// descartaria o `/lojajoyjoy`.
+  Uri absoluteUri(String path) {
+    final base = Uri.parse(appBaseUrl);
+    final basePath = base.path.endsWith('/')
+        ? base.path.substring(0, base.path.length - 1)
+        : base.path;
+    final relative = path.startsWith('/') ? path : '/$path';
+    return base.replace(path: '$basePath$relative');
+  }
 }

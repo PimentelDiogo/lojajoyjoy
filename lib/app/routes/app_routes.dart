@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const masculino = '/masculino';
   static const product = '/produto/:slug';
   static const cart = '/carrinho';
+  static const checkout = '/finalizar';
   static const order = '/pedido/:code';
 
   static const adminLogin = '/admin/login';

@@ -198,13 +198,18 @@ flowchart LR
 - PR-01 a PR-06 mergeados na `main` (merge `--no-ff` por PR) em 2026-10-05. CI, Database e Deploy verdes na `main`.
 - Site: https://pimenteldiogo.github.io/lojajoyjoy/ — aguardando o Supabase na nuvem (Variables) para ter dados.
 
-#### PR-07 · Pedido + WhatsApp + origem (2,5 dias)
+#### PR-07 · Pedido + WhatsApp + origem (2,5 dias) — ✅ concluído
 - Migrations: `orders`, `order_items`, `visits`, `generate_order_code()`.
 - RPCs: `create_order` (valida estoque, preço do servidor, limites, rate limit), `get_order_public`, `track_visit`.
 - `SourceTracker` (`src`/UTM → navegador → página de origem), uma vez por sessão.
 - `WhatsAppMessageBuilder` + checkout (nome e observação opcionais) → `wa.me/5581986323686`.
 - Página pública `/pedido/:code`.
 - **Testes:** builder (formato, BRL, acentos, emoji, URL encode), `SourceTracker`, `CheckoutController`; pgTAP do `create_order` (preço forjado ignorado, estoque insuficiente, rate limit).
+
+- **Entregue:** migration de pedidos/visitas com RLS e RPCs; `/finalizar` (nome, entrega, pagamento, obs)
+  e `/pedido/:code`; origem por `?src=`/navegador/referrer; carrinho limpo só após sucesso. Validado ponta a
+  ponta: carrinho com preço forjado R$ 1 → pedido e mensagem com R$ 379,80 do banco. 268 testes + 14 de
+  integração + 74 pgTAP. Security review: 1 achado médio (EXECUTE direto em função interna) corrigido.
 
 > 🎯 **Marco 1 — vitrine completa local.** Você testa o fluxo do cliente no celular (rede local) e manda um pedido de teste para o WhatsApp da Ana.
 

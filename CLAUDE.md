@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-06 + CI mergeados na `main` (2026-10-05). GitHub Pages publicando em https://pimenteldiogo.github.io/lojajoyjoy/ (sem Supabase na nuvem ainda → "Configuração ausente"). Próximo: PR-07 (pedido + WhatsApp + origem). Novas branches saem da `main`.
+**Estágio:** PR-01 a PR-06 + CI mergeados na `main` (2026-10-05). GitHub Pages publicando em https://pimenteldiogo.github.io/lojajoyjoy/ (sem Supabase na nuvem ainda → "Configuração ausente"). PR-07 (pedido + WhatsApp + origem) implementado. Novas branches saem da `main`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -33,6 +33,12 @@ dos clientes (Instagram × WhatsApp × site).
 - **Regras de negócio sensíveis no banco** (RPC `security definer` + RLS): `create_order`,
   `confirm_order` (baixa de estoque), `cancel_order`, `adjust_stock`, `track_visit`.
 - Schema **só muda por migration**.
+- **RPCs (PR-07):** `create_order` (preço/estoque do banco, limites, loja aberta, antispam 5/h por sessão),
+  `get_order_public` (sem dados do cliente para anon), `track_visit`. Funções novas NÃO nascem executáveis
+  pela API (`alter default privileges`) — toda RPC pública precisa de `grant execute` + teste
+  `has_function_privilege` no pgTAP. Função interna = `security invoker`.
+- Features `order` (/finalizar, /pedido/:code; mensagem do WhatsApp só com dados do servidor via
+  `OrderMessage.sanitize`) e `tracking` (`SessionTracker` global: sessão anônima 12 h + origem first-touch).
 - **Features (PR-04):** `catalog` (landing + grid; a landing é a entrada do catálogo) e `store` (configuração
   da loja). **Exceções à regra "feature não importa feature":** `store` e `cart` são compartilhadas (globais, como o tema) —
   qualquer feature pode usar `StoreController`, `WhatsAppFab`, `StoreNotices` e `CartController`.

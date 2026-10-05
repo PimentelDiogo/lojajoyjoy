@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:joyjoy/core/config/env.dart';
 import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/core/errors/result.dart';
+import 'package:joyjoy/core/services/browser_info.dart';
 import 'package:joyjoy/core/services/key_value_store.dart';
 import 'package:joyjoy/core/services/link_launcher.dart';
 import 'package:joyjoy/core/theme/theme_controller.dart';
@@ -16,10 +17,15 @@ import 'package:joyjoy/features/catalog/domain/entities/product.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_query.dart';
 import 'package:joyjoy/features/catalog/domain/repositories/catalog_repositories.dart';
+import 'package:joyjoy/features/order/domain/entities/order.dart';
+import 'package:joyjoy/features/order/domain/order_repository.dart';
 import 'package:joyjoy/features/store/domain/entities/store_settings.dart';
 import 'package:joyjoy/features/store/domain/repositories/store_repository.dart';
 import 'package:joyjoy/features/store/domain/usecases/get_store_settings.dart';
 import 'package:joyjoy/features/store/presentation/controllers/store_controller.dart';
+import 'package:joyjoy/features/tracking/domain/tracking_repository.dart';
+import 'package:joyjoy/features/tracking/domain/traffic_source.dart';
+import 'package:joyjoy/features/tracking/presentation/session_tracker.dart';
 
 // -----------------------------------------------------------------------------
 // Dados de exemplo (mock de teste: evita depender do banco nos testes de UI)
@@ -196,6 +202,78 @@ class FakeLinkLauncher implements LinkLauncher {
   }
 }
 
+/// Pedido como o servidor devolveria (mock de teste).
+Order fakeOrder({
+  String code = 'K7P2QX',
+  OrderStatus status = OrderStatus.pending,
+  List<OrderItem>? items,
+  num total = 449.7,
+  String? customerName,
+}) => Order(
+  code: code,
+  status: status,
+  total: total,
+  createdAt: DateTime.utc(2026, 10, 5, 15, 30),
+  customerName: customerName,
+  deliveryMethod: DeliveryMethod.pickup,
+  paymentMethod: PaymentMethod.pix,
+  items:
+      items ??
+      const [
+        OrderItem(
+          productName: 'Vestido Midi Linho',
+          size: 'M',
+          colorName: 'Rosa',
+          unitPrice: 189.9,
+          quantity: 1,
+        ),
+        OrderItem(
+          productName: 'Camisa Oxford',
+          size: 'G',
+          colorName: 'Azul',
+          unitPrice: 129.9,
+          quantity: 2,
+        ),
+      ],
+);
+
+class FakeOrderRepository implements OrderRepository {
+  final List<CheckoutRequest> requests = [];
+  final Map<String, Order> orders = {};
+
+  /// Resposta do create_order (padrão: [fakeOrder]).
+  Result<Order> createResult = Success(fakeOrder());
+
+  @override
+  Future<Result<Order>> createOrder(CheckoutRequest request) async {
+    requests.add(request);
+    return createResult..fold((order) => orders[order.code] = order, (_) {});
+  }
+
+  @override
+  Future<Result<Order>> getOrder(String code) async {
+    final order = orders[code.toUpperCase()];
+    return order == null
+        ? const Failed(NotFoundFailure('Pedido não encontrado.'))
+        : Success(order);
+  }
+}
+
+class FakeTrackingRepository implements TrackingRepository {
+  final List<(String, SourceDetection, String, String)> visits = [];
+
+  @override
+  Future<Result<void>> trackVisit({
+    required String sessionId,
+    required SourceDetection detection,
+    required String landingPath,
+    required String deviceType,
+  }) async {
+    visits.add((sessionId, detection, landingPath, deviceType));
+    return const Success(null);
+  }
+}
+
 /// Registra as dependências globais com fakes (equivalente ao InitialBinding).
 ({
   FakeProductRepository products,
@@ -203,13 +281,19 @@ class FakeLinkLauncher implements LinkLauncher {
   FakeLinkLauncher launcher,
   InMemoryKeyValueStore storage,
   CartController cart,
+  FakeOrderRepository orders,
+  FakeTrackingRepository tracking,
 })
 registerAppFakes({
   FakeProductRepository? products,
   FakeCategoryRepository? categories,
   FakeStoreRepository? store,
   InMemoryKeyValueStore? storage,
+  FakeOrderRepository? orders,
+  Uri? url,
 }) {
+  final orderRepo = orders ?? FakeOrderRepository();
+  final tracking = FakeTrackingRepository();
   final productRepo = products ?? FakeProductRepository();
   final storeRepo = store ?? FakeStoreRepository();
   final launcher = FakeLinkLauncher();
@@ -233,6 +317,20 @@ registerAppFakes({
       permanent: true,
     )
     ..put<ProductRepository>(productRepo, permanent: true)
+    ..put<OrderRepository>(orderRepo, permanent: true)
+    ..put(
+      SessionTracker(
+        store: kv,
+        repository: tracking,
+        browserInfo: () => BrowserInfo(
+          url: url ?? Uri.parse('http://localhost:8080/?src=instagram'),
+          userAgent: '',
+          referrer: '',
+        ),
+        deviceType: () => 'mobile',
+      ),
+      permanent: true,
+    )
     ..put<CategoryRepository>(
       categories ?? FakeCategoryRepository(),
       permanent: true,
@@ -244,6 +342,8 @@ registerAppFakes({
     launcher: launcher,
     storage: kv,
     cart: cart,
+    orders: orderRepo,
+    tracking: tracking,
   );
 }
 
