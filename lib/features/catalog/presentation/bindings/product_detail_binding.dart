@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:joyjoy/core/services/link_launcher.dart';
+import 'package:joyjoy/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:joyjoy/features/catalog/domain/repositories/catalog_repositories.dart';
 import 'package:joyjoy/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:joyjoy/features/catalog/presentation/controllers/product_detail_controller.dart';
@@ -22,6 +23,7 @@ class ProductDetailBinding extends Bindings {
           getProductBySlug: Get.find(),
           store: Get.find<StoreController>(),
           launcher: Get.find<LinkLauncher>(),
+          cart: Get.find<CartController>(),
         ),
         tag: slug,
       );

@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-04 no GitHub. PR-05 (detalhe do produto) na branch `feat/pr-05-detalhe-produto`. Próximo: PR-06 (carrinho).
+**Estágio:** PR-01 a PR-05 no GitHub. PR-06 (carrinho) na branch `feat/pr-06-carrinho`. Próximo: PR-07 (pedido + WhatsApp + origem).
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -34,8 +34,9 @@ dos clientes (Instagram × WhatsApp × site).
   `confirm_order` (baixa de estoque), `cancel_order`, `adjust_stock`, `track_visit`.
 - Schema **só muda por migration**.
 - **Features (PR-04):** `catalog` (landing + grid; a landing é a entrada do catálogo) e `store` (configuração
-  da loja). **Exceção à regra "feature não importa feature":** `store` é compartilhada (como o tema) —
-  qualquer feature pode usar `StoreController`, `WhatsAppFab` e `StoreNotices`. Repositórios globais
+  da loja). **Exceções à regra "feature não importa feature":** `store` e `cart` são compartilhadas (globais, como o tema) —
+  qualquer feature pode usar `StoreController`, `WhatsAppFab`, `StoreNotices` e `CartController`.
+  Header das telas da vitrine: `actions: [AppCartButton(), AppThemeToggle()]`. Repositórios globais
   (`ProductRepository`, `CategoryRepository`, `StoreRepository`) ficam no `InitialBinding`.
 - Componentes novos (PR-05): `ColorSelector`/`SizeSelector` (`option_selectors.dart`; opção esgotada fica riscada mas clicável p/ "Avise-me"), `QuantityStepper`, `ProductImage` (foto + placeholder). `SizeOrder` ordena PP→GG→números.
 - Controllers por rota com parâmetro usam `tag` = parâmetro (ex.: `ProductDetailController` tag = slug).

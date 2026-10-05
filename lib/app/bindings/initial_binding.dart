@@ -3,6 +3,11 @@ import 'package:joyjoy/core/config/env.dart';
 import 'package:joyjoy/core/services/key_value_store.dart';
 import 'package:joyjoy/core/services/link_launcher.dart';
 import 'package:joyjoy/core/theme/theme_controller.dart';
+import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
+import 'package:joyjoy/features/cart/data/repositories/cart_repository_impl.dart';
+import 'package:joyjoy/features/cart/domain/repositories/cart_repository.dart';
+import 'package:joyjoy/features/cart/domain/usecases/cart_usecases.dart';
+import 'package:joyjoy/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:joyjoy/features/catalog/data/datasources/catalog_remote_datasource.dart';
 import 'package:joyjoy/features/catalog/data/repositories/catalog_repositories_impl.dart';
 import 'package:joyjoy/features/catalog/domain/repositories/catalog_repositories.dart';
@@ -18,8 +23,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Executado no `main` **antes** do `runApp`, porque o `GetMaterialApp`
 /// já precisa do `ThemeController` para montar o tema.
 ///
-/// Próximos PRs registram aqui: `CartController` (PR-06),
-/// `SourceTracker` (PR-07), `AuthController` (PR-08).
+/// Próximos PRs registram aqui: `SourceTracker` (PR-07), `AuthController` (PR-08).
 class InitialBinding extends Bindings {
   InitialBinding({
     required this.env,
@@ -59,6 +63,18 @@ class InitialBinding extends Bindings {
       )
       ..put<CategoryRepository>(
         CategoryRepositoryImpl(Get.find()),
+        permanent: true,
+      )
+      // Carrinho (feature compartilhada: header, detalhe, /carrinho).
+      ..put<CartRepository>(
+        CartRepositoryImpl(CartLocalDataSourceImpl(store)),
+        permanent: true,
+      )
+      ..put(
+        CartController(
+          loadCart: LoadCart(Get.find()),
+          saveCart: SaveCart(Get.find()),
+        ),
         permanent: true,
       );
   }

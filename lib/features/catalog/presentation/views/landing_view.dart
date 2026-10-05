@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/app/widgets/app_cart_button.dart';
 import 'package:joyjoy/app/widgets/app_theme_toggle.dart';
 import 'package:joyjoy/core/responsive/app_responsive.dart';
 import 'package:joyjoy/core/responsive/responsive_page.dart';
@@ -26,7 +27,7 @@ class LandingView extends GetView<LandingController> {
   @override
   Widget build(BuildContext context) {
     return ResponsivePage(
-      appBar: const AppHeader(actions: [AppThemeToggle()]),
+      appBar: const AppHeader(actions: [AppCartButton(), AppThemeToggle()]),
       floatingActionButton: const WhatsAppFab(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

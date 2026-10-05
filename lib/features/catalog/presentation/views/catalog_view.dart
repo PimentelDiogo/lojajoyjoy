@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:joyjoy/app/widgets/app_cart_button.dart';
 import 'package:joyjoy/app/widgets/app_theme_toggle.dart';
 import 'package:joyjoy/core/responsive/app_responsive.dart';
 import 'package:joyjoy/core/responsive/responsive_page.dart';
@@ -41,7 +42,7 @@ class CatalogView extends GetView<CatalogController> {
       padding: EdgeInsets.symmetric(horizontal: r.pagePadding),
       appBar: AppHeader(
         accentColor: gender.sectionColor(scheme),
-        actions: const [AppThemeToggle()],
+        actions: const [AppCartButton(), AppThemeToggle()],
       ),
       floatingActionButton: const WhatsAppFab(),
       body: NotificationListener<ScrollNotification>(

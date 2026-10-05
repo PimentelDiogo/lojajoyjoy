@@ -5,6 +5,11 @@ import 'package:joyjoy/core/errors/result.dart';
 import 'package:joyjoy/core/services/key_value_store.dart';
 import 'package:joyjoy/core/services/link_launcher.dart';
 import 'package:joyjoy/core/theme/theme_controller.dart';
+import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
+import 'package:joyjoy/features/cart/data/repositories/cart_repository_impl.dart';
+import 'package:joyjoy/features/cart/domain/entities/cart.dart';
+import 'package:joyjoy/features/cart/domain/usecases/cart_usecases.dart';
+import 'package:joyjoy/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:joyjoy/features/catalog/domain/entities/category.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product.dart';
@@ -197,23 +202,31 @@ class FakeLinkLauncher implements LinkLauncher {
   FakeStoreRepository store,
   FakeLinkLauncher launcher,
   InMemoryKeyValueStore storage,
+  CartController cart,
 })
 registerAppFakes({
   FakeProductRepository? products,
   FakeCategoryRepository? categories,
   FakeStoreRepository? store,
+  InMemoryKeyValueStore? storage,
 }) {
   final productRepo = products ?? FakeProductRepository();
   final storeRepo = store ?? FakeStoreRepository();
   final launcher = FakeLinkLauncher();
-  final storage = InMemoryKeyValueStore();
+  final kv = storage ?? InMemoryKeyValueStore();
+  final cartRepo = CartRepositoryImpl(CartLocalDataSourceImpl(kv));
+  final cart = CartController(
+    loadCart: LoadCart(cartRepo),
+    saveCart: SaveCart(cartRepo),
+  );
 
   Get
     ..testMode = true
     ..put<Env>(testEnv, permanent: true)
-    ..put<KeyValueStore>(storage, permanent: true)
+    ..put<KeyValueStore>(kv, permanent: true)
     ..put<LinkLauncher>(launcher, permanent: true)
-    ..put(ThemeController(storage), permanent: true)
+    ..put(ThemeController(kv), permanent: true)
+    ..put(cart, permanent: true)
     ..put<StoreRepository>(storeRepo, permanent: true)
     ..put(
       StoreController(getStoreSettings: GetStoreSettings(storeRepo)),
@@ -229,6 +242,27 @@ registerAppFakes({
     products: productRepo,
     store: storeRepo,
     launcher: launcher,
-    storage: storage,
+    storage: kv,
+    cart: cart,
   );
 }
+
+/// Item de carrinho de exemplo (mock de teste).
+CartItem fakeCartItem(
+  String variantId, {
+  int quantity = 1,
+  int max = 5,
+  num price = 100,
+  String? note,
+}) => CartItem(
+  variantId: variantId,
+  productSlug: 'peca-$variantId',
+  productName: 'Peça $variantId',
+  size: 'M',
+  colorName: 'Rosa',
+  colorHex: '#F4A7B9',
+  unitPrice: price,
+  quantity: quantity,
+  maxQuantity: max,
+  note: note,
+);

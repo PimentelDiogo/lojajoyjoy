@@ -85,14 +85,20 @@ abstract final class AppTheme {
         side: BorderSide(color: scheme.outlineVariant),
         labelStyle: textTheme.labelLarge,
       ),
+      // Campo preenchido M3: com UnderlineInputBorder o rótulo flutua DENTRO
+      // do campo (com OutlineInputBorder ele ficava cortado sobre a borda).
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: scheme.surfaceContainerHigh,
-        border: const OutlineInputBorder(
+        border: const UnderlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
           borderSide: BorderSide.none,
         ),
-        focusedBorder: OutlineInputBorder(
+        enabledBorder: const UnderlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: UnderlineInputBorder(
           borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
           borderSide: BorderSide(color: scheme.primary, width: 2),
         ),

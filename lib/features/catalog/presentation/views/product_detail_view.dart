@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/app/widgets/app_cart_button.dart';
 import 'package:joyjoy/app/widgets/app_theme_toggle.dart';
 import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/core/responsive/app_responsive.dart';
@@ -17,6 +18,7 @@ import 'package:joyjoy/core/widgets/loading_skeleton.dart';
 import 'package:joyjoy/core/widgets/option_selectors.dart';
 import 'package:joyjoy/core/widgets/price_text.dart';
 import 'package:joyjoy/core/widgets/quantity_stepper.dart';
+import 'package:joyjoy/features/cart/domain/entities/cart.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/presentation/controllers/product_detail_controller.dart';
@@ -35,7 +37,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   @override
   Widget build(BuildContext context) {
     return ResponsivePage(
-      appBar: const AppHeader(actions: [AppThemeToggle()]),
+      appBar: const AppHeader(actions: [AppCartButton(), AppThemeToggle()]),
       floatingActionButton: const WhatsAppFab(),
       body: Obx(
         () => switch (controller.state.value) {
@@ -189,7 +191,7 @@ class _ProductInfo extends StatelessWidget {
                     icon: Icons.shopping_bag_outlined,
                     expand: true,
                     onPressed: controller.canAddToCart
-                        ? () => _onAddToCart(context)
+                        ? () => unawaited(_onAddToCart(context))
                         : null,
                   ),
                 ),
@@ -220,11 +222,29 @@ class _ProductInfo extends StatelessWidget {
     });
   }
 
-  // O carrinho chega no PR-06; por ora confirma a seleção.
-  void _onAddToCart(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Carrinho chegando em breve!')),
-    );
+  Future<void> _onAddToCart(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final outcome = await controller.addToCart();
+    final message = switch (outcome) {
+      AddToCartOutcome.added ||
+      AddToCartOutcome.merged => 'Adicionado ao carrinho!',
+      AddToCartOutcome.limited =>
+        'Adicionado até o limite disponível dessa peça.',
+      AddToCartOutcome.atLimit =>
+        'Você já tem o máximo disponível dessa peça no carrinho.',
+      AddToCartOutcome.unavailable => 'Essa combinação está esgotada.',
+    };
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          action: SnackBarAction(
+            label: 'Ver carrinho',
+            onPressed: () => unawaited(Get.toNamed<void>(AppRoutes.cart)),
+          ),
+        ),
+      );
   }
 }
 

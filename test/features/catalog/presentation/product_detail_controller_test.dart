@@ -1,7 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:joyjoy/core/errors/failure.dart';
+import 'package:joyjoy/core/services/key_value_store.dart';
 import 'package:joyjoy/core/state/ui_state.dart';
+import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
+import 'package:joyjoy/features/cart/data/repositories/cart_repository_impl.dart';
+import 'package:joyjoy/features/cart/domain/entities/cart.dart';
+import 'package:joyjoy/features/cart/domain/usecases/cart_usecases.dart';
+import 'package:joyjoy/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:joyjoy/features/catalog/presentation/controllers/product_detail_controller.dart';
@@ -15,11 +21,19 @@ Future<void> settle() => Future<void>.delayed(Duration.zero);
 void main() {
   late FakeProductRepository repo;
   late FakeLinkLauncher launcher;
+  late CartController cart;
 
   setUp(() {
     Get.testMode = true;
     repo = FakeProductRepository()..details['vestido-midi'] = fakeDetail();
     launcher = FakeLinkLauncher();
+    final cartRepo = CartRepositoryImpl(
+      CartLocalDataSourceImpl(InMemoryKeyValueStore()),
+    );
+    cart = CartController(
+      loadCart: LoadCart(cartRepo),
+      saveCart: SaveCart(cartRepo),
+    )..onInit();
   });
   tearDown(Get.reset);
 
@@ -38,6 +52,7 @@ void main() {
         getProductBySlug: GetProductBySlug(repo),
         store: storeController,
         launcher: launcher,
+        cart: cart,
       ),
       tag: slug,
     );
@@ -191,6 +206,33 @@ void main() {
     expect(c.isProductSoldOut, isTrue);
     expect(c.selectedSize.value, isNull);
     expect(c.canAddToCart, isFalse);
+  });
+
+  test(
+    'adicionar ao carrinho leva a variante, o preço e a quantidade',
+    () async {
+      final c = await create();
+      c.increment(); // 2 do P
+
+      final outcome = await c.addToCart();
+
+      expect(outcome, AddToCartOutcome.added);
+      final item = cart.cart.value.items.single;
+      expect(item.variantId, 'v2');
+      expect(item.quantity, 2);
+      expect(item.size, 'P');
+      expect(item.colorName, 'Rosa');
+      expect(item.maxQuantity, 3);
+      expect(c.quantity.value, 1); // volta para 1 depois de adicionar
+    },
+  );
+
+  test('não adiciona combinação esgotada', () async {
+    final c = await create()
+      ..selectSize('G');
+
+    expect(await c.addToCart(), AddToCartOutcome.unavailable);
+    expect(cart.cart.value.isEmpty, isTrue);
   });
 
   test('slug inexistente vira UiFailure(NotFoundFailure)', () async {
