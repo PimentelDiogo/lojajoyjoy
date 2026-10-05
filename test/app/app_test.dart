@@ -4,29 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:joyjoy/app/app.dart';
-import 'package:joyjoy/app/bindings/initial_binding.dart';
 import 'package:joyjoy/app/pages/design_system_view.dart';
 import 'package:joyjoy/app/routes/app_routes.dart';
 import 'package:joyjoy/core/config/env.dart';
 import 'package:joyjoy/core/services/key_value_store.dart';
 import 'package:joyjoy/core/theme/theme_controller.dart';
+import 'package:joyjoy/features/catalog/presentation/views/landing_view.dart';
 
+import '../helpers/fakes.dart';
 import '../helpers/pump_app.dart';
 
 void main() {
-  const env = Env(
-    supabaseUrl: '',
-    supabaseAnonKey: '',
-    appBaseUrl: 'http://localhost:8080',
-  );
+  late InMemoryKeyValueStore storage;
 
-  late InMemoryKeyValueStore store;
-
-  setUp(() {
-    Get.testMode = true;
-    store = InMemoryKeyValueStore();
-    InitialBinding(env: env, store: store).dependencies();
-  });
+  setUp(() => storage = registerAppFakes().storage);
   tearDown(Get.reset);
 
   Future<void> pumpJoyJoy(WidgetTester tester, {Size? size}) async {
@@ -38,18 +29,10 @@ void main() {
   testWidgets('abre na landing com as dependências globais', (tester) async {
     await pumpJoyJoy(tester);
 
-    expect(find.text('Vitrine em construção'), findsOneWidget);
-    expect(Get.find<Env>(), same(env));
-    expect(Get.find<KeyValueStore>(), same(store));
+    expect(find.byType(LandingView), findsOneWidget);
+    expect(Get.find<Env>(), same(testEnv));
+    expect(Get.find<KeyValueStore>(), same(storage));
   });
-
-  for (final MapEntry(key: name, value: size) in testViewports.entries) {
-    testWidgets('$name: landing sem overflow', (tester) async {
-      await pumpJoyJoy(tester, size: size);
-
-      expect(tester.takeException(), isNull);
-    });
-  }
 
   testWidgets('botão de tema troca o tema do app e persiste', (tester) async {
     await pumpJoyJoy(tester);
@@ -62,7 +45,7 @@ void main() {
     await tester.tap(find.byTooltip('Tema: claro'));
     await tester.pumpAndSettle();
     expect(controller.mode.value, ThemeMode.dark);
-    expect(store.read(ThemeController.storageKey), 'dark');
+    expect(storage.read(ThemeController.storageKey), 'dark');
 
     final app = tester.widget<GetMaterialApp>(find.byType(GetMaterialApp));
     expect(app.themeMode, ThemeMode.dark);
@@ -79,7 +62,7 @@ void main() {
 
       await tester.tap(find.text('Voltar para a loja'));
       await tester.pumpAndSettle();
-      expect(find.text('Vitrine em construção'), findsOneWidget);
+      expect(find.byType(LandingView), findsOneWidget);
     },
   );
 

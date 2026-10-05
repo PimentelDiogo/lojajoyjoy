@@ -78,6 +78,9 @@ abstract final class AppTheme {
         ),
       ),
       chipTheme: ChipThemeData(
+        // Selecionado no damasco da marca (o padrão M3 usaria o azul).
+        selectedColor: scheme.primaryContainer,
+        checkmarkColor: scheme.onPrimaryContainer,
         shape: const StadiumBorder(),
         side: BorderSide(color: scheme.outlineVariant),
         labelStyle: textTheme.labelLarge,

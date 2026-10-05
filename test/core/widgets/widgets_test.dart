@@ -56,6 +56,22 @@ void main() {
       expect(find.byType(TextButton), findsOneWidget);
     });
 
+    testWidgets('secundário usa o damasco da marca (não o azul do Masculino)', (
+      tester,
+    ) async {
+      await tester.pumpApp(
+        AppButton(
+          label: 'Comprar',
+          variant: AppButtonVariant.secondary,
+          onPressed: () {},
+        ),
+      );
+
+      final button = tester.widget<FilledButton>(find.byType(FilledButton));
+      final background = button.style?.backgroundColor?.resolve({});
+      expect(background, AppPalette.lightScheme.primaryContainer);
+    });
+
     testWidgets('expand ocupa a largura toda', (tester) async {
       await tester.pumpApp(
         AppButton(label: 'Finalizar', expand: true, onPressed: () {}),

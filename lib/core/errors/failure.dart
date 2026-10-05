@@ -35,6 +35,9 @@ final class NotFoundFailure extends Failure {
 
 final class UnauthorizedFailure extends Failure {
   const UnauthorizedFailure([super.message = 'Acesso não autorizado.']);
+
+  const UnauthorizedFailure.withCode(String? code)
+    : super('Acesso não autorizado.', code: code);
 }
 
 final class ValidationFailure extends Failure {

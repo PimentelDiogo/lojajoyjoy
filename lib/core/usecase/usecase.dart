@@ -5,7 +5,6 @@ import 'package:joyjoy/core/errors/result.dart';
 ///
 /// Controllers (presentation) chamam use cases; use cases chamam repositórios
 /// (contratos do domain). Nada aqui conhece Flutter, GetX ou Supabase.
-// ignore: one_member_abstracts — contrato explícito da Clean Architecture.
 abstract interface class UseCase<Output, Params> {
   Future<Result<Output>> call(Params params);
 }

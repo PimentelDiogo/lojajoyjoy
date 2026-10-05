@@ -20,6 +20,25 @@ abstract final class AppTypography {
         : style;
   }
 
+  /// Baixa as fontes antes do primeiro frame (no `main`), para o texto não
+  /// "pular" nem cortar em widgets que medem o texto uma vez (ex.: chips).
+  /// Com rede lenta, desiste após [timeout] e segue com a fonte padrão.
+  static Future<void> preload({
+    Duration timeout = const Duration(seconds: 3),
+  }) async {
+    if (!useGoogleFonts) return;
+    try {
+      GoogleFonts.inter();
+      GoogleFonts.inter(fontWeight: FontWeight.w600);
+      GoogleFonts.poppins();
+      GoogleFonts.poppins(fontWeight: FontWeight.w600);
+      GoogleFonts.cormorantGaramond(fontWeight: FontWeight.w600);
+      await GoogleFonts.pendingFonts().timeout(timeout);
+    } on Object catch (_) {
+      // Sem fonte da marca: o app funciona com a fonte padrão.
+    }
+  }
+
   static TextTheme textTheme(TextTheme base) {
     if (!useGoogleFonts) return base;
 

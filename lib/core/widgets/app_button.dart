@@ -64,7 +64,12 @@ class AppButton extends StatelessWidget {
         onPressed: callback,
         child: child,
       ),
+      // Tonal no damasco da marca (o tonal padrão usaria o azul do Masculino).
       AppButtonVariant.secondary => FilledButton.tonal(
+        style: FilledButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
         onPressed: callback,
         child: child,
       ),
