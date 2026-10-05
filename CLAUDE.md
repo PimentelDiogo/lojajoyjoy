@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-05 no GitHub. PR-06 (carrinho) na branch `feat/pr-06-carrinho`. Próximo: PR-07 (pedido + WhatsApp + origem).
+**Estágio:** PR-01 a PR-06 + CI mergeados na `main` (2026-10-05). GitHub Pages publicando em https://pimenteldiogo.github.io/lojajoyjoy/ (sem Supabase na nuvem ainda → "Configuração ausente"). Próximo: PR-07 (pedido + WhatsApp + origem). Novas branches saem da `main`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 

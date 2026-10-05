@@ -184,7 +184,7 @@ flowchart LR
   combinação esgotada (A8) e "Peça não encontrada". O botão "Adicionar ao carrinho" só avisa "em breve"
   até o PR-06. 206 testes + 10 de integração. Security review sem achados.
 
-#### PR-06 · Carrinho (1,5 dia) — ✅ implementado (aguardando revisão)
+#### PR-06 · Carrinho (1,5 dia) — ✅ concluído
 - `CartController` global + `CartRepository` local (`KeyValueStore`).
 - Soma itens iguais, edita quantidade, remove, mostra total; badge no header.
 - **Testes:** regras do carrinho e persistência.
@@ -193,6 +193,10 @@ flowchart LR
   header, `/carrinho` (lista + barra fixa no celular / resumo ao lado no desktop), observação por item (A7),
   remover com "Desfazer", loja fechada bloqueia o finalizar (A14). "Finalizar no WhatsApp" envia no PR-07.
   Tema: campos de formulário com rótulo dentro do campo. 234 testes. Security review sem achados.
+
+#### CI/CD · GitHub Actions + GitHub Pages — ✅ concluído (ADR-0013)
+- PR-01 a PR-06 mergeados na `main` (merge `--no-ff` por PR) em 2026-10-05. CI, Database e Deploy verdes na `main`.
+- Site: https://pimenteldiogo.github.io/lojajoyjoy/ — aguardando o Supabase na nuvem (Variables) para ter dados.
 
 #### PR-07 · Pedido + WhatsApp + origem (2,5 dias)
 - Migrations: `orders`, `order_items`, `visits`, `generate_order_code()`.
