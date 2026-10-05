@@ -25,6 +25,7 @@ Status possíveis: `Proposto` → `Aceito` → (`Substituído por ADR-XXXX` | `D
 | 0010 | [Classe única de responsividade `AppResponsive`](0010-responsividade-app-responsive.md) | Aceito |
 | 0011 | [Autenticação da área administrativa](0011-autenticacao-admin.md) | Aceito    |
 | 0012 | [Hospedagem do front-end (Vercel)](0012-hospedagem-vercel.md)    | Proposto  |
+| 0013 | [CI no GitHub Actions + GitHub Pages temporário](0013-ci-github-actions-pages.md) | Aceito |
 
 ## Visão geral das decisões
 

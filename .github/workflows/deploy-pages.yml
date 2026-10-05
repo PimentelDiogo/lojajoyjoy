@@ -1,0 +1,87 @@
+# Publica a vitrine no GitHub Pages (hospedagem temporária — ADR-0013).
+# URL: https://<usuário>.github.io/<repositório>/
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Um deploy por vez; não cancela um que já está publicando.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build web
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Configurar em Settings → Secrets and variables → Actions → Variables.
+      # A anon/publishable key é pública por natureza (a segurança é o RLS),
+      # por isso fica em "Variables", não em "Secrets".
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versão do Flutter (.fvmrc)
+        id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.version }}
+          channel: stable
+          cache: true
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Aviso se o Supabase não estiver configurado
+        if: env.SUPABASE_URL == '' || env.SUPABASE_ANON_KEY == ''
+        run: >
+          echo "::warning::Variáveis SUPABASE_URL/SUPABASE_ANON_KEY ausentes.
+          O site vai abrir mostrando 'Configuração ausente'."
+
+      - run: flutter pub get
+
+      - name: Build web (--wasm, base-href do Pages)
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          BASE_URL: ${{ steps.pages.outputs.base_url }}
+        run: >
+          flutter build web --release --wasm
+          --base-href "${BASE_PATH:-}/"
+          --dart-define=SUPABASE_URL="$SUPABASE_URL"
+          --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+          --dart-define=APP_BASE_URL="$BASE_URL"
+
+      - name: Rotas da SPA no Pages
+        # O Pages não tem rewrite: links diretos (/feminino, /produto/x)
+        # cairiam no 404 do GitHub. Com o 404.html = index.html, o app abre
+        # e o roteador do Flutter mostra a página certa.
+        run: |
+          cp build/web/index.html build/web/404.html
+          touch build/web/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    name: Publicar
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

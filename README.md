@@ -1,5 +1,9 @@
 # JOYJOY
 
+[![CI](https://github.com/PimentelDiogo/lojajoyjoy/actions/workflows/ci.yml/badge.svg)](https://github.com/PimentelDiogo/lojajoyjoy/actions/workflows/ci.yml)
+[![Database](https://github.com/PimentelDiogo/lojajoyjoy/actions/workflows/database.yml/badge.svg)](https://github.com/PimentelDiogo/lojajoyjoy/actions/workflows/database.yml)
+[![Deploy](https://github.com/PimentelDiogo/lojajoyjoy/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/PimentelDiogo/lojajoyjoy/actions/workflows/deploy-pages.yml)
+
 Loja web de roupas femininas e masculinas com o pedido finalizado no WhatsApp da Ana.
 
 **Stack:** Flutter Web · Clean Architecture · GetX (estado, DI e rotas) · Supabase.
@@ -57,6 +61,19 @@ fvm flutter analyze                  # very_good_analysis
 fvm flutter test
 fvm flutter build web --release --wasm
 ```
+
+## CI/CD (GitHub Actions — ADR-0013)
+
+| Workflow | Quando | O que faz |
+|---|---|---|
+| `ci.yml` | todo push/PR | format, analyze, testes, build `--wasm` |
+| `database.yml` | mudanças em `supabase/`, `data/`, integração | Supabase no runner + pgTAP + integração |
+| `deploy-pages.yml` | push na `main` / manual | publica em https://pimenteldiogo.github.io/lojajoyjoy/ |
+
+Configuração única no GitHub:
+1. **Settings → Pages → Source: GitHub Actions**.
+2. **Settings → Secrets and variables → Actions → Variables**: `SUPABASE_URL` e `SUPABASE_ANON_KEY`
+   (do projeto Supabase na nuvem — PR-11).
 
 ## Estrutura
 

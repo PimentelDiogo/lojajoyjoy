@@ -1,0 +1,54 @@
+# Qualidade do app Flutter em todo push e PR.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter:
+    name: Format · Analyze · Testes · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versão do Flutter (.fvmrc)
+        id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.version }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Formatação
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyzer (very_good_analysis)
+        run: flutter analyze
+
+      - name: Testes (unit + widget)
+        # Os testes de integração (tag `integration`) rodam no database.yml.
+        run: flutter test --coverage
+
+      - name: Build web (--wasm)
+        # Smoke build: valida que compila para WebAssembly. Valores fictícios
+        # só para passar da tela de configuração ausente.
+        run: >
+          flutter build web --release --wasm
+          --dart-define=SUPABASE_URL=https://example.supabase.co
+          --dart-define=SUPABASE_ANON_KEY=ci-build
+          --dart-define=APP_BASE_URL=https://example.com
