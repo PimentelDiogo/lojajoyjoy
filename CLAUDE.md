@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 e PR-02 concluídos (push feito). PR-03 (banco: catálogo + RLS) na branch `feat/pr-03-banco-catalogo`.
+**Estágio:** PR-01 a PR-04 no GitHub (vitrine: landing + grid). Próximo: PR-05 (detalhe do produto).
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -18,7 +18,7 @@ dos clientes (Instagram × WhatsApp × site).
 - **Clean Architecture** organizada por feature — ADR-0004
 - **GetX** para **gerência de estado, injeção de dependência e rotas** (`GetMaterialApp`, `GetMiddleware`) — ADR-0003
 - **Supabase**: Postgres, RLS, RPCs plpgsql, Auth, Storage — ADR-0002
-- Local: **Supabase CLI** (Postgres 15 em Docker), migrations em `supabase/migrations` — ADR-0008
+- Local: **Supabase CLI** (Postgres 17 em Docker), migrations em `supabase/migrations` — ADR-0008
 - Hospedagem: Vercel **proposto, não decidido** — ADR-0012
 
 ## Arquitetura / padrões
@@ -33,6 +33,13 @@ dos clientes (Instagram × WhatsApp × site).
 - **Regras de negócio sensíveis no banco** (RPC `security definer` + RLS): `create_order`,
   `confirm_order` (baixa de estoque), `cancel_order`, `adjust_stock`, `track_visit`.
 - Schema **só muda por migration**.
+- **Features (PR-04):** `catalog` (landing + grid; a landing é a entrada do catálogo) e `store` (configuração
+  da loja). **Exceção à regra "feature não importa feature":** `store` é compartilhada (como o tema) —
+  qualquer feature pode usar `StoreController`, `WhatsAppFab` e `StoreNotices`. Repositórios globais
+  (`ProductRepository`, `CategoryRepository`, `StoreRepository`) ficam no `InitialBinding`.
+- Links externos só via `LinkLauncher` + `WhatsAppLink.build/tryBuild` (codifica o texto; valida o número).
+- Fontes do Google são pré-carregadas no `main` (`AppTypography.preload`, timeout 3 s) — sem isso, chips
+  cortavam o texto ao trocar de fonte.
 - **Não teremos Figma.** O design é feito em conjunto, a partir de lojas de referência
   (screenshots via Playwright MCP) registradas em `docs/design/referencias.md`. Tokens no ADR-0009.
 
@@ -74,7 +81,10 @@ supabase start && supabase db reset        # banco local + seed (mock p/ dev; Do
 supabase test db                           # pgTAP
 cp env/example.json env/local.json         # env/*.json fora do git
 fvm flutter run -d chrome --web-port 8080 --dart-define-from-file=env/local.json
+# se o canal de debug do Chrome falhar, sirva o build de release:
+fvm flutter run -d web-server --web-port 8080 --release --dart-define-from-file=env/local.json
 fvm flutter analyze && fvm flutter test
+fvm flutter test --run-skipped -t integration   # queries reais contra o Supabase local
 ```
 
 ## Decisões (ADR) / Requisitos
@@ -82,4 +92,4 @@ fvm flutter analyze && fvm flutter test
 - SDD (requisitos, modelo de dados, fluxos, testes, roadmap): `docs/sdd/SDD.md`
 - **Plano de execução do MVP (PR-01 a PR-11):** `docs/plano/PLANO-EXECUCAO-MVP.md`
 - Referências visuais (substituem o Figma): `docs/design/referencias.md`
-- Pendências: domínio, tabela de tamanhos, logo, aprovar os itens das referências (§4).
+- Pendências: domínio, tabela de tamanhos.

@@ -101,6 +101,26 @@ void main() {
       expect(uri.queryParameters['text'], contains('JOYJOY'));
     });
 
+    testWidgets('número do WhatsApp inválido no banco: botão não aparece', (
+      tester,
+    ) async {
+      registerAppFakes(
+        store: FakeStoreRepository(
+          const StoreSettings(
+            storeName: 'JOYJOY',
+            whatsappNumber: '81 98632-3686',
+            greetingMessage: 'Olá!',
+            isOpen: true,
+            lowStockThreshold: 2,
+          ),
+        ),
+      );
+      await pumpAt(tester, AppRoutes.landing);
+
+      expect(find.byTooltip('Falar com a vendedora no WhatsApp'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('sem configuração da loja, o botão do WhatsApp não aparece', (
       tester,
     ) async {

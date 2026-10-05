@@ -46,6 +46,11 @@ void main() {
       );
     });
 
+    test('tryBuild devolve null em vez de lançar', () {
+      expect(WhatsAppLink.tryBuild('81 98632-3686'), isNull);
+      expect(WhatsAppLink.tryBuild('5581986323686')?.host, 'wa.me');
+    });
+
     test('número fora do formato wa.me é rejeitado', () {
       for (final invalid in ['81986323686', '+55 81 98632-3686', 'abc', '']) {
         expect(

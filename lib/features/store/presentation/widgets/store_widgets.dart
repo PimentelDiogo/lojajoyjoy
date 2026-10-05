@@ -25,13 +25,13 @@ class WhatsAppFab extends StatelessWidget {
 
     return Obx(() {
       final number = store.settings.value?.whatsappNumber;
-      if (number == null) return const SizedBox.shrink();
+      final uri = number == null
+          ? null
+          : WhatsAppLink.tryBuild(number, message: message);
+      // Sem configuração (ou número inválido): o botão não aparece.
+      if (uri == null) return const SizedBox.shrink();
 
-      void onPressed() => unawaited(
-        Get.find<LinkLauncher>().open(
-          WhatsAppLink.build(number, message: message),
-        ),
-      );
+      void onPressed() => unawaited(Get.find<LinkLauncher>().open(uri));
 
       const icon = Icon(Icons.chat_outlined);
       return isMobile

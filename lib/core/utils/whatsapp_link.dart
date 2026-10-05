@@ -6,7 +6,7 @@ abstract final class WhatsAppLink {
   /// codificada com `Uri.encodeComponent` — texto digitado pelo cliente não
   /// consegue injetar parâmetros nem trocar o destino do link.
   static Uri build(String number, {String? message}) {
-    if (!_number.hasMatch(number)) {
+    if (!isValidNumber(number)) {
       throw ArgumentError.value(number, 'number', 'Formato wa.me inválido');
     }
     final text = message?.trim();
@@ -15,4 +15,11 @@ abstract final class WhatsAppLink {
         : '?text=${Uri.encodeComponent(text)}';
     return Uri.parse('https://wa.me/$number$query');
   }
+
+  /// Igual a [build], mas devolve null se o número for inválido
+  /// (ex.: configuração da loja salva errada) em vez de lançar erro.
+  static Uri? tryBuild(String number, {String? message}) =>
+      isValidNumber(number) ? build(number, message: message) : null;
+
+  static bool isValidNumber(String number) => _number.hasMatch(number);
 }

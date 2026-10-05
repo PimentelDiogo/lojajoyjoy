@@ -150,7 +150,7 @@ flowchart LR
 - **Extras:** teste automático de contraste AA da paleta (o primary claro foi ajustado de `#B8577A`, que dava 4.48:1, para `#A94E72`, que dá 5.2:1);
   vitrine **`/design`** (só em debug) no lugar do Figma: cores com contraste, tipografia, botões, preços, estados e grid.
 
-#### PR-03 · Banco local: catálogo + RLS (1,5 dia) — ✅ implementado (aguardando revisão)
+#### PR-03 · Banco local: catálogo + RLS (1,5 dia) — ✅ concluído
 - `supabase init`; migrations: enums, `categories`, `products`, `product_images`, `product_variants`, `store_settings`, `admin_users`, `is_admin()`.
 - RLS: anônimo lê só o que está ativo; admin tem CRUD.
 - Bucket `product-images` com as policies.
@@ -166,11 +166,14 @@ flowchart LR
 
 ### Bloco B — Vitrine
 
-#### PR-04 · Landing + grid do catálogo (2 dias)
+#### PR-04 · Landing + grid do catálogo (2 dias) — ✅ concluído
 - `features/landing` e `features/catalog` completas (datasource → repo → use cases → controller → view).
 - Landing com dois blocos (celular: empilhados; desktop: lado a lado).
 - Grid com `ProductCard`, `StockBadge`, filtro por categoria e ordenação.
 - **Testes:** use cases, `CatalogController` (loading/empty/erro/sucesso), widget dos 3 tamanhos.
+- **Entregue:** landing (recado, loja fechada, Feminino/Masculino, destaques), grid com chips de categoria,
+  ordenação, carregamento progressivo, selos Esgotado/Últimas unidades/-%, botão flutuante do WhatsApp.
+  173 testes + 8 de integração contra o Supabase local. Security review sem achados.
 
 #### PR-05 · Detalhe do produto (1,5 dia)
 - Galeria (carrossel no celular), `SizeSelector`, `ColorSelector`, `QuantityStepper` limitado ao estoque.
