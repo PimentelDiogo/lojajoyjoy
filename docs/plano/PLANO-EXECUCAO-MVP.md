@@ -142,7 +142,7 @@ flowchart LR
 - **Achado:** o GetX resolve rotas como árvore de prefixos, então URLs desconhecidas abriam a landing em vez do 404.
   Corrigido com `StrictRouteMiddleware` (correspondência exata), aplicado a toda página via `AppPages._page`.
 
-#### PR-02 · Design system + responsividade (1,5 dia) — ✅ implementado (aguardando revisão)
+#### PR-02 · Design system + responsividade (1,5 dia) — ✅ concluído (marca JOYJOY + terracota)
 - `core/theme`: `AppColors` (pastel light/dark), `AppTypography`, `AppSpacing`, `AppTheme`, `ThemeController` (sistema/claro/escuro persistido).
 - `core/responsive`: `AppResponsive`, `context.responsive`, `ResponsivePage`, `ResponsiveBuilder`.
 - Widgets base: `AppButton`, `PriceText`, `EmptyState`, `ErrorState`, `LoadingSkeleton`, `ThemeToggle`, `AppHeader`.
@@ -150,7 +150,7 @@ flowchart LR
 - **Extras:** teste automático de contraste AA da paleta (o primary claro foi ajustado de `#B8577A`, que dava 4.48:1, para `#A94E72`, que dá 5.2:1);
   vitrine **`/design`** (só em debug) no lugar do Figma: cores com contraste, tipografia, botões, preços, estados e grid.
 
-#### PR-03 · Banco local: catálogo + RLS (1,5 dia)
+#### PR-03 · Banco local: catálogo + RLS (1,5 dia) — ✅ implementado (aguardando revisão)
 - `supabase init`; migrations: enums, `categories`, `products`, `product_images`, `product_variants`, `store_settings`, `admin_users`, `is_admin()`.
 - RLS: anônimo lê só o que está ativo; admin tem CRUD.
 - Bucket `product-images` com as policies.
@@ -158,6 +158,11 @@ flowchart LR
 - `seed.sql` — **mock**. Motivo: desenvolver a vitrine antes de a Ana cadastrar as peças reais. Só roda localmente.
   Inclui a usuária admin local `ana@joyjoy.com.br` (senha provisória de dev) em `auth.users` + `admin_users`.
 - **Testes pgTAP:** anônimo não vê produto inativo, anônimo não escreve, admin escreve.
+- **Entregue:** 4 migrations, seed fictício (7 produtos ativos + 1 inativo, 20 variantes, Ana admin),
+  34 testes pgTAP (RLS nos 3 papéis, constraints, storage, path traversal). Verificado via REST:
+  login da Ana ok, cadastro público bloqueado.
+- **Achado:** `[auth.email] enable_signup = false` desliga o login por e-mail inteiro; o bloqueio de cadastro
+  é só o `[auth] enable_signup = false`.
 
 ### Bloco B — Vitrine
 
