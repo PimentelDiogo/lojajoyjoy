@@ -175,10 +175,14 @@ flowchart LR
   ordenação, carregamento progressivo, selos Esgotado/Últimas unidades/-%, botão flutuante do WhatsApp.
   173 testes + 8 de integração contra o Supabase local. Security review sem achados.
 
-#### PR-05 · Detalhe do produto (1,5 dia)
+#### PR-05 · Detalhe do produto (1,5 dia) — ✅ implementado (aguardando revisão)
 - Galeria (carrossel no celular), `SizeSelector`, `ColorSelector`, `QuantityStepper` limitado ao estoque.
 - Combinações sem estoque desabilitadas.
 - **Testes:** `ProductDetailController` (seleção válida/inválida, limite de estoque).
+- **Entregue:** `/produto/:slug` com galeria (carrossel no celular, miniaturas no desktop), cor → tamanho →
+  quantidade (até o estoque, máx. 10), preço por variante, "Última unidade", **Avise-me** pelo WhatsApp em
+  combinação esgotada (A8) e "Peça não encontrada". O botão "Adicionar ao carrinho" só avisa "em breve"
+  até o PR-06. 206 testes + 10 de integração. Security review sem achados.
 
 #### PR-06 · Carrinho (1,5 dia)
 - `CartController` global + `CartRepository` local (`KeyValueStore`).

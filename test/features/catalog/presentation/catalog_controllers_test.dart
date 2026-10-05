@@ -7,6 +7,7 @@ import 'package:joyjoy/core/errors/result.dart';
 import 'package:joyjoy/core/state/ui_state.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product.dart';
+import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_query.dart';
 import 'package:joyjoy/features/catalog/domain/repositories/catalog_repositories.dart';
 import 'package:joyjoy/features/catalog/domain/usecases/catalog_usecases.dart';
@@ -18,6 +19,10 @@ import '../../../helpers/fakes.dart';
 /// Repositório que só responde quando o teste libera (para testar corridas).
 class _ManualRepository implements ProductRepository {
   final pending = <(ProductQuery, Completer<Result<List<Product>>>)>[];
+
+  @override
+  Future<Result<ProductDetail>> getProductBySlug(String slug) =>
+      throw UnimplementedError();
 
   @override
   Future<Result<List<Product>>> getProducts(ProductQuery query) {

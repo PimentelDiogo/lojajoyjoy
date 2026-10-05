@@ -7,8 +7,10 @@ import 'package:joyjoy/core/pages/not_found_view.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/presentation/bindings/catalog_binding.dart';
 import 'package:joyjoy/features/catalog/presentation/bindings/landing_binding.dart';
+import 'package:joyjoy/features/catalog/presentation/bindings/product_detail_binding.dart';
 import 'package:joyjoy/features/catalog/presentation/views/catalog_view.dart';
 import 'package:joyjoy/features/catalog/presentation/views/landing_view.dart';
+import 'package:joyjoy/features/catalog/presentation/views/product_detail_view.dart';
 
 /// Tabela de rotas do GetX. Cada feature registra aqui sua página com [_page].
 abstract final class AppPages {
@@ -32,6 +34,11 @@ abstract final class AppPages {
       name: AppRoutes.masculino,
       page: () => const CatalogView(gender: Gender.masculino),
       binding: CatalogBinding(Gender.masculino),
+    ),
+    _page<void>(
+      name: AppRoutes.product,
+      page: () => ProductDetailView(slug: Get.parameters['slug'] ?? ''),
+      binding: ProductDetailBinding(),
     ),
     if (kDebugMode)
       _page<void>(name: AppRoutes.designSystem, page: DesignSystemView.new),

@@ -3,6 +3,7 @@ import 'package:joyjoy/core/usecase/usecase.dart';
 import 'package:joyjoy/features/catalog/domain/entities/category.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product.dart';
+import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_query.dart';
 import 'package:joyjoy/features/catalog/domain/repositories/catalog_repositories.dart';
 
@@ -36,4 +37,13 @@ class GetCategories implements UseCase<List<Category>, Gender> {
   @override
   Future<Result<List<Category>>> call(Gender params) =>
       _repository.getCategories(params);
+}
+
+class GetProductBySlug implements UseCase<ProductDetail, String> {
+  GetProductBySlug(this._repository);
+  final ProductRepository _repository;
+
+  @override
+  Future<Result<ProductDetail>> call(String params) =>
+      _repository.getProductBySlug(params);
 }

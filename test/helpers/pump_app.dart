@@ -37,7 +37,9 @@ extension PumpApp on WidgetTester {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: themeMode,
-        home: child,
+        // No app real toda tela tem Scaffold; aqui um Material dá o mesmo
+        // contexto (ink, tema de texto) para widgets testados isoladamente.
+        home: Material(type: MaterialType.transparency, child: child),
       ),
     );
     await pump();

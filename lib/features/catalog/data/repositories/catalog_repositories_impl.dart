@@ -1,3 +1,4 @@
+import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/core/errors/result.dart';
 import 'package:joyjoy/core/services/supabase_error_mapper.dart';
 import 'package:joyjoy/features/catalog/data/datasources/catalog_remote_datasource.dart';
@@ -5,6 +6,7 @@ import 'package:joyjoy/features/catalog/data/models/catalog_models.dart';
 import 'package:joyjoy/features/catalog/domain/entities/category.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product.dart';
+import 'package:joyjoy/features/catalog/domain/entities/product_detail.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product_query.dart';
 import 'package:joyjoy/features/catalog/domain/repositories/catalog_repositories.dart';
 
@@ -26,6 +28,26 @@ class ProductRepositoryImpl implements ProductRepository {
               ),
             )
             .toList(),
+      );
+    } on Object catch (error) {
+      return Failed(mapSupabaseError(error));
+    }
+  }
+
+  @override
+  Future<Result<ProductDetail>> getProductBySlug(String slug) async {
+    try {
+      final row = await _remote.fetchProductBySlug(slug);
+      if (row == null) {
+        return const Failed(
+          NotFoundFailure('Essa peça não está mais disponível.'),
+        );
+      }
+      return Success(
+        CatalogModels.productDetailFromJson(
+          row,
+          imageUrl: _remote.publicImageUrl,
+        ),
       );
     } on Object catch (error) {
       return Failed(mapSupabaseError(error));

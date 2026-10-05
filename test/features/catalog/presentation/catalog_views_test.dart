@@ -9,6 +9,7 @@ import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/presentation/controllers/catalog_controller.dart';
 import 'package:joyjoy/features/catalog/presentation/views/catalog_view.dart';
+import 'package:joyjoy/features/catalog/presentation/views/product_detail_view.dart';
 import 'package:joyjoy/features/store/domain/entities/store_settings.dart';
 
 import '../../../helpers/fakes.dart';
@@ -200,15 +201,16 @@ void main() {
       expect(find.text('Peça 0'), findsOneWidget);
     });
 
-    testWidgets('tocar numa peça navega para /produto/:slug', (tester) async {
-      registerAppFakes();
+    testWidgets('tocar numa peça abre /produto/:slug', (tester) async {
+      final fakes = registerAppFakes();
+      fakes.products.details['peca-0'] = fakeDetail(slug: 'peca-0');
       await pumpAt(tester, AppRoutes.feminino);
 
       await tester.tap(find.text('Peça 0'));
       await tester.pumpAndSettle();
 
-      // A página de produto chega no PR-05; por ora cai no 404.
-      expect(find.text('Página não encontrada'), findsOneWidget);
+      expect(Get.currentRoute, '/produto/peca-0');
+      expect(find.byType(ProductDetailView), findsOneWidget);
     });
   });
 }
