@@ -211,7 +211,9 @@ flowchart LR
   ponta: carrinho com preço forjado R$ 1 → pedido e mensagem com R$ 379,80 do banco. 268 testes + 14 de
   integração + 74 pgTAP. Security review: 1 achado médio (EXECUTE direto em função interna) corrigido.
 
-> 🎯 **Marco 1 — vitrine completa local.** Você testa o fluxo do cliente no celular (rede local) e manda um pedido de teste para o WhatsApp da Ana.
+> 🎯 **Marco 1 — vitrine completa ✅ (2026-10-05)** — no ar em https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (migrations aplicadas; catálogo vazio até o cadastro da Ana).
+>
+> Original: Você testa o fluxo do cliente no celular (rede local) e manda um pedido de teste para o WhatsApp da Ana.
 
 ### Bloco C — Admin
 

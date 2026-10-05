@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-06 + CI mergeados na `main` (2026-10-05). GitHub Pages publicando em https://pimenteldiogo.github.io/lojajoyjoy/ (sem Supabase na nuvem ainda → "Configuração ausente"). PR-07 (pedido + WhatsApp + origem) implementado. Novas branches saem da `main`.
+**Estágio:** PR-01 a PR-07 + CI na `main` (Marco 1: vitrine completa). Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-08 (login da Ana). Novas branches saem da `main`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -56,7 +56,7 @@ dos clientes (Instagram × WhatsApp × site).
 - `.github/workflows/`: `ci.yml` (format `--set-exit-if-changed`, analyze, test, build wasm), `database.yml`
   (Supabase no runner + pgTAP + integração), `deploy-pages.yml` (main → GitHub Pages, `--base-href` do Pages,
   `404.html` = `index.html` para rotas da SPA). **Sempre rodar `fvm dart format lib test` antes do commit** — o CI reprova.
-- Deploy usa Variables `SUPABASE_URL` / `SUPABASE_ANON_KEY` (públicas). Hospedagem final (Vercel) segue no ADR-0012.
+- Deploy usa Variables `SUPABASE_URL` / `SUPABASE_ANON_KEY` (públicas). **Nunca** usar a secret/service key no app, no repo ou em Variables. Na nuvem: cadastro público desligado, Site URL e Redirect `https://pimenteldiogo.github.io/lojajoyjoy/**`. Schema da nuvem só muda com `supabase db push` a partir da `main`. Hospedagem final (Vercel) segue no ADR-0012.
 
 ## Fluxo de PR (obrigatório)
 - Branch `feat/pr-XX-nome` → testes → `flutter analyze` → **`/security-review` ao término de cada PR** → descrição (o que fez + impacto) → **pedir permissão** antes de abrir/mergear o PR.
