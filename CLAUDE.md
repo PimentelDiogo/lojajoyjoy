@@ -46,6 +46,12 @@ dos clientes (Instagram × WhatsApp × site).
 - **Não teremos Figma.** O design é feito em conjunto, a partir de lojas de referência
   (screenshots via Playwright MCP) registradas em `docs/design/referencias.md`. Tokens no ADR-0009.
 
+## CI/CD (ADR-0013)
+- `.github/workflows/`: `ci.yml` (format `--set-exit-if-changed`, analyze, test, build wasm), `database.yml`
+  (Supabase no runner + pgTAP + integração), `deploy-pages.yml` (main → GitHub Pages, `--base-href` do Pages,
+  `404.html` = `index.html` para rotas da SPA). **Sempre rodar `fvm dart format lib test` antes do commit** — o CI reprova.
+- Deploy usa Variables `SUPABASE_URL` / `SUPABASE_ANON_KEY` (públicas). Hospedagem final (Vercel) segue no ADR-0012.
+
 ## Fluxo de PR (obrigatório)
 - Branch `feat/pr-XX-nome` → testes → `flutter analyze` → **`/security-review` ao término de cada PR** → descrição (o que fez + impacto) → **pedir permissão** antes de abrir/mergear o PR.
 - Definition of Done completo em `docs/plano/PLANO-EXECUCAO-MVP.md` §3.

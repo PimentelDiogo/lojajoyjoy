@@ -1,0 +1,74 @@
+# Banco: sobe o Supabase local no runner, aplica as migrations + seed,
+# roda os testes pgTAP (RLS) e os testes de integração do app contra ele.
+name: Database
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'supabase/**'
+      - 'lib/**/data/**'
+      - 'test/integration/**'
+      - '.github/workflows/database.yml'
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'lib/**/data/**'
+      - 'test/integration/**'
+      - '.github/workflows/database.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  supabase:
+    name: Migrations · pgTAP · Integração
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Subir Supabase local (migrations + seed)
+        # Só os serviços usados pelos testes: banco, API, auth e storage.
+        run: supabase start -x studio,imgproxy,mailpit,realtime,edge-runtime,logflare,vector,supavisor
+
+      - name: Testes pgTAP (RLS e regras)
+        run: supabase test db
+
+      - name: Gerar env/local.json para os testes de integração
+        run: |
+          ANON_KEY=$(supabase status -o json | jq -r .ANON_KEY)
+          mkdir -p env
+          jq -n --arg key "$ANON_KEY" '{
+            SUPABASE_URL: "http://127.0.0.1:54321",
+            SUPABASE_ANON_KEY: $key,
+            APP_BASE_URL: "http://localhost:8080"
+          }' > env/local.json
+
+      - name: Versão do Flutter (.fvmrc)
+        id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.version }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Testes de integração (app × Supabase real)
+        run: flutter test --run-skipped -t integration
+
+      - name: Parar Supabase
+        if: always()
+        run: supabase stop --no-backup
