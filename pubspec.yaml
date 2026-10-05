@@ -1,0 +1,35 @@
+name: ondas_que_faltam
+description: "Ondas que Faltam — loja de roupas com pedido pelo WhatsApp"
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  cached_network_image: ^4.0.3
+  cupertino_icons: ^2.0.0
+  equatable: ^3.0.0
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  get: ^4.7.3
+  get_storage: ^2.1.1
+  google_fonts: ^8.2.1
+  intl: ^0.20.2
+  meta: ^1.18.0
+  supabase_flutter: ^2.18.0
+  url_launcher: ^6.3.2
+  uuid: ^4.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.5
+  very_good_analysis: ^10.3.0
+
+flutter:
+  uses-material-design: true

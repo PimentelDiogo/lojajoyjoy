@@ -1,0 +1,48 @@
+# Misc
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IDEs (o projeto usa VS Code; arquivos do IntelliJ são locais)
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# FVM (a versão fica em .fvmrc, que é versionado)
+.fvm/
+
+# Variáveis de ambiente — só o exemplo vai para o git
+env/*.json
+!env/example.json
+
+# Supabase CLI
+supabase/.branches
+supabase/.temp
+supabase/.env
+
+# Playwright MCP (logs/snapshots temporários)
+.playwright-mcp/
+
+# Vercel
+.vercel
