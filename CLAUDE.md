@@ -46,6 +46,10 @@ dos clientes (Instagram × WhatsApp × site).
   (`ProductRepository`, `CategoryRepository`, `StoreRepository`) ficam no `InitialBinding`.
 - Componentes novos (PR-05): `ColorSelector`/`SizeSelector` (`option_selectors.dart`; opção esgotada fica riscada mas clicável p/ "Avise-me"), `QuantityStepper`, `ProductImage` (foto + placeholder). `SizeOrder` ordena PP→GG→números.
 - Controllers por rota com parâmetro usam `tag` = parâmetro (ex.: `ProductDetailController` tag = slug).
+- **Rodapé (`StoreFooter`, feature store):** home + fim do grid. Dados de `store_settings` (`instagram_handle`,
+  `pickup_address`, `payment_methods`) — links montados no app (Instagram/Maps/WhatsApp), nunca URL do banco.
+  Ícones de marca via `font_awesome_flutter` (`FaIconData`).
+- **SnackBar com ação:** sempre `persist: false` + `duration` (no Flutter 3.44, com ação ele fica até tocar).
 - Links externos só via `LinkLauncher` + `WhatsAppLink.build/tryBuild` (codifica o texto; valida o número).
 - Fontes do Google são pré-carregadas no `main` (`AppTypography.preload`, timeout 3 s) — sem isso, chips
   cortavam o texto ao trocar de fonte.

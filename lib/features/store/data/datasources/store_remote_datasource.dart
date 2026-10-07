@@ -14,7 +14,8 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       .from('store_settings')
       .select(
         'store_name, whatsapp_number, greeting_message, announcement, '
-        'is_open, closed_message, low_stock_threshold',
+        'is_open, closed_message, low_stock_threshold, '
+        'instagram_handle, pickup_address, payment_methods',
       )
       .eq('id', 1)
       .single();

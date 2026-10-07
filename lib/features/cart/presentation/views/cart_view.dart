@@ -77,6 +77,8 @@ class _ItemsList extends StatelessWidget {
       ..showSnackBar(
         SnackBar(
           content: Text('${item.productName} removida do carrinho'),
+          // "Desfazer" some sozinho no tempo padrão (4 s) — sem persist.
+          persist: false,
           action: SnackBarAction(
             label: 'Desfazer',
             onPressed: () =>

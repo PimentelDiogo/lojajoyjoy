@@ -239,6 +239,10 @@ class _ProductInfo extends StatelessWidget {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
+          // Com ação, o SnackBar do Flutter fica até a pessoa tocar (persist).
+          // Aqui some sozinho em 3 s.
+          duration: snackBarDuration,
+          persist: false,
           action: SnackBarAction(
             label: 'Ver carrinho',
             onPressed: () => unawaited(Get.toNamed<void>(AppRoutes.cart)),
@@ -247,6 +251,9 @@ class _ProductInfo extends StatelessWidget {
       );
   }
 }
+
+/// Tempo do aviso "Adicionado ao carrinho".
+const snackBarDuration = Duration(seconds: 3);
 
 class _SoldOutBox extends StatelessWidget {
   const _SoldOutBox({required this.controller});
