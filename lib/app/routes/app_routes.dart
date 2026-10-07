@@ -18,6 +18,10 @@ abstract final class AppRoutes {
   /// Vitrine do design system — registrada só em debug.
   static const designSystem = '/design';
 
+  static String adminLoginPath({String? next}) => next == null
+      ? adminLogin
+      : '$adminLogin?next=${Uri.encodeComponent(next)}';
+
   static String productPath(String slug) =>
       '/produto/${Uri.encodeComponent(slug)}';
   static String orderPath(String code) =>

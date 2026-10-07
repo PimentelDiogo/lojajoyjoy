@@ -6,6 +6,9 @@ import 'package:joyjoy/core/services/browser_info.dart';
 import 'package:joyjoy/core/services/key_value_store.dart';
 import 'package:joyjoy/core/services/link_launcher.dart';
 import 'package:joyjoy/core/theme/theme_controller.dart';
+import 'package:joyjoy/features/admin/auth/domain/auth.dart';
+import 'package:joyjoy/features/admin/auth/presentation/controllers/auth_controller.dart';
+import 'package:joyjoy/features/admin/dashboard/domain/dashboard.dart';
 import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
 import 'package:joyjoy/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:joyjoy/features/cart/domain/entities/cart.dart';
@@ -278,6 +281,66 @@ class FakeTrackingRepository implements TrackingRepository {
   }
 }
 
+const fakeAdmin = AdminUser(id: 'a1', email: 'ana@joyjoy.com.br');
+
+/// Login fake: senha correta = 'senha-certa'; [isAdmin] decide o acesso.
+class FakeAuthRepository implements AuthRepository {
+  FakeAuthRepository({this.session = false, this.isAdmin = true});
+
+  bool session;
+  bool isAdmin;
+  int signOuts = 0;
+
+  @override
+  bool get hasSession => session;
+
+  @override
+  Future<Result<AdminUser>> signIn(SignInParams params) async {
+    if (params.password != 'senha-certa') {
+      return const Failed(UnauthorizedFailure('E-mail ou senha incorretos.'));
+    }
+    session = true;
+    return currentAdmin();
+  }
+
+  @override
+  Future<Result<AdminUser>> currentAdmin() async {
+    if (!session) return const Failed(UnauthorizedFailure());
+    if (!isAdmin) {
+      session = false;
+      return const Failed(
+        UnauthorizedFailure('Este usuário não tem acesso à área da loja.'),
+      );
+    }
+    return const Success(fakeAdmin);
+  }
+
+  @override
+  Future<void> signOut() async {
+    signOuts++;
+    session = false;
+  }
+}
+
+class FakeDashboardRepository implements DashboardRepository {
+  FakeDashboardRepository([
+    this.stats = const AdminStats(
+      pendingOrders: 3,
+      activeProducts: 6,
+      visitsBySource: {'instagram': 12, 'whatsapp': 5, 'site': 2},
+    ),
+  ]);
+
+  AdminStats stats;
+  DateTime? lastSince;
+
+  @override
+  Future<Result<AdminStats>> getStats({required DateTime since}) async {
+    lastSince = since;
+    return Success(stats);
+  }
+}
+
 /// Registra as dependências globais com fakes (equivalente ao InitialBinding).
 ({
   FakeProductRepository products,
@@ -287,6 +350,7 @@ class FakeTrackingRepository implements TrackingRepository {
   CartController cart,
   FakeOrderRepository orders,
   FakeTrackingRepository tracking,
+  FakeAuthRepository auth,
 })
 registerAppFakes({
   FakeProductRepository? products,
@@ -294,8 +358,10 @@ registerAppFakes({
   FakeStoreRepository? store,
   InMemoryKeyValueStore? storage,
   FakeOrderRepository? orders,
+  FakeAuthRepository? auth,
   Uri? url,
 }) {
+  final authRepo = auth ?? FakeAuthRepository();
   final orderRepo = orders ?? FakeOrderRepository();
   final tracking = FakeTrackingRepository();
   final productRepo = products ?? FakeProductRepository();
@@ -322,6 +388,17 @@ registerAppFakes({
     )
     ..put<ProductRepository>(productRepo, permanent: true)
     ..put<OrderRepository>(orderRepo, permanent: true)
+    ..put<AuthRepository>(authRepo, permanent: true)
+    ..put(
+      AuthController(
+        repository: authRepo,
+        signInUseCase: SignIn(authRepo),
+        getCurrentAdmin: GetCurrentAdmin(authRepo),
+        signOutUseCase: SignOut(authRepo),
+      ),
+      permanent: true,
+    )
+    ..put<DashboardRepository>(FakeDashboardRepository(), permanent: true)
     ..put(
       SessionTracker(
         store: kv,
@@ -348,6 +425,7 @@ registerAppFakes({
     cart: cart,
     orders: orderRepo,
     tracking: tracking,
+    auth: authRepo,
   );
 }
 

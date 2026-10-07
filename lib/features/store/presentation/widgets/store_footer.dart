@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:joyjoy/app/routes/app_routes.dart';
 import 'package:joyjoy/core/config/app_constants.dart';
 import 'package:joyjoy/core/responsive/app_responsive.dart';
 import 'package:joyjoy/core/responsive/responsive_page.dart';
@@ -180,11 +181,22 @@ class _FooterContent extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.xs),
-            Text(
-              '© ${DateTime.now().year} ${AppConstants.storeName}',
-              style: textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '© ${DateTime.now().year} ${AppConstants.storeName}',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () =>
+                      unawaited(Get.toNamed<void>(AppRoutes.adminLogin)),
+                  child: const Text('Área da loja'),
+                ),
+              ],
             ),
           ],
         ),
