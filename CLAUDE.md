@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-07 + CI na `main` (Marco 1: vitrine completa). Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-08 (login da Ana). Novas branches saem da `main`.
+**Estágio:** PR-01 a PR-08 + CI na `main` (Marco 1: vitrine completa; PR-08 = login da Ana + área admin). Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-09 (cadastro de produtos). Novas branches saem da `main`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -70,6 +70,9 @@ dos clientes (Instagram × WhatsApp × site).
 - **Rotas:** registrar toda página via `AppPages._page(...)` — aplica o `StrictRouteMiddleware` (o GetX casa
   rotas por prefixo e, sem isso, URL desconhecida abriria a landing em vez do 404).
 - Admin local (seed, só dev): `ana@joyjoy.com.br`. Na nuvem usar outra senha forte.
+- **Admin (PR-08):** `features/admin/` é carregado por **deferred import** (`admin_area.dart` + `DeferredView`).
+  `AuthController` global (InitialBinding). `AdminGuard` é só UX — a segurança é RLS/RPC com `is_admin()`.
+  Retorno pós-login só via `safeNextPath`. Telas do admin dentro do `AdminShell` (Rail no desktop, Drawer no celular).
 
 ## Design system (PR-02)
 - **Marca JOYJOY:** cor principal terracota (`primary` `#B04E1C`); laranja exato do logo `#E0662A` = `appColors.brand`, **só para gráficos** (3.1:1). Fundo = creme do logo `#FCF3EA`. Feminino = `tertiaryContainer` (rosa), Masculino = `secondaryContainer` (azul).

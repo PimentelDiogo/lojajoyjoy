@@ -1,9 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:joyjoy/app/middlewares/admin_guard.dart';
 import 'package:joyjoy/app/middlewares/strict_route_middleware.dart';
 import 'package:joyjoy/app/pages/design_system_view.dart';
 import 'package:joyjoy/app/routes/app_routes.dart';
+import 'package:joyjoy/app/widgets/deferred_view.dart';
 import 'package:joyjoy/core/pages/not_found_view.dart';
+import 'package:joyjoy/features/admin/admin_area.dart' deferred as admin_area;
+import 'package:joyjoy/features/admin/auth/presentation/controllers/auth_controller.dart';
+import 'package:joyjoy/features/admin/auth/presentation/controllers/login_controller.dart';
+import 'package:joyjoy/features/admin/auth/presentation/views/login_view.dart';
 import 'package:joyjoy/features/cart/presentation/views/cart_view.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/presentation/bindings/catalog_binding.dart';
@@ -54,6 +60,27 @@ abstract final class AppPages {
       name: AppRoutes.order,
       page: () => OrderView(code: (Get.parameters['code'] ?? '').toUpperCase()),
       binding: OrderBinding(),
+    ),
+    // Admin (ADR-0011). Login no bundle principal; o resto é deferred.
+    _page<void>(
+      name: AppRoutes.adminLogin,
+      page: LoginView.new,
+      binding: BindingsBuilder<void>(
+        () => Get.lazyPut(
+          () => LoginController(
+            auth: Get.find<AuthController>(),
+            next: Get.parameters['next'],
+          ),
+        ),
+      ),
+    ),
+    _page<void>(
+      name: AppRoutes.admin,
+      page: () => DeferredView(
+        load: admin_area.loadLibrary,
+        builder: (_) => admin_area.buildAdminHome(),
+      ),
+      middlewares: [AdminGuard()],
     ),
     if (kDebugMode)
       _page<void>(name: AppRoutes.designSystem, page: DesignSystemView.new),

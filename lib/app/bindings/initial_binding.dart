@@ -6,6 +6,9 @@ import 'package:joyjoy/core/services/browser_info.dart';
 import 'package:joyjoy/core/services/key_value_store.dart';
 import 'package:joyjoy/core/services/link_launcher.dart';
 import 'package:joyjoy/core/theme/theme_controller.dart';
+import 'package:joyjoy/features/admin/auth/data/auth_repository_impl.dart';
+import 'package:joyjoy/features/admin/auth/domain/auth.dart';
+import 'package:joyjoy/features/admin/auth/presentation/controllers/auth_controller.dart';
 import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
 import 'package:joyjoy/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:joyjoy/features/cart/domain/repositories/cart_repository.dart';
@@ -30,7 +33,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Executado no `main` **antes** do `runApp`, porque o `GetMaterialApp`
 /// já precisa do `ThemeController` para montar o tema.
 ///
-/// Próximos PRs registram aqui: `AuthController` (PR-08).
 class InitialBinding extends Bindings {
   InitialBinding({
     required this.env,
@@ -87,6 +89,17 @@ class InitialBinding extends Bindings {
       // Pedidos (checkout e página do pedido).
       ..put<OrderRepository>(
         OrderRepositoryImpl(OrderRemoteDataSourceImpl(supabase)),
+        permanent: true,
+      )
+      // Sessão da Ana (login do admin — ADR-0011).
+      ..put<AuthRepository>(AuthRepositoryImpl(supabase), permanent: true)
+      ..put(
+        AuthController(
+          repository: Get.find(),
+          signInUseCase: SignIn(Get.find()),
+          getCurrentAdmin: GetCurrentAdmin(Get.find()),
+          signOutUseCase: SignOut(Get.find()),
+        ),
         permanent: true,
       )
       // Sessão anônima + origem do acesso (ADR-0007), registrada 1x por sessão.

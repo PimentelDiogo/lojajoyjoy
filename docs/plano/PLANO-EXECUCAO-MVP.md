@@ -220,11 +220,15 @@ flowchart LR
 
 ### Bloco C — Admin
 
-#### PR-08 · Login da Ana + área admin (1 dia)
+#### PR-08 · Login da Ana + área admin (1 dia) — ✅ concluído
 - `features/admin/auth`: `SignIn`, `SignOut`, `GetCurrentAdmin`; `AuthController` global.
 - `AdminGuard` (`GetMiddleware`) em `/admin/**`; módulo admin com **deferred loading**.
 - Layout admin responsivo (Drawer no celular, NavigationRail no desktop).
 - **Testes:** `AuthController`, comportamento do guard.
+- **Feito:** `/admin/login` (e-mail + senha, mensagem genérica de erro), login confirma `is_admin()` e desloga quem
+  não é admin; `?next=` validado por `safeNextPath` (sem open redirect); `/admin` com Início (pedidos pendentes,
+  produtos ativos, visitas por origem em 7 dias); Pedidos/Produtos/Configurações "Em breve" (PR-09/PR-10).
+  Link "Área da loja" no rodapé. Dados do painel protegidos por RLS (`is_admin()`), não pelo guard.
 
 #### PR-09 · Cadastro de produtos (3 dias)
 - Lista de produtos (busca, ativo/inativo).
