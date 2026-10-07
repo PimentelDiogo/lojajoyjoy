@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:get/get.dart';
 import 'package:joyjoy/core/config/env.dart';
 import 'package:joyjoy/core/errors/failure.dart';
@@ -9,6 +11,8 @@ import 'package:joyjoy/core/theme/theme_controller.dart';
 import 'package:joyjoy/features/admin/auth/domain/auth.dart';
 import 'package:joyjoy/features/admin/auth/presentation/controllers/auth_controller.dart';
 import 'package:joyjoy/features/admin/dashboard/domain/dashboard.dart';
+import 'package:joyjoy/features/admin/products/domain/admin_products.dart';
+import 'package:joyjoy/features/admin/products/domain/entities/product_draft.dart';
 import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
 import 'package:joyjoy/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:joyjoy/features/cart/domain/entities/cart.dart';
@@ -341,6 +345,173 @@ class FakeDashboardRepository implements DashboardRepository {
   }
 }
 
+/// Peça salva de exemplo para o admin (mock de teste: sem banco nos testes de UI).
+ProductDraft fakeDraft({String id = 'p1'}) => ProductDraft(
+  id: id,
+  isNew: false,
+  slug: 'vestido-midi',
+  name: 'Vestido Midi',
+  description: 'Linho.',
+  gender: Gender.feminino,
+  categoryId: 'c1',
+  price: 189.9,
+  images: const [
+    DraftImage(key: 'p1/capa.webp', storagePath: 'p1/capa.webp'),
+    DraftImage(key: 'p1/costas.webp', storagePath: 'p1/costas.webp'),
+  ],
+  colors: const [DraftColor(key: 'c0', name: 'Rosa', hex: '#F4A7B9')],
+  sizes: const ['P', 'M'],
+  cells: const {
+    'c0|P': DraftCell(variantId: 'v1', stock: 3, baseStock: 3),
+    'c0|M': DraftCell(variantId: 'v2', stock: 1, baseStock: 1),
+  },
+);
+
+AdminProductSummary fakeAdminProduct(
+  int i, {
+  bool active = true,
+  int stock = 4,
+  String? category,
+}) => AdminProductSummary(
+  id: 'p$i',
+  name: 'Peça $i',
+  slug: 'peca-$i',
+  gender: Gender.feminino,
+  price: 100 + i,
+  totalStock: stock,
+  isActive: active,
+  categoryName: category,
+);
+
+/// PNG 1×1 válido (o `Image.memory` da prévia precisa decodificar).
+final _tinyPng = Uint8List.fromList(const [
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, //
+  0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, //
+  0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, //
+  0x0D, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0xF8, 0xCF, 0xC0, 0xF0, //
+  0x1F, 0x00, 0x05, 0x00, 0x01, 0xFF, 0x89, 0x99, 0x3D, 0x1D, 0x00, 0x00, //
+  0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
+]);
+
+PickedImage fakePickedImage() =>
+    PickedImage(bytes: _tinyPng, contentType: 'image/webp');
+
+/// Cadastro de peças em memória. Registra cada chamada para os testes.
+class FakeAdminProductRepository implements AdminProductRepository {
+  FakeAdminProductRepository({
+    List<AdminProductSummary>? products,
+    Map<String, ProductDraft>? drafts,
+    List<Category>? categories,
+  }) : products = products ?? [fakeAdminProduct(1), fakeAdminProduct(2)],
+       drafts = drafts ?? {'p1': fakeDraft()},
+       categories =
+           categories ??
+           const [
+             Category(
+               id: 'c1',
+               name: 'Vestidos',
+               slug: 'vestidos',
+               gender: Gender.feminino,
+             ),
+             Category(
+               id: 'c2',
+               name: 'Camisas',
+               slug: 'camisas',
+               gender: Gender.masculino,
+             ),
+             Category(
+               id: 'c3',
+               name: 'Calças',
+               slug: 'calcas',
+               gender: Gender.unissex,
+             ),
+           ];
+
+  List<AdminProductSummary> products;
+  Map<String, ProductDraft> drafts;
+  List<Category> categories;
+
+  final List<String> uploads = [];
+  final List<List<String>> removed = [];
+  final List<ProductDraft> saved = [];
+  final List<({String id, bool active})> activeChanges = [];
+
+  Failure? uploadFailure;
+  Failure? saveFailure;
+  Failure? setActiveFailure;
+
+  @override
+  Future<Result<List<AdminProductSummary>>> listProducts() async =>
+      Success(products);
+
+  @override
+  Future<Result<ProductDraft>> getDraft(String id) async {
+    final draft = drafts[id];
+    return draft == null
+        ? const Failed(NotFoundFailure('Peça não encontrada.'))
+        : Success(draft);
+  }
+
+  @override
+  Future<Result<void>> setActive(String id, {required bool active}) async {
+    activeChanges.add((id: id, active: active));
+    if (setActiveFailure case final failure?) return Failed(failure);
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<List<Category>>> listCategories() async => Success(categories);
+
+  @override
+  Future<Result<Category>> createCategory(String name, Gender gender) async {
+    final category = Category(
+      id: 'new-${categories.length}',
+      name: name,
+      slug: name.toLowerCase(),
+      gender: gender,
+    );
+    categories = [...categories, category];
+    return Success(category);
+  }
+
+  @override
+  Future<Result<String>> uploadImage(
+    String productId,
+    PickedImage image,
+  ) async {
+    if (uploadFailure case final failure?) return Failed(failure);
+    final path = '$productId/foto-${uploads.length}.${image.extension}';
+    uploads.add(path);
+    return Success(path);
+  }
+
+  @override
+  Future<Result<SavedProduct>> save(ProductDraft draft) async {
+    saved.add(draft);
+    if (saveFailure case final failure?) return Failed(failure);
+    return Success(SavedProduct(id: draft.id, slug: draft.slug ?? 'nova-peca'));
+  }
+
+  @override
+  Future<void> removeImages(List<String> storagePaths) async =>
+      removed.add(storagePaths);
+}
+
+/// Seletor de fotos fake: devolve [next] na próxima escolha.
+class FakeImagePicker implements ProductImagePicker {
+  List<PickedImage> next = [fakePickedImage()];
+  int skipped = 0;
+  int? lastMax;
+
+  @override
+  Future<({List<PickedImage> images, int skipped})> pick({
+    required int max,
+  }) async {
+    lastMax = max;
+    return (images: next.take(max).toList(), skipped: skipped);
+  }
+}
+
 /// Registra as dependências globais com fakes (equivalente ao InitialBinding).
 ({
   FakeProductRepository products,
@@ -351,6 +522,8 @@ class FakeDashboardRepository implements DashboardRepository {
   FakeOrderRepository orders,
   FakeTrackingRepository tracking,
   FakeAuthRepository auth,
+  FakeAdminProductRepository adminProducts,
+  FakeImagePicker imagePicker,
 })
 registerAppFakes({
   FakeProductRepository? products,
@@ -359,8 +532,11 @@ registerAppFakes({
   InMemoryKeyValueStore? storage,
   FakeOrderRepository? orders,
   FakeAuthRepository? auth,
+  FakeAdminProductRepository? adminProducts,
   Uri? url,
 }) {
+  final adminProductRepo = adminProducts ?? FakeAdminProductRepository();
+  final imagePicker = FakeImagePicker();
   final authRepo = auth ?? FakeAuthRepository();
   final orderRepo = orders ?? FakeOrderRepository();
   final tracking = FakeTrackingRepository();
@@ -399,6 +575,8 @@ registerAppFakes({
       permanent: true,
     )
     ..put<DashboardRepository>(FakeDashboardRepository(), permanent: true)
+    ..put<AdminProductRepository>(adminProductRepo, permanent: true)
+    ..put<ProductImagePicker>(imagePicker, permanent: true)
     ..put(
       SessionTracker(
         store: kv,
@@ -426,6 +604,8 @@ registerAppFakes({
     orders: orderRepo,
     tracking: tracking,
     auth: authRepo,
+    adminProducts: adminProductRepo,
+    imagePicker: imagePicker,
   );
 }
 

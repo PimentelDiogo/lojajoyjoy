@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-08 + CI na `main` (Marco 1: vitrine completa; PR-08 = login da Ana + área admin). Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-09 (cadastro de produtos). Novas branches saem da `main`.
+**Estágio:** PR-01 a PR-08 + CI na `main` (Marco 1: vitrine completa; PR-08 = login da Ana + área admin). PR-09 (cadastro de peças) na branch `feat/pr-09-cadastro-produtos`. Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-10 (pedidos + baixa de estoque). Novas branches saem da `main`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -73,6 +73,17 @@ dos clientes (Instagram × WhatsApp × site).
 - **Admin (PR-08):** `features/admin/` é carregado por **deferred import** (`admin_area.dart` + `DeferredView`).
   `AuthController` global (InitialBinding). `AdminGuard` é só UX — a segurança é RLS/RPC com `is_admin()`.
   Retorno pós-login só via `safeNextPath`. Telas do admin dentro do `AdminShell` (Rail no desktop, Drawer no celular).
+- **Cadastro de peças (PR-09):** `features/admin/products`. Salvar = `SaveProduct` (valida → sobe fotos novas →
+  RPC `save_product` → apaga fotos removidas; se a RPC falhar, apaga as que acabou de subir). Estoque vai como
+  `stock` + `base_stock` (o banco aplica a diferença). Fotos: `ProductImagePicker` (web: `<input type=file>` +
+  canvas, sem pacote; stub no VM). Admin **pode importar entidades de `catalog/domain`** (`Gender`, `Category`,
+  `SizeOrder`) — é o modelo da loja.
+- Telas do admin montadas fora de `Binding` usam `ControllerScope` (`app/widgets/`): cria o controller ao abrir
+  e descarta ao sair (rebuild não recria; "nova peça" sempre começa vazia).
+- `Obx` só observa o que é lido **no próprio builder** — widget filho que lê `.value` no `build` dele precisa do
+  seu `Obx` (bug da busca/categoria no PR-09). `RxMap/RxList.assignAll` com coleção `const` → copiar antes.
+- `Card` junta a semântica dos filhos (`semanticContainer: true`): em cards com vários botões usar `false`.
+- `SegmentedButton` e `IconButton.filledTonal` usariam o azul do Masculino: tema/estilo com `primaryContainer`.
 
 ## Design system (PR-02)
 - **Marca JOYJOY:** cor principal terracota (`primary` `#B04E1C`); laranja exato do logo `#E0662A` = `appColors.brand`, **só para gráficos** (3.1:1). Fundo = creme do logo `#FCF3EA`. Feminino = `tertiaryContainer` (rosa), Masculino = `secondaryContainer` (azul).

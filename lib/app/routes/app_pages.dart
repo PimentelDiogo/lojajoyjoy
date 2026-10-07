@@ -82,6 +82,34 @@ abstract final class AppPages {
       ),
       middlewares: [AdminGuard()],
     ),
+    _page<void>(
+      name: AppRoutes.adminProducts,
+      page: () => DeferredView(
+        load: admin_area.loadLibrary,
+        builder: (_) => admin_area.buildAdminProducts(),
+      ),
+      middlewares: [AdminGuard()],
+    ),
+    // `nova` antes de `:id`: o GetX usa a primeira rota que casar.
+    _page<void>(
+      name: AppRoutes.adminProductNew,
+      page: () => DeferredView(
+        load: admin_area.loadLibrary,
+        builder: (_) => admin_area.buildAdminProductForm(null),
+      ),
+      middlewares: [AdminGuard()],
+    ),
+    _page<void>(
+      name: AppRoutes.adminProductEdit,
+      page: () {
+        final id = Get.parameters['id'] ?? '';
+        return DeferredView(
+          load: admin_area.loadLibrary,
+          builder: (_) => admin_area.buildAdminProductForm(id),
+        );
+      },
+      middlewares: [AdminGuard()],
+    ),
     if (kDebugMode)
       _page<void>(name: AppRoutes.designSystem, page: DesignSystemView.new),
     notFound,

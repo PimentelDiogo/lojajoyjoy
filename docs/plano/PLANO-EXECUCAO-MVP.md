@@ -230,12 +230,21 @@ flowchart LR
   produtos ativos, visitas por origem em 7 dias); Pedidos/Produtos/Configurações "Em breve" (PR-09/PR-10).
   Link "Área da loja" no rodapé. Dados do painel protegidos por RLS (`is_admin()`), não pelo guard.
 
-#### PR-09 · Cadastro de produtos (3 dias)
+#### PR-09 · Cadastro de produtos (3 dias) — ✅ concluído
 - Lista de produtos (busca, ativo/inativo).
 - Formulário: nome, descrição, seção, categoria, preço, destaque.
 - Upload de **várias fotos** com compressão no cliente, reordenar, definir capa.
 - Grade **tamanho × cor** (cor com nome + hex), estoque por variante.
 - **Testes:** `SaveProductUseCase`, validações do form, `ProductFormController`; pgTAP do storage (anônimo não faz upload).
+- **Feito:**
+  - `/admin/produtos`: busca sem acento, filtro Todas/Na vitrine/Ocultas, mostrar/ocultar com um toque.
+  - `/admin/produtos/nova` e `/admin/produtos/:id`: até 8 fotos comprimidas no navegador (canvas → WebP/JPEG,
+    lado maior 1600 px), capa e ordem por botões, grade cor × tamanho (campo vazio = combinação não existe;
+    0 = esgotado), categoria nova direto do formulário.
+  - RPC `save_product` (transação única, `security invoker`): estoque por **diferença** (venda feita enquanto a
+    Ana edita não se perde), variante com pedido é desativada em vez de apagada, foto precisa ser `<id>/…` e
+    existir no bucket, slug só na criação (links enviados não quebram). `create_category`, `slugify`.
+  - Sem "excluir peça" (pedidos referenciam as variantes): ocultar resolve.
 
 #### PR-10 · Pedidos + baixa de estoque (2 dias)
 - RPCs `confirm_order` / `cancel_order` + migration `stock_movements`.
