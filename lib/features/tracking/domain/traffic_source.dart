@@ -1,7 +1,28 @@
 import 'package:equatable/equatable.dart';
 
 /// Canal de onde o cliente veio (enum `traffic_source` do banco).
-enum TrafficSource { instagram, whatsapp, facebook, busca, qrcode, site, outro }
+enum TrafficSource {
+  instagram('Instagram'),
+  whatsapp('WhatsApp'),
+  facebook('Facebook'),
+  busca('Busca (Google)'),
+  qrcode('QR code'),
+  site('Direto no site'),
+  outro('Outros');
+
+  const TrafficSource(this.label);
+
+  /// Como a Ana vê no painel.
+  final String label;
+
+  /// Rótulo pelo nome do banco (`instagram`…); o próprio texto se desconhecido.
+  static String labelOf(String name) {
+    for (final source in values) {
+      if (source.name == name) return source.label;
+    }
+    return name;
+  }
+}
 
 /// Resultado da detecção de origem.
 class SourceDetection extends Equatable {

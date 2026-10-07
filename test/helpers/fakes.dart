@@ -11,6 +11,7 @@ import 'package:joyjoy/core/theme/theme_controller.dart';
 import 'package:joyjoy/features/admin/auth/domain/auth.dart';
 import 'package:joyjoy/features/admin/auth/presentation/controllers/auth_controller.dart';
 import 'package:joyjoy/features/admin/dashboard/domain/dashboard.dart';
+import 'package:joyjoy/features/admin/orders/domain/admin_orders.dart';
 import 'package:joyjoy/features/admin/products/domain/admin_products.dart';
 import 'package:joyjoy/features/admin/products/domain/entities/product_draft.dart';
 import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
@@ -268,6 +269,73 @@ class FakeOrderRepository implements OrderRepository {
         ? const Failed(NotFoundFailure('Pedido não encontrado.'))
         : Success(order);
   }
+
+  /// Ações da Ana (código do pedido), para conferir nos testes.
+  final List<String> actions = [];
+
+  /// Se definido, confirmar/cancelar falham com isto.
+  Failure? actionFailure;
+
+  @override
+  Future<Result<Order>> confirmOrder(String code) =>
+      _act('confirm', code, OrderStatus.confirmed);
+
+  @override
+  Future<Result<Order>> cancelOrder(String code) =>
+      _act('cancel', code, OrderStatus.cancelled);
+
+  Future<Result<Order>> _act(
+    String action,
+    String code,
+    OrderStatus status,
+  ) async {
+    actions.add('$action:$code');
+    if (actionFailure case final failure?) return Failed(failure);
+    final current = orders[code];
+    if (current == null) {
+      return const Failed(NotFoundFailure('Pedido não encontrado.'));
+    }
+    final updated = fakeOrder(
+      code: code,
+      status: status,
+      items: current.items,
+      total: current.total,
+      customerName: current.customerName,
+    );
+    orders[code] = updated;
+    return Success(updated);
+  }
+}
+
+AdminOrderSummary fakeAdminOrder(
+  String code, {
+  OrderStatus status = OrderStatus.pending,
+  String? customerName = 'Maria',
+}) => AdminOrderSummary(
+  code: code,
+  status: status,
+  total: 189.9,
+  createdAt: DateTime.utc(2026, 10, 5, 15, 30),
+  itemCount: 2,
+  customerName: customerName,
+  source: 'instagram',
+);
+
+class FakeAdminOrderRepository implements AdminOrderRepository {
+  FakeAdminOrderRepository([List<AdminOrderSummary>? orders])
+    : orders =
+          orders ??
+          [
+            fakeAdminOrder('AAA111'),
+            fakeAdminOrder('BBB222', status: OrderStatus.confirmed),
+            fakeAdminOrder('CCC333', status: OrderStatus.cancelled),
+            fakeAdminOrder('DDD444', customerName: null),
+          ];
+
+  List<AdminOrderSummary> orders;
+
+  @override
+  Future<Result<List<AdminOrderSummary>>> listOrders() async => Success(orders);
 }
 
 class FakeTrackingRepository implements TrackingRepository {
@@ -533,6 +601,7 @@ registerAppFakes({
   FakeOrderRepository? orders,
   FakeAuthRepository? auth,
   FakeAdminProductRepository? adminProducts,
+  FakeAdminOrderRepository? adminOrders,
   Uri? url,
 }) {
   final adminProductRepo = adminProducts ?? FakeAdminProductRepository();
@@ -576,6 +645,10 @@ registerAppFakes({
     )
     ..put<DashboardRepository>(FakeDashboardRepository(), permanent: true)
     ..put<AdminProductRepository>(adminProductRepo, permanent: true)
+    ..put<AdminOrderRepository>(
+      adminOrders ?? FakeAdminOrderRepository(),
+      permanent: true,
+    )
     ..put<ProductImagePicker>(imagePicker, permanent: true)
     ..put(
       SessionTracker(

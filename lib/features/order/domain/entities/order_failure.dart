@@ -28,6 +28,32 @@ final class OrderFailure extends Failure {
     variantId: variantId,
   );
 
+  /// Erros de confirmar/cancelar (`confirm_order` / `cancel_order`).
+  /// [detail] = peça sem estoque ("Vestido · Tam M · Rosa (tem 1, pedido 2)").
+  factory OrderFailure.fromActionCode(
+    String code, {
+    String? detail,
+  }) => OrderFailure(
+    switch (code) {
+      'insufficient_stock' =>
+        'Sem estoque para confirmar: ${detail ?? 'uma das peças'}. '
+            'Ajuste o estoque da peça ou cancele o pedido.',
+      'invalid_status' =>
+        'Este pedido não pode mais ser alterado (já foi cancelado ou expirou).',
+      'order_not_found' => 'Pedido não encontrado.',
+      'forbidden' => 'Sua sessão expirou. Entre de novo.',
+      _ => 'Não foi possível atualizar o pedido. Tente novamente.',
+    },
+    code: code,
+  );
+
+  static const actionCodes = {
+    'insufficient_stock',
+    'invalid_status',
+    'order_not_found',
+    'forbidden',
+  };
+
   /// Variante com problema (estoque/indisponível), quando a RPC informa.
   final String? variantId;
 

@@ -30,7 +30,11 @@ class AdminShell extends StatefulWidget {
 
   static const menu = [
     AdminMenuItem('Início', Icons.dashboard_outlined, route: AppRoutes.admin),
-    AdminMenuItem('Pedidos', Icons.receipt_long_outlined, soon: 'Em breve'),
+    AdminMenuItem(
+      'Pedidos',
+      Icons.receipt_long_outlined,
+      route: AppRoutes.adminOrders,
+    ),
     AdminMenuItem(
       'Produtos',
       Icons.checkroom_outlined,

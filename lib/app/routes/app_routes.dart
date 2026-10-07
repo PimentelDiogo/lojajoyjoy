@@ -12,6 +12,7 @@ abstract final class AppRoutes {
 
   static const adminLogin = '/admin/login';
   static const admin = '/admin';
+  static const adminOrders = '/admin/pedidos';
   static const adminProducts = '/admin/produtos';
   static const adminProductNew = '/admin/produtos/nova';
   static const adminProductEdit = '/admin/produtos/:id';

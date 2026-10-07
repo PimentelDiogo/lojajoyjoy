@@ -19,3 +19,19 @@ class GetOrder implements UseCase<Order, String> {
   @override
   Future<Result<Order>> call(String params) => _repository.getOrder(params);
 }
+
+class ConfirmOrder implements UseCase<Order, String> {
+  ConfirmOrder(this._repository);
+  final OrderRepository _repository;
+
+  @override
+  Future<Result<Order>> call(String code) => _repository.confirmOrder(code);
+}
+
+class CancelOrder implements UseCase<Order, String> {
+  CancelOrder(this._repository);
+  final OrderRepository _repository;
+
+  @override
+  Future<Result<Order>> call(String code) => _repository.cancelOrder(code);
+}
