@@ -13,6 +13,27 @@ import 'package:joyjoy/features/admin/auth/presentation/controllers/login_contro
 class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
 
+  Future<void> _forgot(BuildContext context) async {
+    final message = await showDialog<String>(
+      context: context,
+      builder: (_) => _ForgotPasswordDialog(
+        initialEmail: controller.email,
+        onSend: controller.sendPasswordReset,
+      ),
+    );
+    if (message != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 6),
+            persist: false,
+          ),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -101,7 +122,12 @@ class LoginView extends GetView<LoginController> {
                 onPressed: () => unawaited(controller.submit()),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
+            AppButton(
+              label: 'Esqueci minha senha',
+              variant: AppButtonVariant.text,
+              onPressed: () => unawaited(_forgot(context)),
+            ),
             AppButton(
               label: 'Voltar para a loja',
               variant: AppButtonVariant.text,
@@ -113,4 +139,66 @@ class LoginView extends GetView<LoginController> {
       ),
     );
   }
+}
+
+class _ForgotPasswordDialog extends StatefulWidget {
+  const _ForgotPasswordDialog({
+    required this.initialEmail,
+    required this.onSend,
+  });
+
+  final String initialEmail;
+  final Future<String> Function(String email) onSend;
+
+  @override
+  State<_ForgotPasswordDialog> createState() => _ForgotPasswordDialogState();
+}
+
+class _ForgotPasswordDialogState extends State<_ForgotPasswordDialog> {
+  late final _email = TextEditingController(text: widget.initialEmail.trim());
+  bool _sending = false;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    if (_sending) return;
+    setState(() => _sending = true);
+    final message = await widget.onSend(_email.text);
+    if (mounted) Navigator.of(context).pop(message);
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Esqueci minha senha'),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('Enviaremos um link para você criar uma nova senha.'),
+        const SizedBox(height: AppSpacing.md),
+        TextField(
+          controller: _email,
+          autofocus: true,
+          keyboardType: TextInputType.emailAddress,
+          autofillHints: const [AutofillHints.email],
+          onSubmitted: (_) => unawaited(_send()),
+          decoration: const InputDecoration(labelText: 'E-mail'),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Cancelar'),
+      ),
+      FilledButton(
+        onPressed: _sending ? null : () => unawaited(_send()),
+        child: const Text('Enviar link'),
+      ),
+    ],
+  );
 }

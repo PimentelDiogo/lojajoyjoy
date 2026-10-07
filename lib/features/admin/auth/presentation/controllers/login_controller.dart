@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:joyjoy/app/routes/app_routes.dart';
 import 'package:joyjoy/core/utils/safe_redirect.dart';
+import 'package:joyjoy/features/admin/auth/domain/auth.dart';
 import 'package:joyjoy/features/admin/auth/presentation/controllers/auth_controller.dart';
 
 class LoginController extends GetxController {
-  LoginController({required this.auth, this.next});
+  LoginController({required this.auth, required this.requestReset, this.next});
 
   final AuthController auth;
+  final RequestPasswordReset requestReset;
 
   /// `?next=` validado por [safeNextPath] (nunca leva para fora do site).
   final String? next;
@@ -48,5 +50,17 @@ class LoginController extends GetxController {
       return;
     }
     unawaited(Get.offAllNamed<void>(destination));
+  }
+
+  /// "Esqueci minha senha": mensagem para mostrar (sucesso ou erro).
+  /// O texto de sucesso é o mesmo exista ou não o e-mail.
+  Future<String> sendPasswordReset(String email) async {
+    final result = await requestReset(email);
+    return result.fold(
+      (_) =>
+          'Se este e-mail tiver acesso, enviamos um link para criar uma nova '
+          'senha. Confira também a caixa de spam.',
+      (failure) => failure.message,
+    );
   }
 }

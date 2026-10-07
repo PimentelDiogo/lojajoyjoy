@@ -63,6 +63,11 @@ jobs:
           --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
           --dart-define=APP_BASE_URL="$BASE_URL"
 
+      - name: Preview do WhatsApp (og:image absoluta) e sem source maps
+        env:
+          BASE_URL: ${{ steps.pages.outputs.base_url }}
+        run: tool/web/finalize_build.sh "${BASE_URL%/}/"
+
       - name: Rotas da SPA no Pages
         # O Pages não tem rewrite: links diretos (/feminino, /produto/x)
         # cairiam no 404 do GitHub. Com o 404.html = index.html, o app abre

@@ -12,6 +12,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // URLs limpas (/pedido/K7P2QX) em vez de /#/pedido/K7P2QX — ADR-0001.
   usePathUrlStrategy();
+  AppTypography.configure();
 
   final env = Env.fromEnvironment();
   if (!env.isSupabaseConfigured) {
@@ -26,6 +27,12 @@ Future<void> main() async {
   await Supabase.initialize(
     url: env.supabaseUrl,
     publishableKey: env.supabaseAnonKey,
+    // Implicit: o link de "nova senha" funciona mesmo aberto em outro
+    // navegador (ex.: pedido no Instagram, e-mail aberto no Gmail). O PKCE
+    // exigiria o mesmo navegador. O login por senha não usa esse fluxo.
+    authOptions: const FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.implicit,
+    ),
   );
 
   InitialBinding(

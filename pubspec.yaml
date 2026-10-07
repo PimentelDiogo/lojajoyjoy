@@ -38,3 +38,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/brand/
+    # Fontes embutidas (google_fonts acha pelo nome: Inter-SemiBold.ttf…).
+    - assets/google_fonts/

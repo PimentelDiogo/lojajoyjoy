@@ -1,0 +1,73 @@
+# Publica no Vercel (ADR-0012 — hospedagem final). Fica DESLIGADO até existir a
+# variável VERCEL_PROJECT_ID: até lá o site segue no GitHub Pages (ADR-0013).
+#
+# Configurar em Settings → Secrets and variables → Actions:
+#   Secrets:   VERCEL_TOKEN
+#   Variables: VERCEL_ORG_ID, VERCEL_PROJECT_ID, SITE_URL (ex.: https://joyjoy.com.br/),
+#              SUPABASE_URL, SUPABASE_ANON_KEY (já existem para o Pages)
+name: Deploy Vercel
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build e deploy
+    if: vars.VERCEL_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+      # Produção = domínio final; PR = preview (URL gerada pelo Vercel).
+      PROD: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versão do Flutter (.fvmrc)
+        id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.version }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Build web (--wasm)
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: >
+          flutter build web --release --wasm
+          --dart-define=SUPABASE_URL="$SUPABASE_URL"
+          --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+          --dart-define=APP_BASE_URL="${SITE_URL%/}"
+
+      - name: Preparar build (og:image absoluta, sem source maps)
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          tool/web/finalize_build.sh "$SITE_URL"
+          cp web/vercel.json build/web/vercel.json
+
+      - name: Publicar
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npx --yes vercel@62.7.0 deploy build/web \
+            --token "$VERCEL_TOKEN" --yes \
+            $([ "$PROD" = "true" ] && echo --prod)

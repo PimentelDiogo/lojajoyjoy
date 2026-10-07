@@ -1,0 +1,18 @@
+<!-- E-mail "Esqueci minha senha" (pt-BR). Na nuvem: colar este HTML em
+     Authentication → Emails → Templates → Reset Password (assunto: "Criar nova senha — JOYJOY"). -->
+<div style="font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #3A2E28; max-width: 480px;">
+  <h2 style="font-weight: 600; letter-spacing: 4px;">JOYJOY</h2>
+  <p>Olá!</p>
+  <p>Recebemos um pedido para criar uma nova senha da área da loja.</p>
+  <p>
+    <a href="{{ .ConfirmationURL }}"
+       style="display: inline-block; background: #B04E1C; color: #FFFFFF; padding: 12px 20px;
+              border-radius: 8px; text-decoration: none; font-weight: 600;">
+      Criar nova senha
+    </a>
+  </p>
+  <p style="font-size: 13px; color: #6B5B53;">
+    O link vale por 1 hora e só pode ser usado uma vez.<br>
+    Não pediu? Pode ignorar este e-mail: sua senha continua a mesma.
+  </p>
+</div>
