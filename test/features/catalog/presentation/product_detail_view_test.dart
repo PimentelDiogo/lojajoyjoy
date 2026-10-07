@@ -113,6 +113,22 @@ void main() {
     expect(Get.currentRoute, AppRoutes.cart);
   });
 
+  testWidgets('"Adicionado ao carrinho" some sozinho em 3 s', (tester) async {
+    await open(tester, detail: fakeDetail());
+
+    await tester.ensureVisible(find.text('Adicionar ao carrinho'));
+    await tester.tap(find.text('Adicionar ao carrinho'));
+    await tester.pumpAndSettle();
+    expect(find.text('Adicionado ao carrinho!'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 2500));
+    expect(find.text('Adicionado ao carrinho!'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 1)); // passou dos 3 s
+    await tester.pumpAndSettle(); // animação de saída
+    expect(find.text('Adicionado ao carrinho!'), findsNothing);
+  });
+
   testWidgets('slug inexistente: "Peça não encontrada" e volta para a loja', (
     tester,
   ) async {

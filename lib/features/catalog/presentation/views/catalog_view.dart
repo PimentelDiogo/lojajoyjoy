@@ -17,6 +17,7 @@ import 'package:joyjoy/features/catalog/presentation/controllers/catalog_control
 import 'package:joyjoy/features/catalog/presentation/widgets/catalog_product_card.dart';
 import 'package:joyjoy/features/catalog/presentation/widgets/product_grid.dart';
 import 'package:joyjoy/features/store/presentation/controllers/store_controller.dart';
+import 'package:joyjoy/features/store/presentation/widgets/store_footer.dart';
 import 'package:joyjoy/features/store/presentation/widgets/store_widgets.dart';
 
 /// Grid da seção (/feminino ou /masculino).
@@ -100,11 +101,22 @@ class CatalogView extends GetView<CatalogController> {
                     ),
                     child: controller.isLoadingMore.value
                         ? const Center(child: CircularProgressIndicator())
-                        : const SizedBox(
-                            height: AppSpacing.xxl,
-                          ), // espaço do FAB
+                        : const SizedBox.shrink(),
                   ),
                 ),
+              ),
+              // Rodapé só quando não há mais páginas para carregar.
+              SliverToBoxAdapter(
+                child: Obx(
+                  () =>
+                      controller.state.value.isLoading ||
+                          controller.isLoadingMore.value
+                      ? const SizedBox.shrink()
+                      : const StoreFooter(),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: AppSpacing.xxl), // espaço do FAB
               ),
             ],
           ),

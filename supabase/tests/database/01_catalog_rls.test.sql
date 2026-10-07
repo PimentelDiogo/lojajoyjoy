@@ -42,6 +42,18 @@ select throws_ok(
   'WhatsApp precisa estar no formato wa.me (só dígitos, com DDI)'
 );
 
+select is(
+  (select instagram_handle || ' | ' || array_to_string(payment_methods, ',') from public.store_settings where id = 1),
+  'joyjoybrand_ | card,pix',
+  'rodapé: Instagram e formas de pagamento da loja'
+);
+
+select throws_ok(
+  $$ update public.store_settings set instagram_handle = 'https://evil.com/x' where id = 1 $$,
+  '23514', null,
+  'Instagram só aceita o perfil (sem URL) — o app monta o link'
+);
+
 select throws_ok(
   $$ insert into public.product_variants (product_id, size, color_name, stock_qty)
      values ('20000000-0000-4000-a000-000000000001', 'PP', 'Rosa', -1) $$,

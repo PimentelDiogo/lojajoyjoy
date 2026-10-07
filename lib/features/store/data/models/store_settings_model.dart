@@ -9,5 +9,9 @@ abstract final class StoreSettingsModel {
     isOpen: json['is_open'] as bool? ?? true,
     closedMessage: json['closed_message'] as String?,
     lowStockThreshold: (json['low_stock_threshold'] as num?)?.toInt() ?? 2,
+    instagramHandle: json['instagram_handle'] as String?,
+    pickupAddress: json['pickup_address'] as String?,
+    paymentMethods: (json['payment_methods'] as List<dynamic>? ?? const [])
+        .cast<String>(),
   );
 }

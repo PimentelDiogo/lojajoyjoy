@@ -10,6 +10,9 @@ class StoreSettings extends Equatable {
     required this.lowStockThreshold,
     this.announcement,
     this.closedMessage,
+    this.instagramHandle,
+    this.pickupAddress,
+    this.paymentMethods = const [],
   });
 
   final String storeName;
@@ -27,6 +30,15 @@ class StoreSettings extends Equatable {
   final String? closedMessage;
   final int lowStockThreshold;
 
+  /// Perfil do Instagram sem @ (ex.: joyjoybrand_).
+  final String? instagramHandle;
+
+  /// Endereço para retirada exibido no rodapé.
+  final String? pickupAddress;
+
+  /// Nomes do enum `payment_method` do banco (pix, card, cash), na ordem salva.
+  final List<String> paymentMethods;
+
   bool get hasAnnouncement => announcement?.trim().isNotEmpty ?? false;
 
   @override
@@ -38,5 +50,8 @@ class StoreSettings extends Equatable {
     isOpen,
     closedMessage,
     lowStockThreshold,
+    instagramHandle,
+    pickupAddress,
+    paymentMethods,
   ];
 }

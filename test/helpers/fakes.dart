@@ -125,6 +125,10 @@ const fakeSettings = StoreSettings(
   greetingMessage: 'Olá!',
   isOpen: true,
   lowStockThreshold: 2,
+  instagramHandle: 'joyjoybrand_',
+  pickupAddress:
+      'Rua Professor Júlio Ferreira de Melo, 355 - Boa Viagem, Recife - PE',
+  paymentMethods: ['card', 'pix'],
 );
 
 const testEnv = Env(

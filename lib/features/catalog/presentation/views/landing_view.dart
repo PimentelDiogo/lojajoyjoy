@@ -18,6 +18,7 @@ import 'package:joyjoy/features/catalog/presentation/controllers/landing_control
 import 'package:joyjoy/features/catalog/presentation/widgets/catalog_product_card.dart';
 import 'package:joyjoy/features/catalog/presentation/widgets/product_grid.dart';
 import 'package:joyjoy/features/store/presentation/controllers/store_controller.dart';
+import 'package:joyjoy/features/store/presentation/widgets/store_footer.dart';
 import 'package:joyjoy/features/store/presentation/widgets/store_widgets.dart';
 
 /// Página inicial: recado da loja, Feminino / Masculino e destaques.
@@ -67,6 +68,7 @@ class LandingView extends GetView<LandingController> {
           ),
           const SizedBox(height: AppSpacing.xl),
           _Featured(controller: controller),
+          const StoreFooter(),
           const SizedBox(height: AppSpacing.xxl), // espaço do FAB
         ],
       ),

@@ -97,6 +97,21 @@ void main() {
     expect(find.text('Peça v1'), findsOneWidget);
   });
 
+  testWidgets('aviso de remoção some sozinho (sem ficar preso na tela)', (
+    tester,
+  ) async {
+    final kv = await storageWith([fakeCartItem('v1'), fakeCartItem('v2')]);
+    await openCart(tester, storage: kv);
+
+    await tester.tap(find.byTooltip('Remover Peça v1'));
+    await tester.pumpAndSettle();
+    expect(find.text('Peça v1 removida do carrinho'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(find.text('Peça v1 removida do carrinho'), findsNothing);
+  });
+
   testWidgets('observação digitada é salva no item', (tester) async {
     final kv = await storageWith([fakeCartItem('v1')]);
     await openCart(tester, storage: kv);
