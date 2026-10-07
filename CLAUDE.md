@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-08 + CI na `main` (Marco 1: vitrine completa; PR-08 = login da Ana + área admin). PR-09 (cadastro de peças) na branch `feat/pr-09-cadastro-produtos`. Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-10 (pedidos + baixa de estoque). Novas branches saem da `main`.
+**Estágio:** PR-01 a PR-08 + CI na `main` (Marco 1: vitrine completa; PR-08 = login da Ana + área admin). PR-09 (cadastro de peças) e PR-10 (pedidos + baixa de estoque, **Marco 2**) nas branches `feat/pr-09-…` e `feat/pr-10-pedidos-estoque` (empilhadas, aguardando merge). Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-11 (deploy de validação). Novas branches saem da `main`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -84,6 +84,11 @@ dos clientes (Instagram × WhatsApp × site).
   seu `Obx` (bug da busca/categoria no PR-09). `RxMap/RxList.assignAll` com coleção `const` → copiar antes.
 - `Card` junta a semântica dos filhos (`semanticContainer: true`): em cards com vários botões usar `false`.
 - `SegmentedButton` e `IconButton.filledTonal` usariam o azul do Masculino: tema/estilo com `primaryContainer`.
+- **Pedidos (PR-10):** estoque só baixa em `confirm_order` (o pedido do cliente não reserva). `cancel_order` de
+  confirmado estorna. Movimentos em `stock_movements` (só leitura para admin). `OrderController` recebe o
+  `AuthController` (global, como `store`/`cart`) e só chama `ensureAdmin` se houver sessão. Admin pode importar
+  entidades/widgets de `order` (`OrderStatus`, `OrderStatusChip`). Rótulos de origem: `TrafficSource.labelOf`.
+- pgTAP: `reset role` NÃO limpa `request.jwt.claims` — ao voltar para anon, zerar o claim.
 
 ## Design system (PR-02)
 - **Marca JOYJOY:** cor principal terracota (`primary` `#B04E1C`); laranja exato do logo `#E0662A` = `appColors.brand`, **só para gráficos** (3.1:1). Fundo = creme do logo `#FCF3EA`. Feminino = `tertiaryContainer` (rosa), Masculino = `secondaryContainer` (azul).

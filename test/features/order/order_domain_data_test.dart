@@ -30,6 +30,26 @@ class _Remote implements OrderRemoteDataSource {
     if (error != null) throw error!;
     return found;
   }
+
+  String? lastAction;
+
+  @override
+  Future<Map<String, dynamic>> confirmOrder(String code) async {
+    lastAction = 'confirm:$code';
+    if (error != null) throw error!;
+    return {
+      ...json,
+      'status': 'confirmed',
+      'confirmed_at': '2026-10-06T10:00:00+00:00',
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> cancelOrder(String code) async {
+    lastAction = 'cancel:$code';
+    if (error != null) throw error!;
+    return {...json, 'status': 'cancelled', 'source': 'instagram'};
+  }
 }
 
 const Map<String, dynamic> json = {
@@ -229,6 +249,57 @@ void main() {
         (await repo.getOrder('K7P2QX') as Success<Order>).value.code,
         'K7P2QX',
       );
+    });
+
+    test(
+      'confirmar/cancelar: normaliza o código e lê os dados da Ana',
+      () async {
+        final repo = OrderRepositoryImpl(remote);
+
+        final confirmed =
+            (await repo.confirmOrder(' k7p2qx ') as Success<Order>).value;
+        expect(remote.lastAction, 'confirm:K7P2QX');
+        expect(confirmed.status, OrderStatus.confirmed);
+        expect(confirmed.confirmedAt, DateTime.utc(2026, 10, 6, 10));
+        expect(confirmed.canConfirm, isFalse);
+        expect(confirmed.canCancel, isTrue);
+
+        final cancelled =
+            (await repo.cancelOrder('K7P2QX') as Success<Order>).value;
+        expect(cancelled.source, 'instagram');
+        expect(cancelled.canCancel, isFalse);
+      },
+    );
+
+    test('sem estoque ao confirmar: mensagem cita a peça', () async {
+      remote.error = const PostgrestException(
+        message: 'insufficient_stock',
+        code: 'P0001',
+        details: 'Vestido · Tam M · Rosa (tem 1, pedido 2)',
+      );
+
+      final failure =
+          (await OrderRepositoryImpl(remote).confirmOrder('K7P2QX') as Failed)
+              .failure;
+
+      expect(failure.code, 'insufficient_stock');
+      expect(
+        failure.message,
+        contains('Vestido · Tam M · Rosa (tem 1, pedido 2)'),
+      );
+    });
+
+    test('quem não é admin recebe "sessão expirou"', () async {
+      remote.error = const PostgrestException(
+        message: 'forbidden',
+        code: '42501',
+      );
+
+      final failure =
+          (await OrderRepositoryImpl(remote).cancelOrder('K7P2QX') as Failed)
+              .failure;
+
+      expect(failure.message, 'Sua sessão expirou. Entre de novo.');
     });
   });
 }

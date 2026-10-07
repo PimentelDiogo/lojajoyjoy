@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:joyjoy/app/routes/app_routes.dart';
 import 'package:joyjoy/core/responsive/app_responsive.dart';
 import 'package:joyjoy/core/state/ui_state.dart';
 import 'package:joyjoy/core/theme/app_spacing.dart';
@@ -9,20 +10,11 @@ import 'package:joyjoy/core/widgets/feedback_states.dart';
 import 'package:joyjoy/core/widgets/loading_skeleton.dart';
 import 'package:joyjoy/features/admin/dashboard/domain/dashboard.dart';
 import 'package:joyjoy/features/admin/dashboard/presentation/dashboard_controller.dart';
+import 'package:joyjoy/features/tracking/domain/traffic_source.dart';
 
 /// Conteúdo do painel: números do dia a dia da loja.
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
-
-  static const sourceLabels = {
-    'instagram': 'Instagram',
-    'whatsapp': 'WhatsApp',
-    'facebook': 'Facebook',
-    'busca': 'Busca (Google)',
-    'qrcode': 'QR code',
-    'site': 'Direto no site',
-    'outro': 'Outros',
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +62,15 @@ class _Stats extends StatelessWidget {
         icon: Icons.receipt_long_outlined,
         label: 'Pedidos aguardando confirmação',
         value: '${stats.pendingOrders}',
+        onTap: () => unawaited(Get.offAllNamed<void>(AppRoutes.adminOrders)),
       ),
       _KpiCard(
         icon: Icons.checkroom_outlined,
         label: 'Peças ativas na vitrine',
         value: '${stats.activeProducts}',
+        onTap: () => unawaited(Get.offAllNamed<void>(AppRoutes.adminProducts)),
       ),
+
       _KpiCard(
         icon: Icons.people_outline,
         label: 'Visitas nos últimos 7 dias',
@@ -107,11 +102,15 @@ class _KpiCard extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    this.onTap,
   });
 
   final IconData icon;
   final String label;
   final String value;
+
+  /// Abre a área correspondente (pedidos, peças).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -119,32 +118,37 @@ class _KpiCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Semantics(
       label: '$label: $value',
+      button: onTap != null,
       excludeSemantics: true,
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              Icon(icon, color: scheme.primary, size: 28),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(value, style: textTheme.headlineMedium),
-                    Text(
-                      label,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                Icon(icon, color: scheme.primary, size: 28),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(value, style: textTheme.headlineMedium),
+                      Text(
+                        label,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -188,15 +192,14 @@ class _VisitsBySource extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
                   child: Semantics(
-                    label:
-                        '${DashboardView.sourceLabels[source] ?? source}: $count visitas',
+                    label: '${TrafficSource.labelOf(source)}: $count visitas',
                     excludeSemantics: true,
                     child: Row(
                       children: [
                         SizedBox(
                           width: 130,
                           child: Text(
-                            DashboardView.sourceLabels[source] ?? source,
+                            TrafficSource.labelOf(source),
                             style: textTheme.bodyMedium,
                           ),
                         ),

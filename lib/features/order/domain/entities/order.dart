@@ -69,6 +69,9 @@ class Order extends Equatable {
     this.paymentMethod,
     this.customerName,
     this.customerNote,
+    this.source,
+    this.confirmedAt,
+    this.cancelledAt,
   });
 
   /// Código curto e não sequencial (ex.: K7P2QX).
@@ -84,6 +87,15 @@ class Order extends Equatable {
   final String? customerName;
   final String? customerNote;
 
+  /// Só para a Ana: origem (`instagram`, `whatsapp`…) e datas das ações.
+  final String? source;
+  final DateTime? confirmedAt;
+  final DateTime? cancelledAt;
+
+  bool get canConfirm => status == OrderStatus.pending;
+  bool get canCancel =>
+      status == OrderStatus.pending || status == OrderStatus.confirmed;
+
   int get totalQuantity => items.fold(0, (sum, i) => sum + i.quantity);
 
   @override
@@ -97,6 +109,9 @@ class Order extends Equatable {
     paymentMethod,
     customerName,
     customerNote,
+    source,
+    confirmedAt,
+    cancelledAt,
   ];
 }
 

@@ -10,6 +10,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract interface class OrderRemoteDataSource {
   Future<Map<String, dynamic>> createOrder(Map<String, dynamic> params);
   Future<Map<String, dynamic>?> getOrder(String code);
+  Future<Map<String, dynamic>> confirmOrder(String code);
+  Future<Map<String, dynamic>> cancelOrder(String code);
 }
 
 class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
@@ -26,6 +28,16 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<Map<String, dynamic>?> getOrder(String code) async =>
       (await _client.rpc<dynamic>('get_order_public', params: {'p_code': code}))
           as Map<String, dynamic>?;
+
+  @override
+  Future<Map<String, dynamic>> confirmOrder(String code) async =>
+      (await _client.rpc<dynamic>('confirm_order', params: {'p_code': code}))
+          as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> cancelOrder(String code) async =>
+      (await _client.rpc<dynamic>('cancel_order', params: {'p_code': code}))
+          as Map<String, dynamic>;
 }
 
 abstract final class OrderModel {
@@ -56,6 +68,9 @@ abstract final class OrderModel {
     paymentMethod: _enum(PaymentMethod.values, json['payment_method']),
     customerName: json['customer_name'] as String?,
     customerNote: json['customer_note'] as String?,
+    source: json['source'] as String?,
+    confirmedAt: _date(json['confirmed_at']),
+    cancelledAt: _date(json['cancelled_at']),
     items: [
       for (final item
           in (json['items'] as List<dynamic>? ?? const [])
@@ -76,6 +91,9 @@ abstract final class OrderModel {
     final String s => num.parse(s),
     _ => throw FormatException('Valor numérico inválido: $value'),
   };
+
+  static DateTime? _date(Object? value) =>
+      value is String ? DateTime.parse(value) : null;
 
   static T? _enum<T extends Enum>(List<T> values, Object? name) {
     if (name is! String) return null;
@@ -122,6 +140,42 @@ class OrderRepositoryImpl implements OrderRepository {
         return const Failed(NotFoundFailure('Pedido não encontrado.'));
       }
       return Success(OrderModel.fromJson(json));
+    } on Object catch (error) {
+      return Failed(mapSupabaseError(error));
+    }
+  }
+
+  @override
+  Future<Result<Order>> confirmOrder(String code) =>
+      _action(() => _remote.confirmOrder(code.trim().toUpperCase()));
+
+  @override
+  Future<Result<Order>> cancelOrder(String code) =>
+      _action(() => _remote.cancelOrder(code.trim().toUpperCase()));
+
+  Future<Result<Order>> _action(
+    Future<Map<String, dynamic>> Function() run,
+  ) async {
+    try {
+      return Success(OrderModel.fromJson(await run()));
+    } on PostgrestException catch (error) {
+      if (OrderFailure.actionCodes.contains(error.message)) {
+        return Failed(
+          OrderFailure.fromActionCode(
+            error.message,
+            detail: switch (error.details) {
+              final String text => text,
+              _ => null,
+            },
+          ),
+        );
+      }
+      if (error.code == '42501') {
+        return const Failed(
+          OrderFailure('Sua sessão expirou. Entre de novo.', code: 'forbidden'),
+        );
+      }
+      return Failed(mapSupabaseError(error));
     } on Object catch (error) {
       return Failed(mapSupabaseError(error));
     }

@@ -83,6 +83,14 @@ abstract final class AppPages {
       middlewares: [AdminGuard()],
     ),
     _page<void>(
+      name: AppRoutes.adminOrders,
+      page: () => DeferredView(
+        load: admin_area.loadLibrary,
+        builder: (_) => admin_area.buildAdminOrders(),
+      ),
+      middlewares: [AdminGuard()],
+    ),
+    _page<void>(
       name: AppRoutes.adminProducts,
       page: () => DeferredView(
         load: admin_area.loadLibrary,

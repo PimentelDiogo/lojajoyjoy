@@ -246,11 +246,18 @@ flowchart LR
     existir no bucket, slug só na criação (links enviados não quebram). `create_category`, `slugify`.
   - Sem "excluir peça" (pedidos referenciam as variantes): ocultar resolve.
 
-#### PR-10 · Pedidos + baixa de estoque (2 dias)
+#### PR-10 · Pedidos + baixa de estoque (2 dias) — ✅ concluído
 - RPCs `confirm_order` / `cancel_order` + migration `stock_movements`.
 - Em `/pedido/:code` logada: botões **Confirmar venda** e **Cancelar**; deslogada: "Sou a Ana, entrar".
 - `/admin/pedidos`: lista com filtro por status.
 - **Testes:** `OrderController`; pgTAP: baixa atômica, rollback quando falta estoque, idempotência, estorno no cancelamento, não-admin bloqueado.
+- **Feito:**
+  - RPCs `confirm_order` / `cancel_order` (`security definer`, `is_admin()`): baixa **tudo ou nada** com as variantes
+    travadas em ordem fixa; repetir a ação não baixa/estorna de novo; cancelado não volta a confirmado.
+  - `stock_movements` (venda / estorno, com saldo depois) — histórico para relatórios.
+  - `/pedido/:code`: cliente vê "Sou a Ana, entrar" → login → volta ao pedido com o painel "Área da loja"
+    (cliente, observação, origem, Confirmar venda, Cancelar pedido, com diálogo de confirmação).
+  - `/admin/pedidos`: abre em "Aguardando", contadores por status; cards do painel levam a Pedidos/Peças.
 
 > 🎯 **Marco 2 — fluxo completo local.** Cliente → WhatsApp → Ana confirma → estoque baixa.
 

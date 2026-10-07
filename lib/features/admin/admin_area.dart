@@ -9,6 +9,10 @@ import 'package:joyjoy/features/admin/dashboard/data/dashboard_repository_impl.d
 import 'package:joyjoy/features/admin/dashboard/domain/dashboard.dart';
 import 'package:joyjoy/features/admin/dashboard/presentation/dashboard_controller.dart';
 import 'package:joyjoy/features/admin/dashboard/presentation/dashboard_view.dart';
+import 'package:joyjoy/features/admin/orders/data/admin_order_repository_impl.dart';
+import 'package:joyjoy/features/admin/orders/domain/admin_orders.dart';
+import 'package:joyjoy/features/admin/orders/presentation/admin_orders_controller.dart';
+import 'package:joyjoy/features/admin/orders/presentation/admin_orders_view.dart';
 import 'package:joyjoy/features/admin/products/data/admin_product_repository_impl.dart';
 import 'package:joyjoy/features/admin/products/data/image_picker/image_picker.dart';
 import 'package:joyjoy/features/admin/products/domain/admin_products.dart';
@@ -35,6 +39,12 @@ void registerAdminDependencies() {
       fenix: true,
     );
   }
+  if (!Get.isRegistered<AdminOrderRepository>()) {
+    Get.lazyPut<AdminOrderRepository>(
+      () => AdminOrderRepositoryImpl(Get.find<SupabaseClient>()),
+      fenix: true,
+    );
+  }
   if (!Get.isRegistered<ProductImagePicker>()) {
     Get.lazyPut<ProductImagePicker>(createProductImagePicker, fenix: true);
   }
@@ -46,6 +56,17 @@ Widget buildAdminHome() {
   return ControllerScope<DashboardController>(
     create: () => DashboardController(getAdminStats: GetAdminStats(Get.find())),
     child: const AdminShell(selected: 0, child: DashboardView()),
+  );
+}
+
+/// Pedidos (/admin/pedidos).
+Widget buildAdminOrders() {
+  registerAdminDependencies();
+  return ControllerScope<AdminOrdersController>(
+    create: () => AdminOrdersController(
+      listOrders: ListAdminOrders(Get.find<AdminOrderRepository>()),
+    ),
+    child: const AdminShell(selected: 1, child: AdminOrdersView()),
   );
 }
 

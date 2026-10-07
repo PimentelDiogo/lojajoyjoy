@@ -17,6 +17,8 @@ import 'package:joyjoy/core/widgets/feedback_states.dart';
 import 'package:joyjoy/core/widgets/loading_skeleton.dart';
 import 'package:joyjoy/features/order/domain/entities/order.dart';
 import 'package:joyjoy/features/order/presentation/controllers/order_controller.dart';
+import 'package:joyjoy/features/order/presentation/widgets/order_admin_panel.dart';
+import 'package:joyjoy/features/order/presentation/widgets/order_status_chip.dart';
 import 'package:joyjoy/features/order/presentation/widgets/order_summary.dart';
 
 /// Página do pedido (/pedido/:code) — o link que vai na mensagem da Ana.
@@ -121,7 +123,7 @@ class _OrderDetails extends StatelessWidget {
                 ),
               ),
             ),
-            _StatusChip(status: order.status),
+            OrderStatusChip(status: order.status),
           ],
         ),
         Text(
@@ -162,13 +164,29 @@ class _OrderDetails extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        AppButton(
-          label: 'Falar com a Ana sobre este pedido',
-          icon: Icons.chat_outlined,
-          expand: true,
-          variant: AppButtonVariant.secondary,
-          onPressed: () => unawaited(controller.talkToStore()),
+        // Obx: o painel aparece quando a sessão da Ana é confirmada.
+        Obx(
+          () => controller.isAdmin.value
+              ? Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.lg),
+                  child: OrderAdminPanel(order: order, controller: controller),
+                )
+              : const SizedBox.shrink(),
+        ),
+        // Para a própria Ana o botão não faz sentido.
+        Obx(
+          () => controller.isAdmin.value
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.lg),
+                  child: AppButton(
+                    label: 'Falar com a Ana sobre este pedido',
+                    icon: Icons.chat_outlined,
+                    expand: true,
+                    variant: AppButtonVariant.secondary,
+                    onPressed: () => unawaited(controller.talkToStore()),
+                  ),
+                ),
         ),
         const SizedBox(height: AppSpacing.sm),
         AppButton(
@@ -176,41 +194,28 @@ class _OrderDetails extends StatelessWidget {
           variant: AppButtonVariant.text,
           onPressed: () => unawaited(Get.offAllNamed<void>(AppRoutes.landing)),
         ),
+        Obx(
+          () => controller.isAdmin.value
+              ? const SizedBox.shrink()
+              : Align(
+                  child: TextButton.icon(
+                    // Ana abre o link que a cliente mandou → entra → volta aqui.
+                    onPressed: () => unawaited(
+                      Get.toNamed<void>(
+                        AppRoutes.adminLoginPath(
+                          next: AppRoutes.orderPath(order.code),
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.lock_outline, size: 18),
+                    label: const Text('Sou a Ana, entrar'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+        ),
       ],
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
-
-  final OrderStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final brand = context.appColors;
-    final (background, foreground) = switch (status) {
-      OrderStatus.pending => (brand.peach, brand.onPeach),
-      OrderStatus.confirmed => (brand.mint, brand.onMint),
-      OrderStatus.cancelled ||
-      OrderStatus.expired => (scheme.errorContainer, scheme.onErrorContainer),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(
-        status.label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelMedium?.copyWith(color: foreground),
-      ),
     );
   }
 }
