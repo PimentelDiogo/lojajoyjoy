@@ -12,6 +12,9 @@ abstract final class AppRoutes {
 
   static const adminLogin = '/admin/login';
   static const admin = '/admin';
+  static const adminProducts = '/admin/produtos';
+  static const adminProductNew = '/admin/produtos/nova';
+  static const adminProductEdit = '/admin/produtos/:id';
 
   static const notFound = '/404';
 
@@ -21,6 +24,9 @@ abstract final class AppRoutes {
   static String adminLoginPath({String? next}) => next == null
       ? adminLogin
       : '$adminLogin?next=${Uri.encodeComponent(next)}';
+
+  static String adminProductEditPath(String id) =>
+      '/admin/produtos/${Uri.encodeComponent(id)}';
 
   static String productPath(String slug) =>
       '/produto/${Uri.encodeComponent(slug)}';

@@ -85,6 +85,21 @@ abstract final class AppTheme {
         side: BorderSide(color: scheme.outlineVariant),
         labelStyle: textTheme.labelLarge,
       ),
+      // Mesmo motivo dos chips: o selecionado padrão seria o azul do Masculino.
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.primaryContainer
+                : null,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.onPrimaryContainer
+                : null,
+          ),
+        ),
+      ),
       // Campo preenchido M3: com UnderlineInputBorder o rótulo flutua DENTRO
       // do campo (com OutlineInputBorder ele ficava cortado sobre a borda).
       inputDecorationTheme: InputDecorationTheme(
