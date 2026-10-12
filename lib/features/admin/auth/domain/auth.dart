@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/core/errors/result.dart';
 import 'package:joyjoy/core/usecase/usecase.dart';
 
@@ -34,6 +35,66 @@ abstract interface class AuthRepository {
   Future<Result<AdminUser>> currentAdmin();
 
   Future<void> signOut();
+
+  /// Envia o link de "nova senha" para o e-mail. Mesmo resultado exista ou
+  /// não o e-mail (não revela quem tem conta).
+  Future<Result<void>> requestPasswordReset(
+    String email, {
+    required Uri redirectTo,
+  });
+
+  /// Troca a senha da sessão atual (aberta pelo link do e-mail).
+  Future<Result<void>> updatePassword(String newPassword);
+}
+
+/// Regras da senha nova (iguais às do Supabase Auth: ≥ 10, letras e números).
+abstract final class PasswordRules {
+  static const minLength = 10;
+
+  /// Mensagem de erro, ou null se a senha serve.
+  static String? validate(String password, String confirmation) {
+    if (password.length < minLength) {
+      return 'A senha precisa de pelo menos $minLength caracteres.';
+    }
+    if (!RegExp('[A-Za-z]').hasMatch(password) ||
+        !RegExp('[0-9]').hasMatch(password)) {
+      return 'Use letras e números na senha.';
+    }
+    if (password != confirmation) return 'As senhas não são iguais.';
+    return null;
+  }
+}
+
+class RequestPasswordReset implements UseCase<void, String> {
+  RequestPasswordReset(this._repository, {required this.redirectTo});
+  final AuthRepository _repository;
+
+  /// Página `/admin/nova-senha` (URL absoluta do site).
+  final Uri redirectTo;
+
+  @override
+  Future<Result<void>> call(String email) {
+    final value = email.trim();
+    if (!value.contains('@') || value.length < 5) {
+      return Future.value(
+        const Failed(ValidationFailure('Informe um e-mail válido.')),
+      );
+    }
+    return _repository.requestPasswordReset(value, redirectTo: redirectTo);
+  }
+}
+
+class UpdatePassword
+    implements UseCase<void, ({String password, String confirmation})> {
+  UpdatePassword(this._repository);
+  final AuthRepository _repository;
+
+  @override
+  Future<Result<void>> call(({String password, String confirmation}) params) {
+    final error = PasswordRules.validate(params.password, params.confirmation);
+    if (error != null) return Future.value(Failed(ValidationFailure(error)));
+    return _repository.updatePassword(params.password);
+  }
 }
 
 class SignIn implements UseCase<AdminUser, SignInParams> {

@@ -1,6 +1,6 @@
 # ADR-0012 — Hospedagem do front-end (Vercel)
 
-- **Status:** Proposto *(não decidido — revisar antes do primeiro deploy)*
+- **Status:** Proposto — configuração pronta no PR-11 (`web/vercel.json`, `deploy-vercel.yml`); aguarda conta/domínio
 - **Data:** 2026-10-02
 
 ## Contexto
@@ -42,3 +42,13 @@ precisam servir `index.html` no refresh/abertura direta).
 - Necessário configurar **domínio** (ex.: `joyjoy.com.br`) e atualizar a URL base
   usada no link do pedido (`APP_BASE_URL` via `--dart-define`).
 - Atenção: a URL do site precisa estar nas **Redirect URLs** do Supabase Auth.
+
+## Atualização (PR-11, 2026-10-07)
+
+- `web/vercel.json`: rewrite SPA (rota direta responde 200, diferente do 404 do Pages), `Cache-Control`
+  `must-revalidate` no código (os arquivos do Flutter não têm hash no nome), 1 dia em `assets/`, `icons/` e
+  `canvaskit/`, 30 dias nas fontes; `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+- `.github/workflows/deploy-vercel.yml`: build no Actions e `vercel deploy build/web` (produção na `main`,
+  preview em PR). Só roda com a variável `VERCEL_PROJECT_ID`.
+- CSP ficou de fora: o Flutter carrega o CanvasKit e fontes de reserva do `gstatic` e precisa de
+  `wasm-unsafe-eval`; uma CSP errada deixa a loja em branco. Revisar com o domínio final.

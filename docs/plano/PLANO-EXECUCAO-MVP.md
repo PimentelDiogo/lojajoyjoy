@@ -263,7 +263,7 @@ flowchart LR
 
 ### Bloco D — No ar para a Ana
 
-#### PR-11 · Deploy de validação (1 dia)
+#### PR-11 · Deploy de validação (1 dia) — 🟡 código pronto; falta conta/decisão (ver `CHECKLIST-GO-LIVE.md`)
 - Supabase cloud: `supabase link` + `db push` (sem seed), criar a usuária da Ana, SMTP para recuperar senha.
 - Decidir o ADR-0012 (Vercel recomendado) → `vercel.json` com rewrite SPA + cache.
 - GitHub Actions: `flutter test` → `flutter build web --release --wasm` → deploy.
@@ -272,6 +272,16 @@ flowchart LR
 - **Entrega para a Ana:** URL + login + os 2 links oficiais:
   - Bio do Instagram: `https://<url>/?src=instagram`
   - WhatsApp: `https://<url>/?src=whatsapp`
+- **Feito no código:**
+  - ✅ Supabase cloud com todas as migrations (`db push` da `main`).
+  - ✅ "Esqueci minha senha" + `/admin/nova-senha` (fluxo *implicit*: o link funciona em outro navegador);
+    senha ≥ 10 com letras e números (app + `config.toml`); e-mail de recuperação em português.
+  - ✅ Fontes embutidas e cortadas para o latino (~370 KB, nada baixado do Google em tempo de execução).
+  - ✅ `og:url`/`og:image` absolutas no deploy (`tool/web/finalize_build.sh`), sem source maps publicados.
+  - ✅ `web/vercel.json` (rewrite SPA, cache, cabeçalhos de segurança) + `deploy-vercel.yml` desligado até
+    configurar o projeto.
+- **Depende de você / da Ana:** conta Vercel + domínio, SMTP, conta da Ana na nuvem, testes no celular
+  → `docs/plano/CHECKLIST-GO-LIVE.md`.
 
 > 🎯 **Marco 3 — Ana validando.**
 

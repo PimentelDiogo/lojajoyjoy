@@ -11,7 +11,6 @@ import 'package:joyjoy/core/state/ui_state.dart';
 import 'package:joyjoy/core/theme/app_spacing.dart';
 import 'package:joyjoy/core/widgets/app_header.dart';
 import 'package:joyjoy/core/widgets/feedback_states.dart';
-import 'package:joyjoy/core/widgets/product_card.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/domain/entities/product.dart';
 import 'package:joyjoy/features/catalog/presentation/controllers/landing_controller.dart';
@@ -21,7 +20,7 @@ import 'package:joyjoy/features/store/presentation/controllers/store_controller.
 import 'package:joyjoy/features/store/presentation/widgets/store_footer.dart';
 import 'package:joyjoy/features/store/presentation/widgets/store_widgets.dart';
 
-/// Página inicial: recado da loja, Feminino / Masculino e destaques.
+/// Página inicial: Feminino / Masculino e destaques.
 class LandingView extends GetView<LandingController> {
   const LandingView({super.key});
 
@@ -33,7 +32,6 @@ class LandingView extends GetView<LandingController> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const StoreNotices(),
           ResponsiveBuilder(
             mobile: (_) => const Column(
               children: [
@@ -162,7 +160,7 @@ class _SectionBlock extends StatelessWidget {
   }
 }
 
-/// Carrossel horizontal de destaques.
+/// Grid vertical de destaques.
 class _Featured extends StatelessWidget {
   const _Featured({required this.controller});
 
@@ -170,33 +168,15 @@ class _Featured extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final r = context.responsive;
-    final cardWidth = r.value<double>(mobile: 168, tablet: 200, desktop: 232);
-    final height = ProductCard.extentFor(cardWidth);
     final threshold = Get.find<StoreController>().lowStockThreshold;
-
-    Widget carousel(int count, IndexedWidgetBuilder builder) => SizedBox(
-      height: height,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: count,
-        separatorBuilder: (_, _) => SizedBox(width: r.gridSpacing),
-        itemBuilder: (context, index) =>
-            SizedBox(width: cardWidth, child: builder(context, index)),
-      ),
-    );
 
     return Obx(() {
       final state = controller.featured.value;
       final body = switch (state) {
-        UiIdle() ||
-        UiLoading() => carousel(4, (_, _) => const ProductCardSkeleton()),
-        UiSuccess(data: final List<Product> items) => carousel(
-          items.length,
-          (_, i) => CatalogProductCard(
-            product: items[i],
-            lowStockThreshold: threshold,
-          ),
+        UiIdle() || UiLoading() => const ProductGridSkeleton(),
+        UiSuccess(data: final List<Product> items) => ProductGrid(
+          products: items,
+          lowStockThreshold: threshold,
         ),
         UiEmpty() => null, // sem destaques: a seção some
         UiFailure(:final failure) => ErrorState.fromFailure(

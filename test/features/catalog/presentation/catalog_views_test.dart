@@ -45,6 +45,7 @@ void main() {
         expect(find.bySemanticsLabel('Ver moda masculino'), findsOneWidget);
         expect(find.text('Destaques'), findsOneWidget);
         expect(find.text('Peça 1'), findsOneWidget);
+        expect(find.text('Peça 2'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
     }
@@ -67,25 +68,33 @@ void main() {
       expect(Get.currentRoute, AppRoutes.feminino);
     });
 
-    testWidgets('recado da loja e aviso de loja fechada', (tester) async {
-      registerAppFakes(
-        store: FakeStoreRepository(
-          const StoreSettings(
-            storeName: 'JOYJOY',
-            whatsappNumber: '5581986323686',
-            greetingMessage: 'Olá!',
-            isOpen: false,
-            closedMessage: 'Voltamos na segunda!',
-            announcement: 'Entregas em Recife',
-            lowStockThreshold: 2,
+    testWidgets(
+      'recado da loja e aviso de loja fechada aparecem no catálogo, não na landing',
+      (tester) async {
+        registerAppFakes(
+          store: FakeStoreRepository(
+            const StoreSettings(
+              storeName: 'JOYJOY',
+              whatsappNumber: '5581986323686',
+              greetingMessage: 'Olá!',
+              isOpen: false,
+              closedMessage: 'Voltamos na segunda!',
+              announcement: 'Entregas em Recife',
+              lowStockThreshold: 2,
+            ),
           ),
-        ),
-      );
-      await pumpAt(tester, AppRoutes.landing);
+        );
+        await pumpAt(tester, AppRoutes.landing);
 
-      expect(find.text('Voltamos na segunda!'), findsOneWidget);
-      expect(find.text('Entregas em Recife'), findsOneWidget);
-    });
+        expect(find.text('Voltamos na segunda!'), findsNothing);
+        expect(find.text('Entregas em Recife'), findsNothing);
+
+        await pumpAt(tester, AppRoutes.feminino);
+
+        expect(find.text('Voltamos na segunda!'), findsOneWidget);
+        expect(find.text('Entregas em Recife'), findsOneWidget);
+      },
+    );
 
     testWidgets('botão do WhatsApp abre wa.me da Ana com mensagem', (
       tester,

@@ -99,7 +99,3 @@ on conflict (id) do update set
   size = excluded.size, color_name = excluded.color_name, color_hex = excluded.color_hex,
   sku = excluded.sku, stock_qty = excluded.stock_qty, is_active = true;
 
--- Recado da loja (A2) — para a Ana ver onde aparece; ela troca no admin.
-update public.store_settings
-   set announcement = 'Entregas em Recife e região metropolitana. Pix, cartão ou dinheiro na entrega.'
- where id = 1 and announcement is null;

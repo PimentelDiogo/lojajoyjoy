@@ -9,7 +9,7 @@ WhatsApp da Ana** com mensagem pronta. Admin da Ana: produtos (imagens, descriç
 cores), estoque, pedidos (baixa de estoque pelo link do pedido), relatórios de vendas e origem
 dos clientes (Instagram × WhatsApp × site).
 
-**Estágio:** PR-01 a PR-08 + CI na `main` (Marco 1: vitrine completa; PR-08 = login da Ana + área admin). PR-09 (cadastro de peças) e PR-10 (pedidos + baixa de estoque, **Marco 2**) nas branches `feat/pr-09-…` e `feat/pr-10-pedidos-estoque` (empilhadas, aguardando merge). Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: PR-11 (deploy de validação). Novas branches saem da `main`.
+**Estágio:** PR-01 a PR-10 + CI na `main` (Marco 2: cliente pede → Ana confirma → estoque baixa). PR-11 (deploy de validação) na branch `feat/pr-11-deploy-validacao`; o que depende de conta/decisão está em `docs/plano/CHECKLIST-GO-LIVE.md`. Produção temporária: https://pimenteldiogo.github.io/lojajoyjoy/ com Supabase na nuvem (projeto `rwhduexczhpihdsitlro`, migrations aplicadas via `supabase db push`; catálogo vazio até o PR-09). Próximo: concluir o checklist de go-live (Marco 3: Ana validando). Novas branches saem da `main`.
 
 **WhatsApp da Ana:** +55 81 98632-3686 → `5581986323686` (fica em `store_settings`, não no código).
 
@@ -89,6 +89,13 @@ dos clientes (Instagram × WhatsApp × site).
   `AuthController` (global, como `store`/`cart`) e só chama `ensureAdmin` se houver sessão. Admin pode importar
   entidades/widgets de `order` (`OrderStatus`, `OrderStatusChip`). Rótulos de origem: `TrafficSource.labelOf`.
 - pgTAP: `reset role` NÃO limpa `request.jwt.claims` — ao voltar para anon, zerar o claim.
+- **Fontes (PR-11):** embutidas em `assets/google_fonts/` (subset latino) com `allowRuntimeFetching = false`.
+  Peso novo → arquivo + `AppTypography.bundledWeights` (teste confere). Como gerar: `assets/google_fonts/README.md`.
+- **Senha (PR-11):** `PasswordRules` (≥ 10, letras e números) = `config.toml` = painel da nuvem. Recuperação:
+  `/admin/nova-senha`, Supabase em `AuthFlowType.implicit` (link abre em qualquer navegador). Template pt-BR em
+  `supabase/templates/recovery.html` (copiar no painel da nuvem).
+- **Deploy:** `web/index.html` usa `__SITE_URL__` (og:url/og:image) — o deploy roda `tool/web/finalize_build.sh <SITE_URL>`.
+  Vercel pronto (`web/vercel.json`, `deploy-vercel.yml`), ligado só com `VERCEL_PROJECT_ID`.
 
 ## Design system (PR-02)
 - **Marca JOYJOY:** cor principal terracota (`primary` `#B04E1C`); laranja exato do logo `#E0662A` = `appColors.brand`, **só para gráficos** (3.1:1). Fundo = creme do logo `#FCF3EA`. Feminino = `tertiaryContainer` (rosa), Masculino = `secondaryContainer` (azul).

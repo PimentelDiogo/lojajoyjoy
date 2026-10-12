@@ -68,4 +68,56 @@ class AuthRepositoryImpl implements AuthRepository {
       // Sem rede: a sessão local é descartada mesmo assim.
     }
   }
+
+  @override
+  Future<Result<void>> requestPasswordReset(
+    String email, {
+    required Uri redirectTo,
+  }) async {
+    try {
+      await _client.auth.resetPasswordForEmail(
+        email,
+        redirectTo: redirectTo.toString(),
+      );
+      return const Success(null);
+    } on AuthException catch (error) {
+      if (error.statusCode == '429' ||
+          error.code == 'over_email_send_rate_limit') {
+        return const Failed(
+          ServerFailure('Muitos pedidos seguidos. Aguarde alguns minutos.'),
+        );
+      }
+      // Outros erros (ex.: e-mail inexistente) respondem igual ao sucesso.
+      return const Success(null);
+    } on Object catch (error) {
+      return Failed(mapSupabaseError(error));
+    }
+  }
+
+  @override
+  Future<Result<void>> updatePassword(String newPassword) async {
+    if (!hasSession) {
+      return const Failed(
+        UnauthorizedFailure('Link inválido ou expirado. Peça um novo.'),
+      );
+    }
+    try {
+      await _client.auth.updateUser(UserAttributes(password: newPassword));
+      return const Success(null);
+    } on AuthException catch (error) {
+      return Failed(switch (error.code) {
+        'same_password' => const ValidationFailure(
+          'A nova senha precisa ser diferente da atual.',
+        ),
+        'weak_password' => const ValidationFailure(
+          'Senha fraca: use pelo menos 10 caracteres, com letras e números.',
+        ),
+        _ => const UnauthorizedFailure(
+          'Link inválido ou expirado. Peça um novo.',
+        ),
+      });
+    } on Object catch (error) {
+      return Failed(mapSupabaseError(error));
+    }
+  }
 }

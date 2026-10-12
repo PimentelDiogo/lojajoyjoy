@@ -5,11 +5,15 @@ import 'package:joyjoy/app/middlewares/strict_route_middleware.dart';
 import 'package:joyjoy/app/pages/design_system_view.dart';
 import 'package:joyjoy/app/routes/app_routes.dart';
 import 'package:joyjoy/app/widgets/deferred_view.dart';
+import 'package:joyjoy/core/config/env.dart';
 import 'package:joyjoy/core/pages/not_found_view.dart';
 import 'package:joyjoy/features/admin/admin_area.dart' deferred as admin_area;
+import 'package:joyjoy/features/admin/auth/domain/auth.dart';
 import 'package:joyjoy/features/admin/auth/presentation/controllers/auth_controller.dart';
 import 'package:joyjoy/features/admin/auth/presentation/controllers/login_controller.dart';
+import 'package:joyjoy/features/admin/auth/presentation/controllers/new_password_controller.dart';
 import 'package:joyjoy/features/admin/auth/presentation/views/login_view.dart';
+import 'package:joyjoy/features/admin/auth/presentation/views/new_password_view.dart';
 import 'package:joyjoy/features/cart/presentation/views/cart_view.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 import 'package:joyjoy/features/catalog/presentation/bindings/catalog_binding.dart';
@@ -69,7 +73,25 @@ abstract final class AppPages {
         () => Get.lazyPut(
           () => LoginController(
             auth: Get.find<AuthController>(),
+            requestReset: RequestPasswordReset(
+              Get.find<AuthRepository>(),
+              redirectTo: Get.find<Env>().absoluteUri(
+                AppRoutes.adminNewPassword,
+              ),
+            ),
             next: Get.parameters['next'],
+          ),
+        ),
+      ),
+    ),
+    _page<void>(
+      name: AppRoutes.adminNewPassword,
+      page: NewPasswordView.new,
+      binding: BindingsBuilder<void>(
+        () => Get.lazyPut(
+          () => NewPasswordController(
+            auth: Get.find<AuthController>(),
+            updatePassword: UpdatePassword(Get.find<AuthRepository>()),
           ),
         ),
       ),

@@ -392,6 +392,29 @@ class FakeAuthRepository implements AuthRepository {
     signOuts++;
     session = false;
   }
+
+  final List<(String, Uri)> resetRequests = [];
+  final List<String> passwordUpdates = [];
+
+  @override
+  Future<Result<void>> requestPasswordReset(
+    String email, {
+    required Uri redirectTo,
+  }) async {
+    resetRequests.add((email, redirectTo));
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> updatePassword(String newPassword) async {
+    if (!session) {
+      return const Failed(
+        UnauthorizedFailure('Link inválido ou expirado. Peça um novo.'),
+      );
+    }
+    passwordUpdates.add(newPassword);
+    return const Success(null);
+  }
 }
 
 class FakeDashboardRepository implements DashboardRepository {
