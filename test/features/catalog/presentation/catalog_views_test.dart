@@ -30,7 +30,7 @@ void main() {
 
   group('Landing', () {
     for (final MapEntry(key: name, value: size) in testViewports.entries) {
-      testWidgets('$name: blocos Feminino/Masculino e destaques sem overflow', (
+      testWidgets('$name: blocos Casual/Fitness e destaques sem overflow', (
         tester,
       ) async {
         registerAppFakes(
@@ -41,8 +41,8 @@ void main() {
         );
         await pumpAt(tester, AppRoutes.landing, size: size);
 
-        expect(find.bySemanticsLabel('Ver moda feminino'), findsOneWidget);
-        expect(find.bySemanticsLabel('Ver moda masculino'), findsOneWidget);
+        expect(find.bySemanticsLabel('Ver casual'), findsOneWidget);
+        expect(find.bySemanticsLabel('Ver fitness'), findsOneWidget);
         expect(find.text('Destaques'), findsOneWidget);
         expect(find.text('Peça 1'), findsOneWidget);
         expect(find.text('Peça 2'), findsOneWidget);
@@ -57,15 +57,15 @@ void main() {
       expect(find.text('Destaques'), findsNothing);
     });
 
-    testWidgets('tocar em Feminino abre o grid da seção', (tester) async {
+    testWidgets('tocar em Casual abre o grid da seção', (tester) async {
       registerAppFakes();
       await pumpAt(tester, AppRoutes.landing);
 
-      await tester.tap(find.bySemanticsLabel('Ver moda feminino'));
+      await tester.tap(find.bySemanticsLabel('Ver casual'));
       await tester.pumpAndSettle();
 
       expect(find.byType(CatalogView), findsOneWidget);
-      expect(Get.currentRoute, AppRoutes.feminino);
+      expect(Get.currentRoute, AppRoutes.casual);
     });
 
     testWidgets(
@@ -145,9 +145,9 @@ void main() {
     for (final MapEntry(key: name, value: size) in testViewports.entries) {
       testWidgets('$name: grid sem overflow', (tester) async {
         registerAppFakes(products: FakeProductRepository(fakeProducts(8)));
-        await pumpAt(tester, AppRoutes.feminino, size: size);
+        await pumpAt(tester, AppRoutes.casual, size: size);
 
-        expect(find.text('Feminino'), findsWidgets);
+        expect(find.text('Casual'), findsWidgets);
         expect(find.text('Peça 0'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
@@ -155,7 +155,7 @@ void main() {
 
     testWidgets('chips de categoria filtram', (tester) async {
       final fakes = registerAppFakes();
-      await pumpAt(tester, AppRoutes.feminino);
+      await pumpAt(tester, AppRoutes.casual);
 
       await tester.tap(find.widgetWithText(FilterChip, 'Vestidos'));
       await tester.pumpAndSettle();
@@ -165,7 +165,7 @@ void main() {
 
     testWidgets('ordenação pelo menu', (tester) async {
       final fakes = registerAppFakes();
-      await pumpAt(tester, AppRoutes.masculino);
+      await pumpAt(tester, AppRoutes.fitness);
 
       await tester.tap(find.byTooltip('Ordenar'));
       await tester.pumpAndSettle();

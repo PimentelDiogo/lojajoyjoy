@@ -39,7 +39,7 @@ class CatalogProductCard extends StatelessWidget {
   };
 }
 
-/// Cores de destaque por seção (ADR-0009): Feminino rosa, Masculino azul.
+/// Cores de destaque por seção (ADR-0009): Casual rosa, Fitness azul.
 extension GenderStyle on Gender {
   Color sectionColor(ColorScheme scheme) => switch (this) {
     Gender.feminino => scheme.tertiaryContainer,

@@ -3,6 +3,9 @@
 /// As rotas são registradas em `AppPages` à medida que cada feature é entregue.
 abstract final class AppRoutes {
   static const landing = '/';
+  static const casual = '/casual';
+  static const fitness = '/fitness';
+  // Aliases mantidos para compatibilidade com links antigos.
   static const feminino = '/feminino';
   static const masculino = '/masculino';
   static const product = '/produto/:slug';
