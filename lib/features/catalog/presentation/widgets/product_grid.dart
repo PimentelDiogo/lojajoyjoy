@@ -39,6 +39,38 @@ class ProductSliverGridSkeleton extends StatelessWidget {
   );
 }
 
+/// Grid de produtos em widget tradicional (Box/Column).
+class ProductGrid extends StatelessWidget {
+  const ProductGrid({
+    required this.products,
+    required this.lowStockThreshold,
+    super.key,
+  });
+
+  final List<Product> products;
+  final int lowStockThreshold;
+
+  @override
+  Widget build(BuildContext context) => _ResponsiveBoxGrid(
+    itemCount: products.length,
+    itemBuilder: (_, index) => CatalogProductCard(
+      product: products[index],
+      lowStockThreshold: lowStockThreshold,
+    ),
+  );
+}
+
+/// Esqueleto do grid tradicional enquanto carrega.
+class ProductGridSkeleton extends StatelessWidget {
+  const ProductGridSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => _ResponsiveBoxGrid(
+    itemCount: context.responsive.gridColumns * 2,
+    itemBuilder: (_, _) => const ProductCardSkeleton(),
+  );
+}
+
 class ProductCardSkeleton extends StatelessWidget {
   const ProductCardSkeleton({super.key});
 
@@ -96,6 +128,41 @@ class _ResponsiveSliverGrid extends StatelessWidget {
             itemBuilder,
             childCount: itemCount,
           ),
+        );
+      },
+    );
+  }
+}
+
+class _ResponsiveBoxGrid extends StatelessWidget {
+  const _ResponsiveBoxGrid({
+    required this.itemCount,
+    required this.itemBuilder,
+  });
+
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = context.responsive;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = r.gridColumns;
+        final spacing = r.gridSpacing;
+        final itemWidth =
+            (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: itemCount,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            mainAxisSpacing: spacing,
+            crossAxisSpacing: spacing,
+            mainAxisExtent: ProductCard.extentFor(itemWidth),
+          ),
+          itemBuilder: itemBuilder,
         );
       },
     );

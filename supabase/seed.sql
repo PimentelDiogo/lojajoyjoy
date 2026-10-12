@@ -43,10 +43,10 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Recado da loja (A2) — exemplo
+-- Recado da loja (A2) — desabilitado por padrão (editável pela Ana no admin)
 -- -----------------------------------------------------------------------------
 update public.store_settings
-   set announcement = 'Entregas em Recife e região metropolitana. Pix, cartão ou dinheiro na entrega.'
+   set announcement = null
  where id = 1;
 
 -- -----------------------------------------------------------------------------
