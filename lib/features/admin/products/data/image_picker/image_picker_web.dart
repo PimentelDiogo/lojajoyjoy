@@ -71,8 +71,8 @@ class BrowserProductImagePicker implements ProductImagePicker {
       final dataUrl = await _readAsDataUrl(file);
       final loaded = Completer<void>();
       final img = web.HTMLImageElement()
-        ..onload = ((_) => loaded.complete()).toJS
-        ..onerror = ((_) => loaded.completeError('load error')).toJS
+        ..onload = ((web.Event _) => loaded.complete()).toJS
+        ..onerror = ((web.Event _) => loaded.completeError('load error')).toJS
         ..src = dataUrl;
       await loaded.future;
 
