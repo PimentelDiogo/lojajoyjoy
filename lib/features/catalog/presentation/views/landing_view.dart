@@ -20,7 +20,7 @@ import 'package:joyjoy/features/store/presentation/controllers/store_controller.
 import 'package:joyjoy/features/store/presentation/widgets/store_footer.dart';
 import 'package:joyjoy/features/store/presentation/widgets/store_widgets.dart';
 
-/// Página inicial: Feminino / Masculino e destaques.
+/// Página inicial: Casual / Fitness e destaques.
 class LandingView extends GetView<LandingController> {
   const LandingView({super.key});
 
@@ -37,12 +37,12 @@ class LandingView extends GetView<LandingController> {
               children: [
                 _SectionBlock(
                   gender: Gender.feminino,
-                  route: AppRoutes.feminino,
+                  route: AppRoutes.casual,
                 ),
                 SizedBox(height: AppSpacing.sm),
                 _SectionBlock(
                   gender: Gender.masculino,
-                  route: AppRoutes.masculino,
+                  route: AppRoutes.fitness,
                 ),
               ],
             ),
@@ -51,14 +51,14 @@ class LandingView extends GetView<LandingController> {
                 Expanded(
                   child: _SectionBlock(
                     gender: Gender.feminino,
-                    route: AppRoutes.feminino,
+                    route: AppRoutes.casual,
                   ),
                 ),
                 SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: _SectionBlock(
                     gender: Gender.masculino,
-                    route: AppRoutes.masculino,
+                    route: AppRoutes.fitness,
                   ),
                 ),
               ],
@@ -91,7 +91,7 @@ class _SectionBlock extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: 'Ver moda ${gender.label.toLowerCase()}',
+      label: 'Ver ${gender.label.toLowerCase()}',
       excludeSemantics: true,
       child: Material(
         color: background,

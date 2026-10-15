@@ -40,6 +40,17 @@ abstract final class AppPages {
       binding: LandingBinding(),
     ),
     _page<void>(
+      name: AppRoutes.casual,
+      page: () => const CatalogView(gender: Gender.feminino),
+      binding: CatalogBinding(Gender.feminino),
+    ),
+    _page<void>(
+      name: AppRoutes.fitness,
+      page: () => const CatalogView(gender: Gender.masculino),
+      binding: CatalogBinding(Gender.masculino),
+    ),
+    // Aliases: redirecionam para as novas rotas (compat. com links antigos).
+    _page<void>(
       name: AppRoutes.feminino,
       page: () => const CatalogView(gender: Gender.feminino),
       binding: CatalogBinding(Gender.feminino),

@@ -1,7 +1,11 @@
-/// Seção da loja. `unissex` aparece tanto no Feminino quanto no Masculino.
+/// Seção da loja. `unissex` aparece tanto em Casual quanto em Fitness.
 enum Gender {
-  feminino('Feminino'),
-  masculino('Masculino'),
+  /// Seção "Casual" (exibição) — valor no banco: 'feminino'.
+  feminino('Casual'),
+
+  /// Seção "Fitness" (exibição) — valor no banco: 'masculino'.
+  masculino('Fitness'),
+
   unissex('Unissex');
 
   const Gender(this.label);

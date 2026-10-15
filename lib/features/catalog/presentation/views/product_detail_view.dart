@@ -212,8 +212,8 @@ class _ProductInfo extends StatelessWidget {
             onPressed: () => unawaited(
               Get.offNamed<void>(
                 product.gender == Gender.masculino
-                    ? AppRoutes.masculino
-                    : AppRoutes.feminino,
+                    ? AppRoutes.fitness
+                    : AppRoutes.casual,
               ),
             ),
           ),
