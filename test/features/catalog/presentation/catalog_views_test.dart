@@ -69,7 +69,7 @@ void main() {
     });
 
     testWidgets(
-      'recado da loja e aviso de loja fechada aparecem no catálogo, não na landing',
+      'recado da loja e aviso de loja fechada não aparecem na vitrine (landing nem catálogo)',
       (tester) async {
         registerAppFakes(
           store: FakeStoreRepository(
@@ -91,8 +91,8 @@ void main() {
 
         await pumpAt(tester, AppRoutes.feminino);
 
-        expect(find.text('Voltamos na segunda!'), findsOneWidget);
-        expect(find.text('Entregas em Recife'), findsOneWidget);
+        expect(find.text('Voltamos na segunda!'), findsNothing);
+        expect(find.text('Entregas em Recife'), findsNothing);
       },
     );
 

@@ -58,7 +58,6 @@ class CatalogView extends GetView<CatalogController> {
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(child: SizedBox(height: r.pagePadding)),
-              const SliverToBoxAdapter(child: StoreNotices()),
               SliverToBoxAdapter(
                 child: _Toolbar(gender: gender, controller: controller),
               ),
