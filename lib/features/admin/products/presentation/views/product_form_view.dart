@@ -16,6 +16,7 @@ import 'package:joyjoy/features/admin/products/presentation/controllers/product_
 import 'package:joyjoy/features/admin/products/presentation/widgets/admin_section_card.dart';
 import 'package:joyjoy/features/admin/products/presentation/widgets/product_images_editor.dart';
 import 'package:joyjoy/features/admin/products/presentation/widgets/variant_grid_editor.dart';
+import 'package:joyjoy/features/catalog/domain/entities/category.dart';
 import 'package:joyjoy/features/catalog/domain/entities/gender.dart';
 
 /// Cadastro/edição de peça (/admin/produtos/nova e /admin/produtos/:id).
@@ -394,10 +395,44 @@ class _CategoryField extends StatelessWidget {
     }
   }
 
+  Future<void> _remove(BuildContext context, Category category) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Inativar categoria?'),
+        content: Text(
+          '"${category.name}" deixa de aparecer para escolher em peças '
+          'novas. Peças já cadastradas com ela continuam normalmente.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Voltar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Inativar categoria'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final failure = await controller.removeCategory();
+    if (failure != null && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(failure.message), persist: false));
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Obx(() {
     final options = controller.categoriesForGender;
     final selected = controller.categoryId.value;
+    final selectedCategory = options.cast<Category?>().firstWhere(
+      (c) => c?.id == selected,
+      orElse: () => null,
+    );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -437,6 +472,19 @@ class _CategoryField extends StatelessWidget {
             tooltip: 'Nova categoria',
             onPressed: () => unawaited(_create(context)),
             icon: const Icon(Icons.add),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
+          child: IconButton.filledTonal(
+            tooltip: selectedCategory == null
+                ? 'Escolha uma categoria para inativar'
+                : 'Inativar categoria',
+            onPressed: selectedCategory == null
+                ? null
+                : () => unawaited(_remove(context, selectedCategory)),
+            icon: const Icon(Icons.remove_circle_outline),
           ),
         ),
       ],

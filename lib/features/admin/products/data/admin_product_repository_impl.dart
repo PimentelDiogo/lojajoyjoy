@@ -87,6 +87,15 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
       });
 
   @override
+  Future<Result<void>> setCategoryActive(String id, {required bool active}) =>
+      _guard(
+        () => _client
+            .from('categories')
+            .update({'is_active': active})
+            .eq('id', id),
+      );
+
+  @override
   Future<Result<String>> uploadImage(String productId, PickedImage image) =>
       _guard(
         () async {

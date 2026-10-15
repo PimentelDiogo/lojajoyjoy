@@ -100,6 +100,7 @@ Widget buildAdminProductForm(String? id) {
         saveProduct: SaveProduct(repository),
         listCategories: ListAdminCategories(repository),
         createCategoryUseCase: CreateCategory(repository),
+        setCategoryActiveUseCase: SetCategoryActive(repository),
         imagePicker: Get.find(),
         newId: const Uuid().v4,
       );
