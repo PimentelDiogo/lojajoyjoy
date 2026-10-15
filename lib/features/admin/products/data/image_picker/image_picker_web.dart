@@ -66,8 +66,17 @@ class BrowserProductImagePicker implements ProductImagePicker {
 
   Future<PickedImage?> _compress(web.File file) async {
     try {
-      final bitmap = await web.window.createImageBitmap(file).toDart;
-      final size = fitWithin(bitmap.width, bitmap.height, maxSide);
+      // createImageBitmap(File) trava no WKWebView (Safari iOS, Instagram,
+      // WhatsApp). FileReader → HTMLImageElement funciona em todos os browsers.
+      final dataUrl = await _readAsDataUrl(file);
+      final loaded = Completer<void>();
+      final img = web.HTMLImageElement()
+        ..onload = ((_) => loaded.complete()).toJS
+        ..onerror = ((_) => loaded.completeError('load error')).toJS
+        ..src = dataUrl;
+      await loaded.future;
+
+      final size = fitWithin(img.naturalWidth, img.naturalHeight, maxSide);
       final canvas = web.HTMLCanvasElement()
         ..width = size.width
         ..height = size.height;
@@ -75,8 +84,7 @@ class BrowserProductImagePicker implements ProductImagePicker {
         // Fundo branco: PNG transparente não fica preto no JPEG.
         ..fillStyle = '#FFFFFF'.toJS
         ..fillRect(0, 0, size.width, size.height)
-        ..drawImage(bitmap, 0, 0, size.width, size.height);
-      bitmap.close();
+        ..drawImage(img, 0, 0, size.width, size.height);
 
       var blob = await _toBlob(canvas, 'image/webp', 0.82);
       if (blob == null || blob.type != 'image/webp') {
@@ -91,6 +99,24 @@ class BrowserProductImagePicker implements ProductImagePicker {
     } on Object {
       return null; // formato que o navegador não abre (ex.: HEIC no Chrome)
     }
+  }
+
+  Future<String> _readAsDataUrl(web.File file) {
+    final completer = Completer<String>();
+    final reader = web.FileReader();
+    reader
+      ..addEventListener(
+        'load',
+        ((web.Event _) {
+          completer.complete((reader.result! as JSString).toDart);
+        }).toJS,
+      )
+      ..addEventListener(
+        'error',
+        ((web.Event _) => completer.completeError('FileReader error')).toJS,
+      )
+      ..readAsDataURL(file);
+    return completer.future;
   }
 
   Future<web.Blob?> _toBlob(
