@@ -526,10 +526,12 @@ class FakeAdminProductRepository implements AdminProductRepository {
   final List<List<String>> removed = [];
   final List<ProductDraft> saved = [];
   final List<({String id, bool active})> activeChanges = [];
+  final List<({String id, bool active})> categoryActiveChanges = [];
 
   Failure? uploadFailure;
   Failure? saveFailure;
   Failure? setActiveFailure;
+  Failure? setCategoryActiveFailure;
 
   @override
   Future<Result<List<AdminProductSummary>>> listProducts() async =>
@@ -563,6 +565,17 @@ class FakeAdminProductRepository implements AdminProductRepository {
     );
     categories = [...categories, category];
     return Success(category);
+  }
+
+  @override
+  Future<Result<void>> setCategoryActive(
+    String id, {
+    required bool active,
+  }) async {
+    categoryActiveChanges.add((id: id, active: active));
+    if (setCategoryActiveFailure case final failure?) return Failed(failure);
+    if (!active) categories = categories.where((c) => c.id != id).toList();
+    return const Success(null);
   }
 
   @override

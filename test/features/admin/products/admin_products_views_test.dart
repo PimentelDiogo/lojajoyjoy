@@ -275,6 +275,39 @@ void main() {
       expect(find.text('Saias'), findsOneWidget);
     });
 
+    testWidgets('inativar categoria pede confirmação e some da lista', (
+      tester,
+    ) async {
+      final repo = await open(tester, AppRoutes.adminProductEditPath('p1'));
+
+      expect(find.text('Vestidos'), findsOneWidget);
+      final removeButton = find.byTooltip('Inativar categoria');
+      await tester.ensureVisible(removeButton);
+      await tester.tap(removeButton);
+      await tester.pumpAndSettle();
+      expect(find.text('Inativar categoria?'), findsOneWidget);
+
+      await tester.tap(find.text('Voltar'));
+      await tester.pumpAndSettle();
+      expect(repo.categoryActiveChanges, isEmpty);
+      expect(find.text('Vestidos'), findsOneWidget);
+
+      await tester.ensureVisible(removeButton);
+      await tester.tap(removeButton);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('Inativar categoria'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(repo.categoryActiveChanges, [(id: 'c1', active: false)]);
+      expect(find.text('Vestidos'), findsNothing);
+      expect(find.text('Sem categoria'), findsOneWidget);
+    });
+
     testWidgets('erro do servidor aparece e a peça não sai da tela', (
       tester,
     ) async {

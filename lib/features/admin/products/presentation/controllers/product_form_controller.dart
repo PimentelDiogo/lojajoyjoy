@@ -21,6 +21,7 @@ class ProductFormController extends GetxController {
     required this.saveProduct,
     required this.listCategories,
     required this.createCategoryUseCase,
+    required this.setCategoryActiveUseCase,
     required this.imagePicker,
     required this.newId,
     this.productId,
@@ -30,6 +31,7 @@ class ProductFormController extends GetxController {
   final SaveProduct saveProduct;
   final ListAdminCategories listCategories;
   final CreateCategory createCategoryUseCase;
+  final SetCategoryActive setCategoryActiveUseCase;
   final ProductImagePicker imagePicker;
 
   /// Gera o UUID da peça nova (as fotos sobem em `<id>/…` antes de salvar).
@@ -162,6 +164,22 @@ class ProductFormController extends GetxController {
       case Success(:final value):
         if (!categories.any((c) => c.id == value.id)) categories.add(value);
         categoryId.value = value.id;
+        return null;
+      case Failed(:final failure):
+        return failure;
+    }
+  }
+
+  /// Inativa a categoria selecionada. Ela some das opções (até ser recriada
+  /// com o mesmo nome, que a reativa), mas peças já cadastradas não mudam.
+  Future<Failure?> removeCategory() async {
+    final id = categoryId.value;
+    if (id == null) return null;
+    final result = await setCategoryActiveUseCase((id: id, active: false));
+    switch (result) {
+      case Success():
+        categories.removeWhere((c) => c.id == id);
+        categoryId.value = null;
         return null;
       case Failed(:final failure):
         return failure;

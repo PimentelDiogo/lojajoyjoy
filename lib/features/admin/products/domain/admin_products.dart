@@ -31,6 +31,10 @@ abstract interface class AdminProductRepository {
   /// Cria (ou reaproveita, se o nome já existe na seção) uma categoria.
   Future<Result<Category>> createCategory(String name, Gender gender);
 
+  /// Inativa (ou reativa) uma categoria. Peças já cadastradas com ela não
+  /// mudam — ela só para de aparecer para escolher em peças novas.
+  Future<Result<void>> setCategoryActive(String id, {required bool active});
+
   /// Envia a foto para `<productId>/<arquivo>` e devolve o caminho.
   Future<Result<String>> uploadImage(String productId, PickedImage image);
 
@@ -100,6 +104,15 @@ class CreateCategory
     }
     return _repository.createCategory(name, params.gender);
   }
+}
+
+class SetCategoryActive implements UseCase<void, ({String id, bool active})> {
+  SetCategoryActive(this._repository);
+  final AdminProductRepository _repository;
+
+  @override
+  Future<Result<void>> call(({String id, bool active}) params) =>
+      _repository.setCategoryActive(params.id, active: params.active);
 }
 
 /// Salvar a peça:

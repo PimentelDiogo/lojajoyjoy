@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/features/admin/products/domain/admin_products.dart';
 import 'package:joyjoy/features/admin/products/domain/entities/product_draft.dart';
 import 'package:joyjoy/features/admin/products/presentation/controllers/product_form_controller.dart';
@@ -17,6 +18,7 @@ void main() {
       saveProduct: SaveProduct(repo),
       listCategories: ListAdminCategories(repo),
       createCategoryUseCase: CreateCategory(repo),
+      setCategoryActiveUseCase: SetCategoryActive(repo),
       imagePicker: picker,
       newId: () => 'novo-id',
     );
@@ -119,6 +121,36 @@ void main() {
     c.setGender(Gender.masculino);
     expect(c.categoryId.value, isNull);
     expect(c.categoriesForGender.map((x) => x.name), ['Camisas', 'Calças']);
+  });
+
+  test('sem categoria selecionada, inativar não faz nada', () async {
+    final c = build();
+    await c.load();
+    expect(c.categoryId.value, isNull);
+
+    expect(await c.removeCategory(), isNull);
+    expect(repo.categoryActiveChanges, isEmpty);
+  });
+
+  test('inativar categoria tira das opções e limpa a seleção', () async {
+    final c = build(id: 'p1');
+    await c.load();
+    expect(c.categoryId.value, 'c1');
+
+    expect(await c.removeCategory(), isNull);
+    expect(repo.categoryActiveChanges, [(id: 'c1', active: false)]);
+    expect(c.categoryId.value, isNull);
+    expect(c.categories.map((x) => x.id), isNot(contains('c1')));
+  });
+
+  test('erro do servidor ao inativar mantém a categoria selecionada', () async {
+    final c = build(id: 'p1');
+    await c.load();
+    repo.setCategoryActiveFailure = const ServerFailure('Falhou.');
+
+    expect(await c.removeCategory(), isA<ServerFailure>());
+    expect(c.categoryId.value, 'c1');
+    expect(c.categories.map((x) => x.id), contains('c1'));
   });
 
   test('preço "de" inválido é apontado antes de salvar', () async {
