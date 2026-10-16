@@ -13,7 +13,9 @@ ProductImagePicker createProductImagePicker() => BrowserProductImagePicker();
 extension type _JSWorker._(JSObject _) implements JSObject {
   external factory _JSWorker(String scriptUrl);
   external void postMessage(JSAny? message);
+  external JSFunction? get onmessage;
   external set onmessage(JSFunction? value);
+  external JSFunction? get onerror;
   external set onerror(JSFunction? value);
   external void terminate();
 }
@@ -119,15 +121,15 @@ class BrowserProductImagePicker implements ProductImagePicker {
   PickedImage? _parseResult(JSObject? data) {
     if (data == null) return null;
     final ok = data.getProperty('ok'.toJS);
-    if (!ok.isA<JSBoolean>() || !(ok as JSBoolean).toDart) return null;
+    if (!ok.isA<JSBoolean>() || !(ok! as JSBoolean).toDart) return null;
     final buffer = data.getProperty('buffer'.toJS);
     final contentType = data.getProperty('contentType'.toJS);
     if (!buffer.isA<JSArrayBuffer>() || !contentType.isA<JSString>()) {
       return null;
     }
     return PickedImage(
-      bytes: (buffer as JSArrayBuffer).toDart.asUint8List(),
-      contentType: (contentType as JSString).toDart,
+      bytes: (buffer! as JSArrayBuffer).toDart.asUint8List(),
+      contentType: (contentType! as JSString).toDart,
     );
   }
 
