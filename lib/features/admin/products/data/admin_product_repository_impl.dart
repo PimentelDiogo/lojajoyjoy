@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:joyjoy/core/errors/failure.dart';
 import 'package:joyjoy/core/errors/result.dart';
 import 'package:joyjoy/core/services/supabase_error_mapper.dart';
@@ -22,6 +24,12 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
 
   /// Catálogo da Ana é pequeno: a lista vem inteira e a busca é local.
   static const listLimit = 500;
+
+  /// No Safari iOS o `uploadBinary` já flagrou ficar pendurado sem erro
+  /// (rede instável / app em background). Sem timeout, a tela trava sem
+  /// feedback nenhum pro usuário.
+  static const _uploadTimeout = Duration(seconds: 20);
+  static const _uploadAttempts = 2;
 
   String _publicUrl(String path) =>
       _client.storage.from(bucket).getPublicUrl(path);
@@ -100,21 +108,33 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
       _guard(
         () async {
           final path = '$productId/${_uuid.v4()}.${image.extension}';
-          await _client.storage
-              .from(bucket)
-              .uploadBinary(
-                path,
-                image.bytes,
-                fileOptions: FileOptions(
-                  contentType: image.contentType,
-                  // Nome único por foto: pode ficar em cache "para sempre".
-                  cacheControl: '31536000',
-                ),
-              );
+          await _uploadWithRetry(path, image);
           return path;
         },
         storageMessage: 'Não foi possível enviar uma das fotos. Tente de novo.',
       );
+
+  Future<void> _uploadWithRetry(String path, PickedImage image) async {
+    for (var attempt = 1; attempt <= _uploadAttempts; attempt++) {
+      try {
+        await _client.storage
+            .from(bucket)
+            .uploadBinary(
+              path,
+              image.bytes,
+              fileOptions: FileOptions(
+                contentType: image.contentType,
+                // Nome único por foto: pode ficar em cache "para sempre".
+                cacheControl: '31536000',
+              ),
+            )
+            .timeout(_uploadTimeout);
+        return;
+      } on TimeoutException {
+        if (attempt == _uploadAttempts) rethrow;
+      }
+    }
+  }
 
   @override
   Future<Result<SavedProduct>> save(ProductDraft draft) => _guard(() async {
