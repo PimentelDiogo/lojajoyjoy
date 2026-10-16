@@ -20,7 +20,12 @@ import 'package:joyjoy/features/admin/products/presentation/controllers/admin_pr
 import 'package:joyjoy/features/admin/products/presentation/controllers/product_form_controller.dart';
 import 'package:joyjoy/features/admin/products/presentation/views/admin_products_view.dart';
 import 'package:joyjoy/features/admin/products/presentation/views/product_form_view.dart';
+import 'package:joyjoy/features/admin/settings/data/admin_settings_repository_impl.dart';
+import 'package:joyjoy/features/admin/settings/domain/admin_settings.dart';
+import 'package:joyjoy/features/admin/settings/presentation/admin_settings_controller.dart';
+import 'package:joyjoy/features/admin/settings/presentation/admin_settings_view.dart';
 import 'package:joyjoy/features/admin/shell/admin_shell.dart';
+import 'package:joyjoy/features/store/presentation/controllers/store_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -47,6 +52,12 @@ void registerAdminDependencies() {
   }
   if (!Get.isRegistered<ProductImagePicker>()) {
     Get.lazyPut<ProductImagePicker>(createProductImagePicker, fenix: true);
+  }
+  if (!Get.isRegistered<AdminSettingsRepository>()) {
+    Get.lazyPut<AdminSettingsRepository>(
+      () => AdminSettingsRepositoryImpl(Get.find<SupabaseClient>()),
+      fenix: true,
+    );
   }
 }
 
@@ -106,5 +117,21 @@ Widget buildAdminProductForm(String? id) {
       );
     },
     child: AdminShell(selected: 2, child: ProductFormView(tag: tag)),
+  );
+}
+
+/// Configurações da loja (/admin/configuracoes) — ADR-0014.
+Widget buildAdminSettings() {
+  registerAdminDependencies();
+  return ControllerScope<AdminSettingsController>(
+    create: () {
+      final repository = Get.find<AdminSettingsRepository>();
+      return AdminSettingsController(
+        store: Get.find<StoreController>(),
+        startStockAudit: StartStockAudit(repository),
+        stopStockAudit: StopStockAudit(repository),
+      );
+    },
+    child: const AdminShell(selected: 3, child: AdminSettingsView()),
   );
 }

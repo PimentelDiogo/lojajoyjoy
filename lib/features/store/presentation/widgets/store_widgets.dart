@@ -77,7 +77,18 @@ class _StoreNoticesState extends State<StoreNotices> {
       if (settings == null) return const SizedBox.shrink();
 
       final notices = <Widget>[
-        if (!settings.isOpen)
+        if (settings.inStockAudit)
+          _Notice(
+            key: const Key('store-stock-audit'),
+            icon: Icons.inventory_2_outlined,
+            background: brand.peach,
+            foreground: brand.onPeach,
+            child: _AuditCountdown(
+              endsAt: settings.stockAuditEndsAt!,
+              style: textTheme.bodyMedium?.copyWith(color: brand.onPeach),
+            ),
+          )
+        else if (!settings.isOpen)
           _Notice(
             key: const Key('store-closed'),
             icon: Icons.schedule_outlined,
@@ -122,6 +133,58 @@ class _StoreNoticesState extends State<StoreNotices> {
         ],
       );
     });
+  }
+}
+
+/// Contagem regressiva ao vivo (ADR-0014): só existe (e só liga o Timer)
+/// enquanto a loja está mesmo em auditoria — nas outras telas, nenhum timer
+/// roda, então `pumpAndSettle` nos testes continua funcionando normal.
+class _AuditCountdown extends StatefulWidget {
+  const _AuditCountdown({required this.endsAt, this.style});
+
+  final DateTime endsAt;
+  final TextStyle? style;
+
+  @override
+  State<_AuditCountdown> createState() => _AuditCountdownState();
+}
+
+class _AuditCountdownState extends State<_AuditCountdown> {
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      Text(_message(widget.endsAt), style: widget.style);
+
+  /// "Atualizando o estoque. Voltamos às 14:32 (faltam 12min)."
+  String _message(DateTime endsAt) {
+    final remaining = endsAt.difference(DateTime.now().toUtc());
+    final local = endsAt.toLocal();
+    final hhmm =
+        '${local.hour.toString().padLeft(2, '0')}:'
+        '${local.minute.toString().padLeft(2, '0')}';
+    if (remaining.isNegative) {
+      return 'Atualizando o estoque. Voltamos a qualquer momento.';
+    }
+    final minutes = remaining.inMinutes;
+    final faltam = minutes > 0
+        ? 'faltam ${minutes}min'
+        : 'faltam ${remaining.inSeconds}s';
+    return 'Atualizando o estoque. Voltamos às $hhmm ($faltam).';
   }
 }
 

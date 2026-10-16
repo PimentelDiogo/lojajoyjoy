@@ -163,6 +163,7 @@ journey
 | RF-33 | Exportar relatórios em CSV | Could |
 | RF-34 | Compartilhar produto (link com `?src=`) | Could |
 | RF-35 | Barra "faltam R$ X para frete grátis" (valor configurável) | Could |
+| RF-36 | **Modo de auditoria de estoque** (ADR-0014): a Ana fecha a loja por um prazo fixo (15/30/60 min); a home mostra contagem regressiva ao vivo até o horário; checkout bloqueado (reaproveita `is_open`); só reabre quando a Ana desliga manualmente | Must |
 
 ---
 
@@ -475,6 +476,7 @@ erDiagram
       text announcement "recado da loja"
       bool is_open
       text closed_message
+      timestamptz stock_audit_ends_at "ADR-0014, null = não está em auditoria"
     }
     admin_users {
       uuid user_id PK
@@ -546,6 +548,8 @@ create type payment_method  as enum ('pix', 'card', 'cash');
 | `cancel_order` | admin | `p_code`, `p_reason?` | order | `confirmed` estorna estoque |
 | `adjust_stock` | admin | `variant_id`, `qty_delta`, `reason`, `note` | saldo | Não deixa negativo |
 | `track_visit` | anon | `session_id`, `source`, `utm_campaign?`, `referrer_host?`, `landing_path`, `device_type` | void | 1 por sessão (`on conflict do nothing`) |
+| `start_stock_audit` (ADR-0014) | admin | `p_minutes int` (15, 30 ou 60) | `store_settings` | `is_open=false`; `stock_audit_ends_at = now() + p_minutes`; horário calculado no banco (não confia no relógio do cliente) |
+| `stop_stock_audit` (ADR-0014) | admin | — | `store_settings` | `is_open=true`; `stock_audit_ends_at = null` |
 
 ### 9.3 Esboço — `confirm_order`
 

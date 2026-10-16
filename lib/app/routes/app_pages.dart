@@ -151,6 +151,14 @@ abstract final class AppPages {
       },
       middlewares: [AdminGuard()],
     ),
+    _page<void>(
+      name: AppRoutes.adminSettings,
+      page: () => DeferredView(
+        load: admin_area.loadLibrary,
+        builder: (_) => admin_area.buildAdminSettings(),
+      ),
+      middlewares: [AdminGuard()],
+    ),
     if (kDebugMode)
       _page<void>(name: AppRoutes.designSystem, page: DesignSystemView.new),
     notFound,
