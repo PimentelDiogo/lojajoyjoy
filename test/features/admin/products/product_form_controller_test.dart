@@ -113,6 +113,22 @@ void main() {
     expect(await c.pickImages(), startsWith('2 fotos não puderam'));
   });
 
+  test(
+    'falha inesperada do picker mostra erro e não trava o "carregando"',
+    () async {
+      final c = build();
+      await c.load();
+      picker.throwOnPick = true;
+
+      expect(c.isPicking.value, isFalse);
+      final errorFuture = c.pickImages();
+      expect(c.isPicking.value, isTrue);
+
+      expect(await errorFuture, isNotNull);
+      expect(c.isPicking.value, isFalse);
+    },
+  );
+
   test('trocar a seção limpa categoria que não combina', () async {
     final c = build(id: 'p1');
     await c.load();

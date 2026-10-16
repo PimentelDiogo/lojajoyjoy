@@ -607,11 +607,16 @@ class FakeImagePicker implements ProductImagePicker {
   int skipped = 0;
   int? lastMax;
 
+  /// Simula uma falha inesperada do navegador (ex.: algo não coberto pelos
+  /// timeouts internos do picker real).
+  bool throwOnPick = false;
+
   @override
   Future<({List<PickedImage> images, int skipped})> pick({
     required int max,
   }) async {
     lastMax = max;
+    if (throwOnPick) throw StateError('falha inesperada do navegador');
     return (images: next.take(max).toList(), skipped: skipped);
   }
 }

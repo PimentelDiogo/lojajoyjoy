@@ -260,19 +260,28 @@ class ProductFormController extends GetxController {
       return 'Máximo de ${ProductDraft.maxImages} fotos por peça.';
     }
     isPicking.value = true;
-    final (:images, :skipped) = await imagePicker.pick(max: remainingImages);
-    isPicking.value = false;
-    this.images.addAll([
-      for (final picked in images)
-        DraftImage(key: 'new-${_imageSeq++}', picked: picked),
-    ]);
-    if (images.isNotEmpty) _clearError(ProductField.images);
-    if (skipped > 0) {
-      return skipped == 1
-          ? 'Uma foto não pôde ser aberta. Use JPG, PNG ou WebP.'
-          : '$skipped fotos não puderam ser abertas. Use JPG, PNG ou WebP.';
+    try {
+      final (:images, :skipped) = await imagePicker.pick(
+        max: remainingImages,
+      );
+      this.images.addAll([
+        for (final picked in images)
+          DraftImage(key: 'new-${_imageSeq++}', picked: picked),
+      ]);
+      if (images.isNotEmpty) _clearError(ProductField.images);
+      if (skipped > 0) {
+        return skipped == 1
+            ? 'Uma foto não pôde ser aberta. Use JPG, PNG ou WebP.'
+            : '$skipped fotos não puderam ser abertas. Use JPG, PNG ou WebP.';
+      }
+      return null;
+    } on Object {
+      // Qualquer falha inesperada do navegador (ex.: no pipeline de
+      // compressão): nunca deixa o botão preso em "carregando".
+      return 'Não foi possível abrir a foto. Tente novamente.';
+    } finally {
+      isPicking.value = false;
     }
-    return null;
   }
 
   void moveImage(int from, int to) {
