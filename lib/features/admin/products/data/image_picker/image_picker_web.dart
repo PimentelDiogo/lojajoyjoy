@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:joyjoy/features/admin/products/domain/admin_products.dart';
@@ -8,21 +9,38 @@ import 'package:web/web.dart' as web;
 
 ProductImagePicker createProductImagePicker() => BrowserProductImagePicker();
 
-/// Seletor de fotos do navegador (`<input type=file>`) + compressão no
-/// próprio navegador via canvas — sem pacote extra.
+@JS('Worker')
+extension type _JSWorker._(JSObject _) implements JSObject {
+  external factory _JSWorker(String scriptUrl);
+  external void postMessage(JSAny? message);
+  external set onmessage(JSFunction? value);
+  external set onerror(JSFunction? value);
+  external void terminate();
+}
+
+@JS('MessageEvent')
+extension type _JSMessageEvent._(JSObject _) implements JSObject {
+  external JSObject? get data;
+}
+
+/// Seletor de fotos do navegador (`<input type=file>`) + compressão numa
+/// Web Worker separada (ver `web/photo_worker.js`).
+///
+/// A compressão rodava antes na thread principal via `<canvas>`, mas isso
+/// disputava recursos com o CanvasKit do Flutter Web e travava o navegador
+/// de vez em alguns iPhones (confirmado: a mesma foto processa instantâneo
+/// fora do Flutter). Uma Web Worker roda numa thread de verdade, isolada —
+/// mesmo que a thread principal fique ocupada, a worker continua.
 ///
 /// Foto de celular (12 MP, ~4 MB) vira ~150–300 KB: lado maior 1600 px,
-/// WebP 82% (Safari não gera WebP → JPEG 85%). Se o canvas travar ou
-/// falhar (raro: disputa de GPU com o CanvasKit em alguns aparelhos),
-/// sobe a foto original sem comprimir, desde que já venha num formato
-/// aceito pelo Storage (jpeg/png/webp).
+/// WebP 82% (Safari não gera WebP → JPEG 85%). Se a worker falhar ou não
+/// responder, sobe a foto original sem comprimir (se já vier num formato
+/// aceito pelo Storage: jpeg/png/webp).
 class BrowserProductImagePicker implements ProductImagePicker {
   static const maxSide = 1600;
   static const accept = 'image/jpeg,image/png,image/webp,image/heic,image/*';
-
-  // Alguns navegadores (Safari/WKWebView em formatos que não decodificam)
-  // nunca disparam load NEM error: sem isso a foto trava para sempre.
-  static const _decodeTimeout = Duration(seconds: 20);
+  static const _timeout = Duration(seconds: 20);
+  static const _allowedOriginal = {'image/jpeg', 'image/png', 'image/webp'};
 
   @override
   Future<({List<PickedImage> images, int skipped})> pick({
@@ -32,7 +50,7 @@ class BrowserProductImagePicker implements ProductImagePicker {
     final images = <PickedImage>[];
     var skipped = 0;
     for (final file in files.take(max)) {
-      final image = await _compress(file);
+      final image = await _compress(file) ?? await _original(file);
       if (image == null) {
         skipped++;
       } else {
@@ -72,54 +90,51 @@ class BrowserProductImagePicker implements ProductImagePicker {
   }
 
   Future<PickedImage?> _compress(web.File file) async {
-    // createImageBitmap(File) trava no WKWebView (Safari iOS, Instagram,
-    // WhatsApp). blob: URL (em vez de data: URI via FileReader) é o que o
-    // Safari decodifica de forma confiável, inclusive fotos HEIC do iPhone.
-    final objectUrl = web.URL.createObjectURL(file);
+    _JSWorker? worker;
     try {
-      final loaded = Completer<void>();
-      final img = web.HTMLImageElement()
-        ..onload = ((web.Event _) => loaded.complete()).toJS
-        ..onerror = ((web.Event _) => loaded.completeError('load error')).toJS
-        ..src = objectUrl;
-      await loaded.future.timeout(_decodeTimeout);
+      worker = _JSWorker('photo_worker.js');
+      final completer = Completer<PickedImage?>();
+      worker
+        ..onmessage = ((web.Event e) {
+          if (completer.isCompleted) return;
+          completer.complete(_parseResult((e as _JSMessageEvent).data));
+        }).toJS
+        ..onerror = ((web.Event _) {
+          if (!completer.isCompleted) completer.complete(null);
+        }).toJS;
 
-      final size = fitWithin(img.naturalWidth, img.naturalHeight, maxSide);
-      final canvas = web.HTMLCanvasElement()
-        ..width = size.width
-        ..height = size.height;
-      (canvas.getContext('2d')! as web.CanvasRenderingContext2D)
-        // Fundo branco: PNG transparente não fica preto no JPEG.
-        ..fillStyle = '#FFFFFF'.toJS
-        ..fillRect(0, 0, size.width, size.height)
-        ..drawImage(img, 0, 0, size.width, size.height);
+      final message = JSObject()
+        ..setProperty('file'.toJS, file)
+        ..setProperty('maxSide'.toJS, maxSide.toJS);
+      worker.postMessage(message);
 
-      var blob = await _toBlob(canvas, 'image/webp', 0.82);
-      if (blob == null || blob.type != 'image/webp') {
-        blob = await _toBlob(canvas, 'image/jpeg', 0.85);
-      }
-      if (blob == null) return _original(file);
-      final buffer = await blob.arrayBuffer().toDart;
-      return PickedImage(
-        bytes: Uint8List.view(buffer.toDart),
-        contentType: blob.type,
-      );
+      return await completer.future.timeout(_timeout);
     } on Object {
-      // O canvas pode travar de verdade em alguns aparelhos (disputa de
-      // GPU com o CanvasKit do Flutter) — sem compressão, sobe a foto
-      // original (se já vier num formato aceito pelo Storage).
-      return _original(file);
+      return null;
     } finally {
-      web.URL.revokeObjectURL(objectUrl);
+      worker?.terminate();
     }
   }
 
-  static const _allowedOriginal = {'image/jpeg', 'image/png', 'image/webp'};
+  PickedImage? _parseResult(JSObject? data) {
+    if (data == null) return null;
+    final ok = data.getProperty('ok'.toJS);
+    if (!ok.isA<JSBoolean>() || !(ok as JSBoolean).toDart) return null;
+    final buffer = data.getProperty('buffer'.toJS);
+    final contentType = data.getProperty('contentType'.toJS);
+    if (!buffer.isA<JSArrayBuffer>() || !contentType.isA<JSString>()) {
+      return null;
+    }
+    return PickedImage(
+      bytes: (buffer as JSArrayBuffer).toDart.asUint8List(),
+      contentType: (contentType as JSString).toDart,
+    );
+  }
 
   Future<PickedImage?> _original(web.File file) async {
     if (!_allowedOriginal.contains(file.type)) return null;
     try {
-      final buffer = await file.arrayBuffer().toDart.timeout(_decodeTimeout);
+      final buffer = await file.arrayBuffer().toDart.timeout(_timeout);
       return PickedImage(
         bytes: Uint8List.view(buffer.toDart),
         contentType: file.type,
@@ -127,21 +142,5 @@ class BrowserProductImagePicker implements ProductImagePicker {
     } on Object {
       return null;
     }
-  }
-
-  Future<web.Blob?> _toBlob(
-    web.HTMLCanvasElement canvas,
-    String type,
-    double quality,
-  ) {
-    final completer = Completer<web.Blob?>();
-    canvas.toBlob(
-      // `toJS` exige tipos JS na assinatura (não aceita o FutureOr do complete).
-      // ignore: unnecessary_lambdas
-      ((web.Blob? blob) => completer.complete(blob)).toJS,
-      type,
-      quality.toJS,
-    );
-    return completer.future.timeout(_decodeTimeout);
   }
 }
