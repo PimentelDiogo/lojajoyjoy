@@ -26,6 +26,7 @@ Status possíveis: `Proposto` → `Aceito` → (`Substituído por ADR-XXXX` | `D
 | 0011 | [Autenticação da área administrativa](0011-autenticacao-admin.md) | Aceito    |
 | 0012 | [Hospedagem do front-end (Vercel)](0012-hospedagem-vercel.md)    | Proposto  |
 | 0013 | [CI no GitHub Actions + GitHub Pages temporário](0013-ci-github-actions-pages.md) | Aceito |
+| 0014 | [Modo de auditoria de estoque (fechamento temporário com prazo)](0014-modo-auditoria-estoque.md) | Proposto |
 
 ## Visão geral das decisões
 
