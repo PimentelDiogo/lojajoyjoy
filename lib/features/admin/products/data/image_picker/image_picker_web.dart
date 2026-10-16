@@ -9,10 +9,13 @@ import 'package:web/web.dart' as web;
 ProductImagePicker createProductImagePicker() => BrowserProductImagePicker();
 
 /// Seletor de fotos do navegador (`<input type=file>`) + compressão no
-/// próprio navegador via canvas — sem pacote extra e sem enviar o original.
+/// próprio navegador via canvas — sem pacote extra.
 ///
 /// Foto de celular (12 MP, ~4 MB) vira ~150–300 KB: lado maior 1600 px,
-/// WebP 82% (Safari não gera WebP → JPEG 85%).
+/// WebP 82% (Safari não gera WebP → JPEG 85%). Se o canvas travar ou
+/// falhar (raro: disputa de GPU com o CanvasKit em alguns aparelhos),
+/// sobe a foto original sem comprimir, desde que já venha num formato
+/// aceito pelo Storage (jpeg/png/webp).
 class BrowserProductImagePicker implements ProductImagePicker {
   static const maxSide = 1600;
   static const accept = 'image/jpeg,image/png,image/webp,image/heic,image/*';
@@ -95,16 +98,34 @@ class BrowserProductImagePicker implements ProductImagePicker {
       if (blob == null || blob.type != 'image/webp') {
         blob = await _toBlob(canvas, 'image/jpeg', 0.85);
       }
-      if (blob == null) return null;
+      if (blob == null) return _original(file);
       final buffer = await blob.arrayBuffer().toDart;
       return PickedImage(
         bytes: Uint8List.view(buffer.toDart),
         contentType: blob.type,
       );
     } on Object {
-      return null; // formato que o navegador não abre (ex.: HEIC no Chrome)
+      // O canvas pode travar de verdade em alguns aparelhos (disputa de
+      // GPU com o CanvasKit do Flutter) — sem compressão, sobe a foto
+      // original (se já vier num formato aceito pelo Storage).
+      return _original(file);
     } finally {
       web.URL.revokeObjectURL(objectUrl);
+    }
+  }
+
+  static const _allowedOriginal = {'image/jpeg', 'image/png', 'image/webp'};
+
+  Future<PickedImage?> _original(web.File file) async {
+    if (!_allowedOriginal.contains(file.type)) return null;
+    try {
+      final buffer = await file.arrayBuffer().toDart.timeout(_decodeTimeout);
+      return PickedImage(
+        bytes: Uint8List.view(buffer.toDart),
+        contentType: file.type,
+      );
+    } on Object {
+      return null;
     }
   }
 
