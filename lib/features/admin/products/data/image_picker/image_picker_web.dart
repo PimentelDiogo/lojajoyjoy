@@ -17,6 +17,10 @@ class BrowserProductImagePicker implements ProductImagePicker {
   static const maxSide = 1600;
   static const accept = 'image/jpeg,image/png,image/webp,image/heic,image/*';
 
+  // Alguns navegadores (Safari/WKWebView em formatos que não decodificam)
+  // nunca disparam load NEM error: sem isso a foto trava para sempre.
+  static const _decodeTimeout = Duration(seconds: 20);
+
   @override
   Future<({List<PickedImage> images, int skipped})> pick({
     required int max,
@@ -65,16 +69,17 @@ class BrowserProductImagePicker implements ProductImagePicker {
   }
 
   Future<PickedImage?> _compress(web.File file) async {
+    // createImageBitmap(File) trava no WKWebView (Safari iOS, Instagram,
+    // WhatsApp). blob: URL (em vez de data: URI via FileReader) é o que o
+    // Safari decodifica de forma confiável, inclusive fotos HEIC do iPhone.
+    final objectUrl = web.URL.createObjectURL(file);
     try {
-      // createImageBitmap(File) trava no WKWebView (Safari iOS, Instagram,
-      // WhatsApp). FileReader → HTMLImageElement funciona em todos os browsers.
-      final dataUrl = await _readAsDataUrl(file);
       final loaded = Completer<void>();
       final img = web.HTMLImageElement()
         ..onload = ((web.Event _) => loaded.complete()).toJS
         ..onerror = ((web.Event _) => loaded.completeError('load error')).toJS
-        ..src = dataUrl;
-      await loaded.future;
+        ..src = objectUrl;
+      await loaded.future.timeout(_decodeTimeout);
 
       final size = fitWithin(img.naturalWidth, img.naturalHeight, maxSide);
       final canvas = web.HTMLCanvasElement()
@@ -98,25 +103,9 @@ class BrowserProductImagePicker implements ProductImagePicker {
       );
     } on Object {
       return null; // formato que o navegador não abre (ex.: HEIC no Chrome)
+    } finally {
+      web.URL.revokeObjectURL(objectUrl);
     }
-  }
-
-  Future<String> _readAsDataUrl(web.File file) {
-    final completer = Completer<String>();
-    final reader = web.FileReader();
-    reader
-      ..addEventListener(
-        'load',
-        ((web.Event _) {
-          completer.complete((reader.result! as JSString).toDart);
-        }).toJS,
-      )
-      ..addEventListener(
-        'error',
-        ((web.Event _) => completer.completeError('FileReader error')).toJS,
-      )
-      ..readAsDataURL(file);
-    return completer.future;
   }
 
   Future<web.Blob?> _toBlob(
@@ -132,6 +121,6 @@ class BrowserProductImagePicker implements ProductImagePicker {
       type,
       quality.toJS,
     );
-    return completer.future;
+    return completer.future.timeout(_decodeTimeout);
   }
 }
