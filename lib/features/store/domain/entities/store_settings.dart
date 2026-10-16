@@ -10,6 +10,7 @@ class StoreSettings extends Equatable {
     required this.lowStockThreshold,
     this.announcement,
     this.closedMessage,
+    this.stockAuditEndsAt,
     this.instagramHandle,
     this.pickupAddress,
     this.paymentMethods = const [],
@@ -28,6 +29,10 @@ class StoreSettings extends Equatable {
   /// o checkout fica bloqueado.
   final bool isOpen;
   final String? closedMessage;
+
+  /// ADR-0014: horário previsto pra Ana terminar a auditoria de estoque.
+  /// Null = não está em auditoria (fechamento, se houver, é por outro motivo).
+  final DateTime? stockAuditEndsAt;
   final int lowStockThreshold;
 
   /// Perfil do Instagram sem @ (ex.: joyjoybrand_).
@@ -41,6 +46,10 @@ class StoreSettings extends Equatable {
 
   bool get hasAnnouncement => announcement?.trim().isNotEmpty ?? false;
 
+  /// ADR-0014: fechada especificamente por auditoria de estoque (tem prazo),
+  /// diferente de um fechamento comum (`closedMessage` livre).
+  bool get inStockAudit => !isOpen && stockAuditEndsAt != null;
+
   @override
   List<Object?> get props => [
     storeName,
@@ -49,6 +58,7 @@ class StoreSettings extends Equatable {
     announcement,
     isOpen,
     closedMessage,
+    stockAuditEndsAt,
     lowStockThreshold,
     instagramHandle,
     pickupAddress,

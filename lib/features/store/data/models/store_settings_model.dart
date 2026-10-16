@@ -8,6 +8,9 @@ abstract final class StoreSettingsModel {
     announcement: json['announcement'] as String?,
     isOpen: json['is_open'] as bool? ?? true,
     closedMessage: json['closed_message'] as String?,
+    stockAuditEndsAt: json['stock_audit_ends_at'] == null
+        ? null
+        : DateTime.parse(json['stock_audit_ends_at'] as String),
     lowStockThreshold: (json['low_stock_threshold'] as num?)?.toInt() ?? 2,
     instagramHandle: json['instagram_handle'] as String?,
     pickupAddress: json['pickup_address'] as String?,

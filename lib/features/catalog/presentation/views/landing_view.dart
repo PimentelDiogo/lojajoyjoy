@@ -32,6 +32,7 @@ class LandingView extends GetView<LandingController> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const StoreNotices(),
           ResponsiveBuilder(
             mobile: (_) => const Column(
               children: [

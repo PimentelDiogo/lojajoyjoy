@@ -40,7 +40,11 @@ class AdminShell extends StatefulWidget {
       Icons.checkroom_outlined,
       route: AppRoutes.adminProducts,
     ),
-    AdminMenuItem('Configurações', Icons.tune_outlined, soon: 'Em breve'),
+    AdminMenuItem(
+      'Configurações',
+      Icons.tune_outlined,
+      route: AppRoutes.adminSettings,
+    ),
   ];
 
   final int selected;

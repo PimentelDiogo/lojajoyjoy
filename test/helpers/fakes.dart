@@ -14,6 +14,7 @@ import 'package:joyjoy/features/admin/dashboard/domain/dashboard.dart';
 import 'package:joyjoy/features/admin/orders/domain/admin_orders.dart';
 import 'package:joyjoy/features/admin/products/domain/admin_products.dart';
 import 'package:joyjoy/features/admin/products/domain/entities/product_draft.dart';
+import 'package:joyjoy/features/admin/settings/domain/admin_settings.dart';
 import 'package:joyjoy/features/cart/data/datasources/cart_local_datasource.dart';
 import 'package:joyjoy/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:joyjoy/features/cart/domain/entities/cart.dart';
@@ -202,6 +203,54 @@ class FakeStoreRepository implements StoreRepository {
   @override
   Future<Result<StoreSettings>> getSettings() async =>
       settings == null ? const Failed(NetworkFailure()) : Success(settings!);
+}
+
+class FakeAdminSettingsRepository implements AdminSettingsRepository {
+  FakeAdminSettingsRepository([this.settings = fakeSettings]);
+
+  StoreSettings settings;
+  Failure? failure;
+  final List<int> startedWith = [];
+  int stopCalls = 0;
+
+  @override
+  Future<Result<StoreSettings>> startStockAudit(int minutes) async {
+    startedWith.add(minutes);
+    if (failure case final f?) return Failed(f);
+    settings = StoreSettings(
+      storeName: settings.storeName,
+      whatsappNumber: settings.whatsappNumber,
+      greetingMessage: settings.greetingMessage,
+      isOpen: false,
+      lowStockThreshold: settings.lowStockThreshold,
+      announcement: settings.announcement,
+      closedMessage: settings.closedMessage,
+      stockAuditEndsAt: DateTime.now().toUtc().add(Duration(minutes: minutes)),
+      instagramHandle: settings.instagramHandle,
+      pickupAddress: settings.pickupAddress,
+      paymentMethods: settings.paymentMethods,
+    );
+    return Success(settings);
+  }
+
+  @override
+  Future<Result<StoreSettings>> stopStockAudit() async {
+    stopCalls++;
+    if (failure case final f?) return Failed(f);
+    settings = StoreSettings(
+      storeName: settings.storeName,
+      whatsappNumber: settings.whatsappNumber,
+      greetingMessage: settings.greetingMessage,
+      isOpen: true,
+      lowStockThreshold: settings.lowStockThreshold,
+      announcement: settings.announcement,
+      closedMessage: settings.closedMessage,
+      instagramHandle: settings.instagramHandle,
+      pickupAddress: settings.pickupAddress,
+      paymentMethods: settings.paymentMethods,
+    );
+    return Success(settings);
+  }
 }
 
 class FakeLinkLauncher implements LinkLauncher {
@@ -632,6 +681,7 @@ class FakeImagePicker implements ProductImagePicker {
   FakeTrackingRepository tracking,
   FakeAuthRepository auth,
   FakeAdminProductRepository adminProducts,
+  FakeAdminSettingsRepository adminSettings,
   FakeImagePicker imagePicker,
 })
 registerAppFakes({
@@ -643,9 +693,11 @@ registerAppFakes({
   FakeAuthRepository? auth,
   FakeAdminProductRepository? adminProducts,
   FakeAdminOrderRepository? adminOrders,
+  FakeAdminSettingsRepository? adminSettings,
   Uri? url,
 }) {
   final adminProductRepo = adminProducts ?? FakeAdminProductRepository();
+  final adminSettingsRepo = adminSettings ?? FakeAdminSettingsRepository();
   final imagePicker = FakeImagePicker();
   final authRepo = auth ?? FakeAuthRepository();
   final orderRepo = orders ?? FakeOrderRepository();
@@ -686,6 +738,7 @@ registerAppFakes({
     )
     ..put<DashboardRepository>(FakeDashboardRepository(), permanent: true)
     ..put<AdminProductRepository>(adminProductRepo, permanent: true)
+    ..put<AdminSettingsRepository>(adminSettingsRepo, permanent: true)
     ..put<AdminOrderRepository>(
       adminOrders ?? FakeAdminOrderRepository(),
       permanent: true,
@@ -719,6 +772,7 @@ registerAppFakes({
     tracking: tracking,
     auth: authRepo,
     adminProducts: adminProductRepo,
+    adminSettings: adminSettingsRepo,
     imagePicker: imagePicker,
   );
 }

@@ -69,7 +69,7 @@ void main() {
     });
 
     testWidgets(
-      'recado da loja e aviso de loja fechada não aparecem na vitrine (landing nem catálogo)',
+      'recado da loja e aviso de loja fechada aparecem na home, não no catálogo',
       (tester) async {
         registerAppFakes(
           store: FakeStoreRepository(
@@ -86,13 +86,42 @@ void main() {
         );
         await pumpAt(tester, AppRoutes.landing);
 
-        expect(find.text('Voltamos na segunda!'), findsNothing);
-        expect(find.text('Entregas em Recife'), findsNothing);
+        expect(find.text('Voltamos na segunda!'), findsOneWidget);
+        expect(find.text('Entregas em Recife'), findsOneWidget);
 
         await pumpAt(tester, AppRoutes.feminino);
 
         expect(find.text('Voltamos na segunda!'), findsNothing);
         expect(find.text('Entregas em Recife'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'modo de auditoria de estoque mostra contagem regressiva na home',
+      (tester) async {
+        registerAppFakes(
+          store: FakeStoreRepository(
+            StoreSettings(
+              storeName: 'JOYJOY',
+              whatsappNumber: '5581986323686',
+              greetingMessage: 'Olá!',
+              isOpen: false,
+              lowStockThreshold: 2,
+              stockAuditEndsAt: DateTime.now().toUtc().add(
+                const Duration(minutes: 15, seconds: 30),
+              ),
+            ),
+          ),
+        );
+        // StoreNotices tem um Timer.periodic (contagem ao vivo): pumpAndSettle
+        // nunca settle com ele rodando, então usamos pump() em vez disso.
+        tester.setViewport(const Size(390, 844));
+        await tester.pumpWidget(const JoyJoyApp());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.textContaining('Atualizando o estoque'), findsOneWidget);
+        expect(find.textContaining('faltam 15min'), findsOneWidget);
       },
     );
 
