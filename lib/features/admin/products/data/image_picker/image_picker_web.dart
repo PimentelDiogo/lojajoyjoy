@@ -36,12 +36,16 @@ extension type _JSMessageEvent._(JSObject _) implements JSObject {
 ///
 /// Foto de celular (12 MP, ~4 MB) vira ~150–300 KB: lado maior 1600 px,
 /// WebP 82% (Safari não gera WebP → JPEG 85%). Se a worker falhar ou não
-/// responder, sobe a foto original sem comprimir (se já vier num formato
-/// aceito pelo Storage: jpeg/png/webp).
+/// responder — ex.: iPadOS < 16.4 não tem `OffscreenCanvas`, confirmado via
+/// Web Inspector (`ReferenceError: Can't find variable: OffscreenCanvas`) —
+/// sobe a foto original sem comprimir (se já vier num formato aceito pelo
+/// Storage: jpeg/png/webp). A worker responde rápido nesse caso (~500 ms),
+/// então o timeout é curto: não faz sentido fazer a Ana esperar 20 s por
+/// algo que sabemos que já falhou.
 class BrowserProductImagePicker implements ProductImagePicker {
   static const maxSide = 1600;
   static const accept = 'image/jpeg,image/png,image/webp,image/heic,image/*';
-  static const _timeout = Duration(seconds: 20);
+  static const _timeout = Duration(seconds: 8);
   static const _allowedOriginal = {'image/jpeg', 'image/png', 'image/webp'};
 
   @override
@@ -91,7 +95,14 @@ class BrowserProductImagePicker implements ProductImagePicker {
     return completer.future;
   }
 
+  /// iPadOS < 16.4 (e navegadores antigos) não têm `OffscreenCanvas`: nem
+  /// vale a pena criar a worker e esperar a mensagem ir e voltar — confirmado
+  /// via Web Inspector num iPad real (iPadOS 15.8.3).
+  bool get _supportsWorkerCompression =>
+      globalContext.hasProperty('OffscreenCanvas'.toJS).toDart;
+
   Future<PickedImage?> _compress(web.File file) async {
+    if (!_supportsWorkerCompression) return null;
     _JSWorker? worker;
     try {
       worker = _JSWorker('photo_worker.js');

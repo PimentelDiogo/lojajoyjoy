@@ -3,6 +3,12 @@
 // navegador em alguns iPhones ao processar a foto na thread principal.
 self.onmessage = async (event) => {
   const { file, maxSide } = event.data;
+  // iPadOS <16.4 (e navegadores sem OffscreenCanvas) não têm como comprimir
+  // aqui dentro — responde na hora em vez de deixar a Promise falhar.
+  if (typeof OffscreenCanvas === 'undefined' || typeof createImageBitmap === 'undefined') {
+    self.postMessage({ ok: false, error: 'OffscreenCanvas não suportado' });
+    return;
+  }
   try {
     const bitmap = await createImageBitmap(file);
     const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
