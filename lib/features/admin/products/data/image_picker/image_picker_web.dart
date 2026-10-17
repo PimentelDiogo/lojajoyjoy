@@ -71,7 +71,18 @@ class BrowserProductImagePicker implements ProductImagePicker {
     final input = web.HTMLInputElement()
       ..type = 'file'
       ..accept = accept
-      ..multiple = true;
+      ..multiple = true
+      // Some iOS browsers have been seen losing track of a detached
+      // <input> while the native picker sheet is open (2ª foto parava de
+      // responder). Mantém o elemento preso ao DOM, fora da tela, até o
+      // seletor nativo terminar.
+      ..style.position = 'fixed'
+      ..style.top = '-9999px'
+      ..style.left = '-9999px';
+    void cleanup() {
+      input.remove();
+    }
+
     input
       ..addEventListener(
         'change',
@@ -82,16 +93,19 @@ class BrowserProductImagePicker implements ProductImagePicker {
             final file = list!.item(i);
             if (file != null) files.add(file);
           }
+          cleanup();
           if (!completer.isCompleted) completer.complete(files);
         }).toJS,
       )
       ..addEventListener(
         'cancel',
         ((web.Event _) {
+          cleanup();
           if (!completer.isCompleted) completer.complete(const []);
         }).toJS,
-      )
-      ..click();
+      );
+    web.document.body!.append(input);
+    input.click();
     return completer.future;
   }
 
